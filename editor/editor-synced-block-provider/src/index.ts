@@ -4,11 +4,17 @@
 export { rebaseTransaction } from './common/rebase-transaction';
 export { SyncBlockError } from './common/types';
 export type {
+	ResourceId,
 	SyncBlockData,
 	SyncBlockNode,
 	SyncBlockProduct,
+	SyncBlockStatus,
 	BlockInstanceId,
 	SyncBlockAttrs,
+	ReferenceSyncBlockData,
+	ReferencesSourceInfo,
+	DeletionReason,
+	SyncBlockPrefetchData,
 } from './common/types';
 
 // hooks
@@ -29,12 +35,19 @@ export {
 	getConfluencePageAri,
 	getPageIdAndTypeFromConfluencePageAri,
 } from './clients/confluence/ari';
+export {
+	fetchMediaToken,
+	type TokenData,
+	type ConfigData,
+} from './clients/confluence/fetchMediaToken';
 export { getJiraWorkItemAri, getJiraWorkItemIdFromAri } from './clients/jira/ari';
 
 // providers
 export {
 	useMemoizedBlockServiceAPIProviders,
 	useMemoizedBlockServiceFetchOnlyAPIProvider,
+	fetchReferences,
+	batchFetchData,
 } from './providers/block-service/blockServiceAPI';
 export { fetchConfluencePageInfo } from './clients/confluence/sourceInfo';
 
@@ -45,15 +58,20 @@ export {
 export type {
 	ADFFetchProvider,
 	ADFWriteProvider,
+	BlockNodeIdentifiers,
+	BlockSubscriptionErrorCallback,
+	BlockUpdateCallback,
 	SyncBlockDataProvider,
 	SyncBlockInstance,
 	MediaEmojiProviderOptions,
 	SyncedBlockRendererProviderOptions,
 	SyncBlockRendererProviderCreator,
 	SyncedBlockRendererDataProviders,
+	Unsubscribe,
 	UpdateReferenceSyncBlockResult,
 	WriteSyncBlockResult,
 	SyncBlockParentInfo,
+	SyncBlockSourceInfo,
 } from './providers/types';
 
 // store managers
@@ -65,6 +83,7 @@ export {
 
 // utils
 export { resolveSyncBlockInstance } from './utils/resolveSyncBlockInstance';
+export { parseResourceId, createResourceIdForReference } from './utils/resourceId';
 export {
 	createSyncBlockNode,
 	convertSyncBlockPMNodeToSyncBlockData,
@@ -73,5 +92,4 @@ export {
 	getContentIdAndProductFromResourceId,
 } from './utils/utils';
 export { fetchErrorPayload } from './utils/errorHandling';
-
-export { fetchReferences } from './providers/block-service/blockServiceAPI';
+export { normaliseSyncBlockProduct, normaliseSyncBlockStatus } from './utils/validValue';

@@ -2,16 +2,18 @@ import { useCallback, useEffect } from 'react';
 
 import { type Action, createHook, createStore } from 'react-sweet-state';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
 import { fg } from '@atlaskit/platform-feature-flags';
-import { useAnalyticsEvents as useAnalyticsEventsNext } from '@atlaskit/teams-app-internal-analytics';
-import { teamsClient as externalTeamsClient } from '@atlaskit/teams-client';
+import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics';
+import { teamsClient } from '@atlaskit/teams-client';
+import type {
+	TeamContainers,
+	TeamWithMemberships,
+	UnlinkContainerMutationError,
+} from '@atlaskit/teams-client/types';
 
 import { type TeamContainer } from '../../../common/types';
-import { AnalyticsAction, usePeopleAndTeamAnalytics } from '../../../common/utils/analytics';
-import { teamsClient } from '../../../services';
-import type { UnlinkContainerMutationError } from '../../../services/agg-client/utils/mutations/unlink-container-mutation';
-import { type TeamContainers, type TeamWithMemberships } from '../../../services/types';
+
+import { useConnectedTeams as useConnectedTeamsMulti, useTeamContainers as useTeamContainersMulti } from './multi-team';
 
 type ConnectedTeams = {
 	containerId: string | undefined;
@@ -33,14 +35,6 @@ type State = {
 };
 
 type Actions = typeof actions;
-
-type FireAnalyticsProps = {
-	action: string;
-	actionSubject: string;
-	containerId: string;
-	numberOfTeams?: number;
-	error?: Error;
-};
 
 const initialConnectedTeamsState = {
 	containerId: undefined,
@@ -70,8 +64,7 @@ const actions = {
 	fetchTeamContainers:
 		(
 			teamId: string,
-			fireAnalytics: (action: string, actionSubject: string, error?: Error) => void,
-			fireAnalyticsNext: ReturnType<typeof useAnalyticsEventsNext>['fireEvent'],
+			fireAnalytics: ReturnType<typeof useAnalyticsEvents>['fireEvent'],
 		): Action<State> =>
 		async ({ setState, getState }) => {
 			const { teamId: currentTeamId } = getState();
@@ -80,70 +73,47 @@ const actions = {
 			}
 			setState({ loading: true, error: null, teamContainers: [], teamId, hasLoaded: false });
 			try {
-				const containers = await (fg('enable_teams_public_migration_using_teams-client')
-					? externalTeamsClient.getTeamContainers(teamId)
-					: teamsClient.getTeamContainers(teamId));
-				if (fg('ptc-enable-teams-public-analytics-refactor')) {
-					fireAnalyticsNext('operational.fetchTeamContainers.succeeded', {
-						teamId,
-					});
-				} else {
-					fireAnalytics(AnalyticsAction.SUCCEEDED, 'fetchTeamContainers');
-				}
+				const containers = await teamsClient.getTeamContainers(teamId);
+				fireAnalytics('operational.fetchTeamContainers.succeeded', {
+					teamId,
+				});
 				setState({ teamContainers: containers, loading: false, error: null, hasLoaded: true });
 			} catch (err) {
-				if (fg('ptc-enable-teams-public-analytics-refactor')) {
-					fireAnalyticsNext('operational.fetchTeamContainers.failed', {
-						teamId,
-						error: {
-							message: (err as Error).message || JSON.stringify(err),
-							stack: (err as Error).stack,
-						},
-					});
-				} else {
-					fireAnalytics(AnalyticsAction.FAILED, 'fetchTeamContainers', err as Error);
-				}
+				fireAnalytics('operational.fetchTeamContainers.failed', {
+					teamId,
+					error: {
+						message: (err as Error).message || JSON.stringify(err),
+						stack: (err as Error).stack,
+					},
+				});
 				setState({ teamContainers: [], error: err as Error, loading: false, hasLoaded: true });
 			}
 		},
 	refetchTeamContainers:
-		(
-			fireAnalytics: (action: string, actionSubject: string, error?: Error) => void,
-			fireAnalyticsNext: ReturnType<typeof useAnalyticsEventsNext>['fireEvent'],
-		): Action<State> =>
+		(fireAnalytics: ReturnType<typeof useAnalyticsEvents>['fireEvent']): Action<State> =>
 		async ({ setState, getState }) => {
 			const { teamId } = getState();
 			if (!teamId) {
 				return;
 			}
 			try {
-				const containers = await (fg('enable_teams_public_migration_using_teams-client')
-					? externalTeamsClient.getTeamContainers(teamId)
-					: teamsClient.getTeamContainers(teamId));
+				const containers = await teamsClient.getTeamContainers(teamId);
 
-				if (fg('ptc-enable-teams-public-analytics-refactor')) {
-					fireAnalyticsNext('operational.refetchTeamContainers.succeeded', {
-						teamId,
-					});
-				} else {
-					fireAnalytics(AnalyticsAction.SUCCEEDED, 'refetchTeamContainers');
-				}
+				fireAnalytics('operational.refetchTeamContainers.succeeded', {
+					teamId,
+				});
 				// optimisation to avoid unnecessary state updates
 				if (!containersEqual(containers, getState().teamContainers)) {
 					setState({ teamContainers: containers, loading: false, error: null, hasLoaded: true });
 				}
 			} catch (err) {
-				if (fg('ptc-enable-teams-public-analytics-refactor')) {
-					fireAnalyticsNext('operational.refetchTeamContainers.failed', {
-						teamId,
-						error: {
-							message: (err as Error).message || JSON.stringify(err),
-							stack: (err as Error).stack,
-						},
-					});
-				} else {
-					fireAnalytics(AnalyticsAction.FAILED, 'refetchTeamContainers', err as Error);
-				}
+				fireAnalytics('operational.refetchTeamContainers.failed', {
+					teamId,
+					error: {
+						message: (err as Error).message || JSON.stringify(err),
+						stack: (err as Error).stack,
+					},
+				});
 				setState({
 					teamContainers: getState().teamContainers,
 					error: err as Error,
@@ -155,8 +125,7 @@ const actions = {
 	fetchNumberOfConnectedTeams:
 		(
 			containerId: string,
-			fireAnalytics: (props: FireAnalyticsProps) => void,
-			fireAnalyticsNext: ReturnType<typeof useAnalyticsEventsNext>['fireEvent'],
+			fireAnalytics: ReturnType<typeof useAnalyticsEvents>['fireEvent'],
 		): Action<State> =>
 		async ({ setState, getState }) => {
 			const {
@@ -173,22 +142,11 @@ const actions = {
 				},
 			});
 			try {
-				const numberOfTeams = await (fg('enable_teams_public_migration_using_teams-client')
-					? externalTeamsClient.getNumberOfConnectedTeams(containerId)
-					: teamsClient.getNumberOfConnectedTeams(containerId));
-				if (fg('ptc-enable-teams-public-analytics-refactor')) {
-					fireAnalyticsNext('operational.fetchNumberOfConnectedTeams.succeeded', {
-						numberOfTeams,
-						containerId,
-					});
-				} else {
-					fireAnalytics({
-						action: AnalyticsAction.SUCCEEDED,
-						actionSubject: 'fetchNumberOfConnectedTeams',
-						containerId,
-						numberOfTeams,
-					});
-				}
+				const numberOfTeams = await teamsClient.getNumberOfConnectedTeams(containerId);
+				fireAnalytics('operational.fetchNumberOfConnectedTeams.succeeded', {
+					numberOfTeams,
+					containerId,
+				});
 				setState({
 					connectedTeams: {
 						...initialConnectedTeamsState,
@@ -197,24 +155,14 @@ const actions = {
 					},
 				});
 			} catch (e) {
-				if (fg('ptc-enable-teams-public-analytics-refactor')) {
-					fireAnalyticsNext('operational.fetchNumberOfConnectedTeams.failed', {
-						numberOfTeams: initialConnectedTeamsState.numberOfTeams || null,
-						containerId,
-						error: {
-							message: (e as Error).message || JSON.stringify(e),
-							stack: (e as Error).stack,
-						},
-					});
-				} else {
-					fireAnalytics({
-						action: AnalyticsAction.FAILED,
-						actionSubject: 'fetchNumberOfConnectedTeams',
-						containerId,
-						numberOfTeams: initialConnectedTeamsState.numberOfTeams,
-						error: e as Error,
-					});
-				}
+				fireAnalytics('operational.fetchNumberOfConnectedTeams.failed', {
+					numberOfTeams: initialConnectedTeamsState.numberOfTeams || null,
+					containerId,
+					error: {
+						message: (e as Error).message || JSON.stringify(e),
+						stack: (e as Error).stack,
+					},
+				});
 
 				setState({
 					connectedTeams: {
@@ -228,8 +176,7 @@ const actions = {
 	fetchConnectedTeams:
 		(
 			containerId: string,
-			fireAnalytics: (props: FireAnalyticsProps) => void,
-			fireAnalyticsNext: ReturnType<typeof useAnalyticsEventsNext>['fireEvent'],
+			fireAnalytics: ReturnType<typeof useAnalyticsEvents>['fireEvent'],
 		): Action<State> =>
 		async ({ setState, getState }) => {
 			const {
@@ -249,22 +196,11 @@ const actions = {
 				},
 			});
 			try {
-				const teams = await (fg('enable_teams_public_migration_using_teams-client')
-					? externalTeamsClient.getConnectedTeams(containerId)
-					: teamsClient.getConnectedTeams(containerId));
-				if (fg('ptc-enable-teams-public-analytics-refactor')) {
-					fireAnalyticsNext('operational.fetchConnectedTeams.succeeded', {
-						numberOfTeams: numberOfTeams || null,
-						containerId,
-					});
-				} else {
-					fireAnalytics({
-						action: AnalyticsAction.SUCCEEDED,
-						actionSubject: 'fetchConnectedTeams',
-						containerId,
-						numberOfTeams,
-					});
-				}
+				const teams = await teamsClient.getConnectedTeams(containerId);
+				fireAnalytics('operational.fetchConnectedTeams.succeeded', {
+					numberOfTeams: numberOfTeams || null,
+					containerId,
+				});
 				setState({
 					connectedTeams: {
 						containerId,
@@ -276,24 +212,14 @@ const actions = {
 					},
 				});
 			} catch (e) {
-				if (fg('ptc-enable-teams-public-analytics-refactor')) {
-					fireAnalyticsNext('operational.fetchConnectedTeams.failed', {
-						numberOfTeams: numberOfTeams || null,
-						containerId,
-						error: {
-							message: (e as Error).message || JSON.stringify(e),
-							stack: (e as Error).stack,
-						},
-					});
-				} else {
-					fireAnalytics({
-						action: AnalyticsAction.FAILED,
-						actionSubject: 'fetchConnectedTeams',
-						containerId,
-						numberOfTeams,
-						error: e as Error,
-					});
-				}
+				fireAnalytics('operational.fetchConnectedTeams.failed', {
+					numberOfTeams: numberOfTeams || null,
+					containerId,
+					error: {
+						message: (e as Error).message || JSON.stringify(e),
+						stack: (e as Error).stack,
+					},
+				});
 				setState({
 					connectedTeams: {
 						containerId,
@@ -311,9 +237,7 @@ const actions = {
 		async ({ setState, getState }) => {
 			setState({ unlinkError: null });
 			try {
-				const mutationResult = await (fg('enable_teams_public_migration_using_teams-client')
-					? externalTeamsClient.unlinkTeamContainer(teamId, containerId)
-					: teamsClient.unlinkTeamContainer(teamId, containerId));
+				const mutationResult = await teamsClient.unlinkTeamContainer(teamId, containerId);
 				if (mutationResult.deleteTeamConnectedToContainer.errors.length) {
 					// Just handle 1 error at a time should be suffcient as we disconenct only 1 container at a time
 					setState({
@@ -364,39 +288,24 @@ export const useTeamContainersHook = createHook(Store);
 
 export const useTeamContainers = (teamId: string, enable = true) => {
 	const [state, actions] = useTeamContainersHook();
-	const { fireOperationalEvent } = usePeopleAndTeamAnalytics();
-	const { createAnalyticsEvent } = useAnalyticsEvents();
-	const { fireEvent } = useAnalyticsEventsNext();
-
-	const fireOperationalAnalytics = useCallback(
-		(action: string, actionSubject: string, error?: Error) => {
-			fireOperationalEvent(createAnalyticsEvent, {
-				action: action,
-				actionSubject: actionSubject,
-				attributes: {
-					teamId,
-					...(error && {
-						error: {
-							message: error.message || JSON.stringify(error),
-							stack: error.stack,
-						},
-					}),
-				},
-			});
-		},
-		[fireOperationalEvent, createAnalyticsEvent, teamId],
-	);
+	const useMultiTeam = fg('enable_multi_team_containers_state');
+	const multiTeamResult = useTeamContainersMulti(teamId, useMultiTeam ? enable : false);
+	const { fireEvent } = useAnalyticsEvents();
 
 	useEffect(() => {
-		if (enable) {
-			actions.fetchTeamContainers(teamId, fireOperationalAnalytics, fireEvent);
+		if (enable && !useMultiTeam) {
+			actions.fetchTeamContainers(teamId, fireEvent);
 		}
-	}, [teamId, actions, enable, fireOperationalAnalytics, fireEvent]);
+	}, [teamId, actions, enable, fireEvent, useMultiTeam]);
 
 	const refetchTeamContainers = useCallback(
-		async () => actions.refetchTeamContainers(fireOperationalAnalytics, fireEvent),
-		[actions, fireOperationalAnalytics, fireEvent],
+		async (): Promise<void> => actions.refetchTeamContainers(fireEvent),
+		[actions, fireEvent],
 	);
+
+	if (useMultiTeam) {
+		return multiTeamResult;
+	}
 
 	return {
 		...state,
@@ -407,36 +316,22 @@ export const useTeamContainers = (teamId: string, enable = true) => {
 	};
 };
 
-export const useConnectedTeams = () => {
+export const useConnectedTeams = (teamId?: string) => {
 	const [state, actions] = useTeamContainersHook();
-	const { fireOperationalEvent } = usePeopleAndTeamAnalytics();
-	const { createAnalyticsEvent } = useAnalyticsEvents();
-	const { fireEvent } = useAnalyticsEventsNext();
-	const fireOperationalAnalytics = useCallback(
-		({ action, actionSubject, containerId, numberOfTeams, error }: FireAnalyticsProps) => {
-			fireOperationalEvent(createAnalyticsEvent, {
-				action: action,
-				actionSubject: actionSubject,
-				attributes: {
-					containerId,
-					numberOfTeams,
-					...(error && {
-						error: {
-							message: error.message || JSON.stringify(error),
-							stack: error.stack,
-						},
-					}),
-				},
-			});
-		},
-		[fireOperationalEvent, createAnalyticsEvent],
-	);
+	const useMultiTeam = fg('enable_multi_team_containers_state');
+	const multiTeamResult = useConnectedTeamsMulti(useMultiTeam ? (teamId || '') : '');
+
+	const { fireEvent } = useAnalyticsEvents();
+
+	if (useMultiTeam) {
+		return multiTeamResult;
+	}
 
 	return {
 		...state.connectedTeams,
 		fetchNumberOfConnectedTeams: (containerId: string) =>
-			actions.fetchNumberOfConnectedTeams(containerId, fireOperationalAnalytics, fireEvent),
+			actions.fetchNumberOfConnectedTeams(containerId, fireEvent),
 		fetchConnectedTeams: (containerId: string) =>
-			actions.fetchConnectedTeams(containerId, fireOperationalAnalytics, fireEvent),
+			actions.fetchConnectedTeams(containerId, fireEvent),
 	};
 };

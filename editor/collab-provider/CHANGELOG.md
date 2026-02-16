@@ -1,5 +1,121 @@
 # @atlaskit/collab-provider
 
+## 15.3.9
+
+### Patch Changes
+
+- [`ca2f133e4a6f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ca2f133e4a6f9) -
+  Adding sourceId query param to socketio connection
+- Updated dependencies
+
+## 15.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.0
+
+### Minor Changes
+
+- [`b2780992bdc66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b2780992bdc66) -
+  Send x-client-platform header when establishing socketio connection
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.0
+
+### Minor Changes
+
+- [`b855c9d819b09`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b855c9d819b09) -
+  Support sharded routing for collab edit socket connections
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.0
+
+### Minor Changes
+
+- [`7726e6522167d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7726e6522167d) -
+  Implemented a bypass for the grace period to allow reconnection when the catchup call is skipped
+  following a socket disconnect in the collab-provider.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- [`64f80db3e663a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64f80db3e663a) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 15.0.0
 
 ### Patch Changes

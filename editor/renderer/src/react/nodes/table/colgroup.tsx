@@ -253,11 +253,7 @@ const renderScaleDownColgroup = (
 			isNumberColumnEnabled: isNumberColumnEnabled,
 		});
 	}
-	if (
-		isNumberColumnEnabled &&
-		(tableWidth < maxTableWidth || maxTableWidth === 0) &&
-		expValEquals('editor_prevent_numbered_column_too_big_jira_1', 'isEnabled', true)
-	) {
+	if (isNumberColumnEnabled && (tableWidth < maxTableWidth || maxTableWidth === 0)) {
 		const fixedColWidths = targetWidths.map(
 			(width) =>
 				fixColumnWidth({ columnWidth: width, zeroWidthColumnsCount, scaleDownPercent }) ||
@@ -284,10 +280,7 @@ const renderScaleDownColgroup = (
 		});
 	}
 
-	/**
-	 * When cleaning up editor_prevent_numbered_column_too_big_jira_1 experiment,
-	 * resuse the fixedColWidths const to avoid code duplication.
-	 */
+
 	return targetWidths.map((colWidth) => {
 		const width =
 			fixColumnWidth({ columnWidth: colWidth, zeroWidthColumnsCount, scaleDownPercent }) ||
@@ -306,6 +299,13 @@ export const Colgroup = (props: SharedTableProps): React.JSX.Element | null => {
 		return null;
 	}
 
+	const isTableFixedColumnWidthsOptionEnabled =
+		(fg('platform_editor_table_fixed_column_width_prop')
+			? props.allowFixedColumnWidthOption
+			: flags &&
+				'tableWithFixedColumnWidthsOption' in flags &&
+				flags.tableWithFixedColumnWidthsOption) ?? false;
+
 	const colStyles = renderScaleDownColgroup({
 		...props,
 		isTopLevelRenderer,
@@ -320,11 +320,7 @@ export const Colgroup = (props: SharedTableProps): React.JSX.Element | null => {
 			(props.rendererAppearance === 'comment' &&
 				editorExperiment('support_table_in_comment_jira', true, { exposure: true })),
 		isTableFixedColumnWidthsOptionEnabled:
-			!!(
-				flags &&
-				'tableWithFixedColumnWidthsOption' in flags &&
-				flags.tableWithFixedColumnWidthsOption
-			) &&
+			isTableFixedColumnWidthsOptionEnabled &&
 			(props.rendererAppearance === 'full-page' ||
 				props.rendererAppearance === 'full-width' ||
 				(props.rendererAppearance === 'max' &&

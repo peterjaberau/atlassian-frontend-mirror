@@ -52,7 +52,7 @@ const selectMenuStyles = cssMap({
 	},
 });
 
-export default () => {
+const _default: () => JSX.Element = () => {
 	const [locale, setLocale] = React.useState('ja-JP');
 	const [weekStartDay, setWeekStartDay] = React.useState<DatePickerProps['weekStartDay']>(0);
 
@@ -105,7 +105,7 @@ export default () => {
 						{ label: 'Friday', value: 5 },
 						{ label: 'Saturday', value: 6 },
 					]}
-					placeholder="Choose start day of the week"
+					placeholder=""
 					onChange={handleWeekStartDayChange}
 				/>
 			</Box>
@@ -163,3 +163,4 @@ export default () => {
 		</Box>
 	);
 };
+export default _default;

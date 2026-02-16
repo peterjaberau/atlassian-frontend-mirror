@@ -21,8 +21,8 @@ export const resolveSyncBlockInstance = (
 	} else if (!newResult.data) {
 		// return the old result if there was an error, e.g. network error, but not if not found or forbidden
 		if (
-			newResult.error === SyncBlockError.NotFound ||
-			newResult.error === SyncBlockError.Forbidden
+			newResult.error?.type === SyncBlockError.NotFound ||
+			newResult.error?.type === SyncBlockError.Forbidden
 		) {
 			return newResult;
 		} else {
@@ -37,6 +37,8 @@ export const resolveSyncBlockInstance = (
 			...newResult.data,
 			sourceURL: newResult.data?.sourceURL || oldResult.data?.sourceURL || undefined,
 			sourceTitle: newResult.data?.sourceTitle || oldResult.data?.sourceTitle || undefined,
+			sourceSubType: newResult.data?.sourceSubType || oldResult.data?.sourceSubType || undefined,
+			onSameDocument: newResult.data?.onSameDocument || oldResult.data?.onSameDocument || undefined,
 		},
 	};
 };

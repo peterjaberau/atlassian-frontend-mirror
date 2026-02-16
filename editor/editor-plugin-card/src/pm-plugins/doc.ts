@@ -39,7 +39,6 @@ import type {
 	DatasourceAdfView,
 	InlineCardAdf,
 } from '@atlaskit/linking-common';
-import { fg } from '@atlaskit/platform-feature-flags';
 import { closeHistory } from '@atlaskit/prosemirror-history';
 import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
@@ -440,11 +439,7 @@ export const changeSelectedCardToLinkFallback =
 		}
 
 		if (dispatch) {
-			if (fg('platform_editor_ai_generic_prep_for_aifc')) {
-				dispatch(tr.setMeta('addToHistory', false));
-			} else {
-				dispatch(tr.scrollIntoView());
-			}
+			dispatch(tr.setMeta('addToHistory', false));
 		}
 
 		return true;
@@ -561,8 +556,12 @@ export const setSelectedCardAppearance: (
 		return false;
 	}
 
-	const attrs = editorExperiment('platform_synced_block', true) && fg('platform_synced_block_dogfooding')
-		? getAttrsForAppearance(appearance, selectedNode, state.selection.$from.parent.type.name === 'bodiedSyncBlock')
+	const attrs = editorExperiment('platform_synced_block', true)
+		? getAttrsForAppearance(
+				appearance,
+				selectedNode,
+				state.selection.$from.parent.type.name === 'bodiedSyncBlock',
+		  )
 		: getAttrsForAppearance(appearance, selectedNode);
 
 	const { from, to } = state.selection;
@@ -732,16 +731,20 @@ export const insertDatasource = (
 /**
  * Get attributes for new Card Appearance
  */
-export const getAttrsForAppearance = (appearance: CardAppearance, selectedNode: Node, isInsideBodiedSyncBlock: boolean = false) => {
+export const getAttrsForAppearance = (
+	appearance: CardAppearance,
+	selectedNode: Node,
+	isInsideBodiedSyncBlock: boolean = false,
+) => {
 	if (appearance === 'embed') {
 		return {
 			...selectedNode.attrs,
 			layout: 'center',
 			...(isInsideBodiedSyncBlock
-				// When converting to embed, width attribute is set to null and when the document is published, the width attribute is set to 100 as per schema default
-				// For editor, width is not required to render the embed card, but it's required in renderer
-				// Because sync block has nested renderer in editor, we need width to be defined even in editor so embed in reference sync block can be rendered properly
-				? { width: selectedNode.attrs.width ?? 100 }
+				? // When converting to embed, width attribute is set to null and when the document is published, the width attribute is set to 100 as per schema default
+				  // For editor, width is not required to render the embed card, but it's required in renderer
+				  // Because sync block has nested renderer in editor, we need width to be defined even in editor so embed in reference sync block can be rendered properly
+				  { width: selectedNode.attrs.width ?? 100 }
 				: {}),
 		};
 	}

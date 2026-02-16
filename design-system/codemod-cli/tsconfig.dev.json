@@ -32,10 +32,8 @@
 	],
 	"exclude": ["./dist/**/*", "./build/**/*", "./node_modules/**/*"],
 	"compilerOptions": {
-		"module": "commonjs",
 		"target": "es6",
 		"esModuleInterop": true,
-		"moduleResolution": "node",
 		"lib": [
 			"es5",
 			"scripthost",

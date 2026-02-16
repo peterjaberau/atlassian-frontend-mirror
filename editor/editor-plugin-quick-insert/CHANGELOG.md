@@ -1,5 +1,109 @@
 # @atlaskit/editor-plugin-quick-insert
 
+## 7.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.0
+
+### Minor Changes
+
+- [`85975c9735b52`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85975c9735b52) -
+  Add updateQuickInsertItem method to the quick-insert editor plugin
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.0
+
+### Minor Changes
+
+- [`761ce84c554a0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/761ce84c554a0) -
+  Adding removeQuickInsertItem method to the quick-insert editor plugin.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.5
+
+### Patch Changes
+
+- [`7bed98c6b4881`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7bed98c6b4881) -
+  ED-29747 Fix menu open experience tracking
+- Updated dependencies
+
+## 7.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.3
+
+### Patch Changes
+
+- [`81230b670d02c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/81230b670d02c) -
+  ED-29744 camel case experience attributes
+- Updated dependencies
+
+## 7.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.1.0
 
 ### Minor Changes

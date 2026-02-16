@@ -3,19 +3,19 @@ import React from 'react';
 import { bind } from 'bind-event-listener';
 
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
+import { calculateToolbarPositionTrackHead } from '@atlaskit/editor-common/utils';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import { findParentNodeOfType, findSelectedNodeOfType } from '@atlaskit/editor-prosemirror/utils';
 import type { RegisterComponent } from '@atlaskit/editor-toolbar-model';
 import { createComponentRegistry } from '@atlaskit/editor-toolbar-model';
-import { fg } from '@atlaskit/platform-feature-flags';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { getSelectionToolbarOpenExperiencePlugin } from './pm-plugins/experiences/selection-toolbar-open-experience';
 import { editorToolbarPluginKey } from './pm-plugins/plugin-key';
 import type { EditorToolbarPluginState, ToolbarPlugin } from './toolbarPluginType';
-import { DEFAULT_POPUP_SELECTORS } from './ui/consts';
-import { SelectionToolbar, SelectionToolbarWithErrorBoundary } from './ui/SelectionToolbar';
+import { DEFAULT_POPUP_SELECTORS, SELECTION_TOOLBAR_LABEL } from './ui/consts';
+import { SelectionToolbarWithErrorBoundary } from './ui/SelectionToolbar';
 import { getToolbarComponents } from './ui/toolbar-components';
 import { isEventInContainer } from './ui/utils/toolbar';
 
@@ -95,14 +95,15 @@ export const toolbarPlugin: ToolbarPlugin = ({
 
 	const registry = createComponentRegistry();
 
-	registry.register(
-		getToolbarComponents(
-			contextualFormattingEnabled,
-			api,
-			disableSelectionToolbar,
-			breakpointPreset,
-		),
-	);
+	registry.register(getToolbarComponents(contextualFormattingEnabled, api, breakpointPreset));
+
+	const cachedCalculateToolbarPosition = expValEquals(
+		'platform_editor_sel_toolbar_fix',
+		'isEnabled',
+		true,
+	)
+		? calculateToolbarPositionTrackHead(SELECTION_TOOLBAR_LABEL)
+		: undefined;
 
 	return {
 		name: 'toolbar',
@@ -125,7 +126,7 @@ export const toolbarPlugin: ToolbarPlugin = ({
 			},
 
 			getBreakpointPreset: () => {
-				return fg('platform_editor_toolbar_aifc_responsive_improve') ? breakpointPreset : undefined;
+				return breakpointPreset;
 			},
 		},
 
@@ -153,23 +154,21 @@ export const toolbarPlugin: ToolbarPlugin = ({
 									const meta = tr.getMeta(editorToolbarPluginKey);
 									let newPluginState = { ...pluginState };
 
-									if (expValEquals('platform_editor_toolbar_aifc_patch_5', 'isEnabled', true)) {
-										const shouldUpdateNode = tr.docChanged || tr.selectionSet;
+									const shouldUpdateNode = tr.docChanged || tr.selectionSet;
 
-										if (shouldUpdateNode) {
-											const newSelectedNode = getSelectedNode(newState);
-											const oldNode = pluginState.selectedNode;
+									if (shouldUpdateNode) {
+										const newSelectedNode = getSelectedNode(newState);
+										const oldNode = pluginState.selectedNode;
 
-											const hasNodeChanged =
-												!oldNode ||
-												!newSelectedNode ||
-												oldNode.nodeType !== newSelectedNode.nodeType ||
-												oldNode.pos !== newSelectedNode.pos ||
-												JSON.stringify(oldNode.marks) !== JSON.stringify(newSelectedNode.marks);
+										const hasNodeChanged =
+											!oldNode ||
+											!newSelectedNode ||
+											oldNode.nodeType !== newSelectedNode.nodeType ||
+											oldNode.pos !== newSelectedNode.pos ||
+											JSON.stringify(oldNode.marks) !== JSON.stringify(newSelectedNode.marks);
 
-											if (hasNodeChanged) {
-												newPluginState.selectedNode = newSelectedNode;
-											}
+										if (hasNodeChanged) {
+											newPluginState.selectedNode = newSelectedNode;
 										}
 									}
 
@@ -241,47 +240,37 @@ export const toolbarPlugin: ToolbarPlugin = ({
 					},
 				},
 				...(!disableSelectionToolbar &&
-				expValEquals('platform_editor_experience_tracking', 'isEnabled', true)
+					expValEquals('platform_editor_experience_tracking', 'isEnabled', true)
 					? [
-							{
-								name: 'selectionToolbarOpenExperience',
-								plugin: () =>
-									getSelectionToolbarOpenExperiencePlugin({
-										refs,
-										dispatchAnalyticsEvent: (payload) =>
-											api?.analytics?.actions?.fireAnalyticsEvent(payload),
-									}),
-							},
-						]
+						{
+							name: 'selectionToolbarOpenExperience',
+							plugin: () =>
+								getSelectionToolbarOpenExperiencePlugin({
+									refs,
+									dispatchAnalyticsEvent: (payload) =>
+										api?.analytics?.actions?.fireAnalyticsEvent(payload),
+								}),
+						},
+					]
 					: []),
 			];
 		},
 
 		contentComponent: !disableSelectionToolbar
 			? ({ editorView, popupsMountPoint }) => {
-					refs.popupsMountPoint = popupsMountPoint || undefined;
+				refs.popupsMountPoint = popupsMountPoint || undefined;
 
 					if (!editorView) {
 						return null;
 					}
 
-					if (fg('platform_editor_toolbar_aifc_patch_7')) {
-						return (
-							<SelectionToolbarWithErrorBoundary
-								api={api}
-								editorView={editorView}
-								mountPoint={popupsMountPoint}
-								disableSelectionToolbarWhenPinned={disableSelectionToolbarWhenPinned ?? false}
-							/>
-						);
-					}
-
 					return (
-						<SelectionToolbar
+						<SelectionToolbarWithErrorBoundary
 							api={api}
 							editorView={editorView}
 							mountPoint={popupsMountPoint}
 							disableSelectionToolbarWhenPinned={disableSelectionToolbarWhenPinned ?? false}
+							calculateToolbarPosition={cachedCalculateToolbarPosition}
 						/>
 					);
 				}

@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.products.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__teams-public/app",
@@ -25,6 +25,9 @@
 	"references": [
 		{
 			"path": "../../../analytics/analytics-next/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../uip/atlassian-context/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/avatar/afm-products/tsconfig.json"

@@ -1,5 +1,31 @@
 # @atlaskit/progress-bar
 
+## 4.1.5
+
+### Patch Changes
+
+- [`629119f34f212`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/629119f34f212) -
+  Updated border radius behind a feature gate.
+
+## 4.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.2
+
+### Patch Changes
+
+- [`6d0bd85ed7a2f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d0bd85ed7a2f) -
+  [ux] Removed redundant token fallbacks from styling of the progress bar
+
 ## 4.1.1
 
 ### Patch Changes

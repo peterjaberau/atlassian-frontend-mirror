@@ -1,5 +1,152 @@
 # @atlaskit/rovo-agent-components
 
+## 3.32.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.32.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.32.0
+
+### Minor Changes
+
+- [`32fb2d5d28925`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/32fb2d5d28925) -
+  Added 'Verify / Unverify agent' dropdown to rovo chat trigger
+
+## 3.31.0
+
+### Minor Changes
+
+- [`8f3aaeeed50ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f3aaeeed50ec) -
+  Change copy from 'Unverify agent' to 'Remove verification'
+
+## 3.30.0
+
+### Minor Changes
+
+- [`ab19c61b46546`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab19c61b46546) -
+  pass onVerificationSuccess to verification dropdown in browse agent to handle relay connection
+  update
+
+## 3.29.0
+
+### Minor Changes
+
+- [`de588876854b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/de588876854b6) -
+  Improved horizontal alignment of verified icon badge
+
+## 3.28.0
+
+### Minor Changes
+
+- [`8ca108f4ddc19`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8ca108f4ddc19) -
+  Improved alignment of verified icon badge
+- [`e93d0946c0929`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e93d0946c0929) -
+  Auto sort for export path for last remaining ai-mate packages. Part of de-barreling effort of
+  TREX-67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.27.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.27.0
+
+### Minor Changes
+
+- [`f308049ef65c0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f308049ef65c0) -
+  Removed `id` property from `AgentVerificationDropdownItemProps` and refactored usage. The ID
+  property now comes from graqhql fragment.
+
+## 3.26.0
+
+### Minor Changes
+
+- [`d0e843139fc33`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d0e843139fc33) -
+  [ux] use agent verification dropdown item for view agent in browse agent
+
+## 3.25.0
+
+### Minor Changes
+
+- [`7dcb34bc033ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7dcb34bc033ba) -
+  Created new component `AgentVerifiedIcon`
+
+## 3.24.0
+
+### Minor Changes
+
+- [`9d1c583109828`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9d1c583109828) -
+  Part of de-barreling TREX-67. Ran auto export subpath generation and sorting. Last 3 packages were
+  updated from afm ts generate
+
+## 3.23.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.23.0
+
+### Minor Changes
+
+- [`02eaa9533ad2e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02eaa9533ad2e) -
+  [ux] refactor agent verification dropdown item
+- [`a5540634bb261`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a5540634bb261) -
+  lift the fg check up in agent verfication component
+
+## 3.22.0
+
+### Minor Changes
+
+- [`04077f2897e0e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/04077f2897e0e) -
+  [ux] Changing the UI for the user identity profile card when the user is the Rovo Dev agent.
+  Change is feature gated.
+- [`b7e850efc9f82`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b7e850efc9f82) -
+  [ux] Rovo agents view profile - show verified icon
+
+## 3.21.0
+
+### Minor Changes
+
+- [`023f008de3d39`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/023f008de3d39) -
+  Added agent icon for rovo service agent
+
+## 3.20.0
+
+### Minor Changes
+
+- [`85b20848660df`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85b20848660df) -
+  [ux] Display agent verified icon
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.19.0
+
+### Minor Changes
+
+- [`61adbaa3e8ae1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/61adbaa3e8ae1) -
+  [ux] add agent verfication option in dropdown menu
+
+## 3.18.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 3.18.0
 
 ### Minor Changes

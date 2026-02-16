@@ -29,8 +29,8 @@ const getUserRecommendations = (
 			includeNonLicensedUsers: request.includeNonLicensedUsers,
 			maxNumberOfResults: request.maxNumberOfResults,
 			performSearchQueryOnly: false,
-			isVerifiedTeamFilter: request.verifiedTeams,
 			searchQuery: {
+				...(request.verifiedTeams === true && { isVerifiedTeamFilter: true }),
 				cpusQueryHighlights: {
 					query: '',
 					field: '',

@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.jira.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"declaration": true,
 		"target": "es5",
@@ -27,7 +27,7 @@
 			"path": "../../editor-prosemirror/afm-jira/tsconfig.json"
 		},
 		{
-			"path": "../../../measurement/feature-gate-js-client/afm-jira/tsconfig.json"
+			"path": "../../tmp-editor-statsig/afm-jira/tsconfig.json"
 		}
 	]
 }

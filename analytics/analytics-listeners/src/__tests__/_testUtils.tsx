@@ -22,7 +22,7 @@ export const createLoggerMock = (): Logger =>
 
 export const createAnalyticsContexts =
 	(contexts: any[]) =>
-	({ children }: { children: React.ReactNode }) =>
+	({ children }: { children: React.ReactNode }): any =>
 		contexts
 			.slice(0)
 			.reverse()
@@ -51,7 +51,10 @@ class DummyComponent extends React.Component<Props> {
 	}
 }
 
-export const createDummyComponentWithAnalytics = (channel?: string) =>
+export const createDummyComponentWithAnalytics = (channel?: string): React.ForwardRefExoticComponent<Omit<{
+    onClick: (e: React.SyntheticEvent) => void;
+    text?: string;
+}, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>> =>
 	withAnalyticsEvents({
 		onClick: createAndFireEvent(channel)({
 			action: 'someAction',

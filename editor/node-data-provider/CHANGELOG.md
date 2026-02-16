@@ -1,5 +1,31 @@
 # @atlaskit/node-data-provider
 
+## 8.3.0
+
+### Minor Changes
+
+- [`506d872ef2503`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/506d872ef2503) -
+  Add smartlink response caching to browser storage to reduce layoutshift on transition and page
+  load
+
+## 8.2.0
+
+### Minor Changes
+
+- [`c9e2a2b390abf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c9e2a2b390abf) -
+  Batch retrieve should batch retrieve block calls in renderer
+
+## 8.1.0
+
+### Minor Changes
+
+- [`cfea9d4edb5f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cfea9d4edb5f0) -
+  EDITOR-2849 refactor to use unify cache
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.0.0
 
 ### Patch Changes

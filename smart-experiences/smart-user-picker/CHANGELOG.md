@@ -1,5 +1,27 @@
 # @atlassian/smart-user-picker
 
+## 8.9.3
+
+### Patch Changes
+
+- [`fdfc2acd47acd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fdfc2acd47acd) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+
+## 8.9.2
+
+### Patch Changes
+
+- [`7f2e0e328e57e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f2e0e328e57e) -
+  Fixing a bug in the smart user picker that only returned non-verified teams when verifiedTeams was
+  set as false when it should be returning all teams
+
+## 8.9.1
+
+### Patch Changes
+
+- [`810af5e8434f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/810af5e8434f0) -
+  Fix isVerifiedTeamsFilter
+
 ## 8.9.0
 
 ### Minor Changes

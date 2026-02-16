@@ -30,6 +30,28 @@ describe('Lozenge', () => {
 			expect(lozenge).toHaveAttribute('class', expect.stringMatching(/^(_[a-z0-9]{8}\s?)+$/));
 		});
 
+		it('should render metric badge when provided', () => {
+			render(
+				<Lozenge testId="with-metric" appearance="success" trailingMetric="3">
+					Hello
+				</Lozenge>,
+			);
+
+			expect(screen.getByTestId('with-metric--metric')).toBeInTheDocument();
+			expect(screen.getByText('3')).toBeInTheDocument();
+		});
+
+		it('should support spacing prop', () => {
+			render(
+				<Lozenge testId="spacious" appearance="neutral" spacing="spacious">
+					Spacious
+				</Lozenge>,
+			);
+
+			const lozenge = screen.getByTestId('spacious');
+			expect(lozenge).toBeInTheDocument();
+		});
+
 		it('should render with semantic color', () => {
 			render(
 				<LozengeDropdownTrigger appearance="success" isSelected={false} onClick={__noop}>
@@ -211,6 +233,37 @@ describe('LozengeDropdownTrigger', () => {
 		fireEvent.click(trigger);
 
 		expect(handleClick).toHaveBeenCalledTimes(1);
+	});
+
+	it('should render a spinner and be non-interactive when loading', () => {
+		const handleClick = jest.fn();
+
+		render(
+			<LozengeDropdownTrigger
+				appearance="success"
+				isSelected={false}
+				isLoading
+				onClick={handleClick}
+				testId="loading-trigger"
+			>
+				Status
+			</LozengeDropdownTrigger>,
+		);
+
+		const trigger = screen.getByTestId('loading-trigger');
+		expect(trigger).toBeDisabled();
+		expect(trigger).toHaveAttribute('aria-busy', 'true');
+		expect(trigger).toHaveAttribute('aria-label', 'Loading');
+
+		// Text remains rendered (to avoid width changes)
+		expect(screen.getByText('Status')).toBeInTheDocument();
+
+		// Spinner is rendered in the overlay
+		expect(screen.getByTestId('loading-trigger--loading-spinner')).toBeInTheDocument();
+		expect(screen.getByTestId('loading-trigger--loading-spinner-wrapper')).toBeInTheDocument();
+
+		fireEvent.click(trigger);
+		expect(handleClick).not.toHaveBeenCalled();
 	});
 
 	it('should have selected state styling when isSelected is true', () => {

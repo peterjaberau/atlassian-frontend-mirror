@@ -6,7 +6,7 @@
  * This allows users to compose their themes and only use the tokens that are requested.
  * When a new theme is created, the import should automatically be added to the map
  *
- * @codegen <<SignedSource::9191189f78aa08332c0debbe868dc103>>
+ * @codegen <<SignedSource::c1144182e959da59d17686bccb9fac30>>
  * @codegenCommand yarn build tokens
  */
 
@@ -43,16 +43,6 @@ const themeImportsMap: Record<ThemeIds | ThemeOverrideIds, () => Promise<{ defau
       /* webpackChunkName: "@atlaskit-internal_atlassian-dark-increased-contrast" */
       './themes/atlassian-dark-increased-contrast'
     ),
-  'legacy-light': () =>
-    import(
-      /* webpackChunkName: "@atlaskit-internal_atlassian-legacy-light" */
-      './themes/atlassian-legacy-light'
-    ),
-  'legacy-dark': () =>
-    import(
-      /* webpackChunkName: "@atlaskit-internal_atlassian-legacy-dark" */
-      './themes/atlassian-legacy-dark'
-    ),
   'spacing': () =>
     import(
       /* webpackChunkName: "@atlaskit-internal_atlassian-spacing" */
@@ -63,25 +53,10 @@ const themeImportsMap: Record<ThemeIds | ThemeOverrideIds, () => Promise<{ defau
       /* webpackChunkName: "@atlaskit-internal_atlassian-typography" */
       './themes/atlassian-typography'
     ),
-  'typography-adg3': () =>
-    import(
-      /* webpackChunkName: "@atlaskit-internal_atlassian-typography-adg3" */
-      './themes/atlassian-typography-adg3'
-    ),
   'shape': () =>
     import(
       /* webpackChunkName: "@atlaskit-internal_atlassian-shape" */
       './themes/atlassian-shape'
-    ),
-  'typography-modernized': () =>
-    import(
-      /* webpackChunkName: "@atlaskit-internal_atlassian-typography-modernized" */
-      './themes/atlassian-typography-modernized'
-    ),
-  'typography-refreshed': () =>
-    import(
-      /* webpackChunkName: "@atlaskit-internal_atlassian-typography-refreshed" */
-      './themes/atlassian-typography-refreshed'
     ),
 };
 

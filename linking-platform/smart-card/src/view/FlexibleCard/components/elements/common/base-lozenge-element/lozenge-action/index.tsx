@@ -34,10 +34,12 @@ const validateItems = (items: LozengeItem[] = [], text?: string): LozengeItem[] 
 const LozengeAction = ({
 	action,
 	appearance,
+	maxWidth,
 	testId = 'smart-element-lozenge-action',
 	text,
 	zIndex,
 	onAfterChanged,
+	shouldRenderToParent = false,
 }: LozengeActionProps) => {
 	const [selected, setSelected] = useState<Partial<LozengeActionTriggerProps>>({
 		appearance,
@@ -110,11 +112,12 @@ const LozengeAction = ({
 				{...props}
 				appearance={selected.appearance}
 				isOpen={isOpen}
+				{...(fg('platform_navx_sl_lozenge_max_width') ? { maxWidth } : undefined)}
 				testId={testId}
 				text={selected.text}
 			/>
 		),
-		[selected.appearance, selected.text, isOpen, testId],
+		[selected.appearance, selected.text, isOpen, maxWidth, testId],
 	);
 
 	const handleItemClick = useCallback(
@@ -184,7 +187,7 @@ const LozengeAction = ({
 			testId={testId}
 			trigger={trigger}
 			zIndex={zIndex}
-			shouldRenderToParent
+			shouldRenderToParent={shouldRenderToParent}
 		>
 			{dropdownItemGroup}
 		</DropdownMenu>

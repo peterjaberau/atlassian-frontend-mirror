@@ -3,8 +3,6 @@ import React, { type PropsWithChildren, useEffect } from 'react';
 import { useAnalyticsEvents } from '@atlaskit/analytics-next';
 import { extractSmartLinkProvider } from '@atlaskit/link-extractors';
 import { fg } from '@atlaskit/platform-feature-flags';
-// TODO: Package Owner - please fix:
-// eslint-disable-next-line import/no-extraneous-dependencies
 import UFOHoldLoad from '@atlaskit/react-ufo/load-hold';
 
 import { SmartLinkStatus } from '../../constants';
@@ -189,6 +187,7 @@ export const InlineCard = ({
 					onClick={handleFrameClick}
 					testId={testIdWithStatus || 'inline-card-errored-view'}
 					truncateInline={truncateInline}
+					{...fg('navx-2565-inline-card-error-state-underline') ? { viewType: 'errored' } : {}}
 				/>
 			);
 	}

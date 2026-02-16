@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.jira.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"target": "es5",
 		"outDir": "../../../../../jira/tsDist/@atlaskit__rovo-agent-components/app",
@@ -39,6 +39,9 @@
 			"path": "../../../design-system/dropdown-menu/afm-jira/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/flag/afm-jira/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/heading/afm-jira/tsconfig.json"
 		},
 		{
@@ -55,6 +58,9 @@
 		},
 		{
 			"path": "../../../design-system/primitives/afm-jira/tsconfig.json"
+		},
+		{
+			"path": "../../rovo-agent-analytics/afm-jira/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/skeleton/afm-jira/tsconfig.json"

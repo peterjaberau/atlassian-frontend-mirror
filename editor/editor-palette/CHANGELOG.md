@@ -1,5 +1,25 @@
 # @atlaskit/editor-palette
 
+## 2.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.22
+
+### Patch Changes
+
+- [`25c388e0f807a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/25c388e0f807a) -
+  EDITOR-4684 Clean up platform_editor_add_orange_highlight_color experiment - orange highlight
+  color is now permanently enabled
+
+## 2.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 2.1.20
 
 ### Patch Changes

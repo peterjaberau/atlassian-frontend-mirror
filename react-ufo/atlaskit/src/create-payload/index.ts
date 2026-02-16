@@ -29,7 +29,13 @@ import {
 import { getExperimentalVCMetrics } from '../create-experimental-interaction-metrics-payload';
 import { getBm3Timings } from '../custom-timings';
 import { getGlobalErrorCount } from '../global-error-handler';
-import { getPageVisibilityState } from '../hidden-timing';
+import {
+	getEarliestHiddenTiming,
+	getHasHiddenTimingBeforeSetup,
+	getPageVisibilityState,
+	isOpenedInBackground,
+	isTabThrottled,
+} from '../hidden-timing';
 import * as initialPageLoadExtraTiming from '../initial-page-load-extra-timing';
 import type { LabelStack } from '../interaction-context';
 import { interactionSpans as atlaskitInteractionSpans } from '../interaction-metrics';
@@ -40,6 +46,7 @@ import { filterResourceTimings } from '../resource-timing/common/utils/resource-
 import { roundEpsilon } from '../round-number';
 import type { UFOSegmentType } from '../segment/segment';
 import * as ssr from '../ssr';
+import { getHasAbortingEventDuringSSR } from '../vc/vc-observer-new';
 
 import type { OptimizedLabelStack } from './common/types';
 import {
@@ -703,6 +710,31 @@ async function createInteractionMetricsPayload(
 						}
 					: {}),
 
+				...(fg('platform_ufo_browser_backgrounded_abort_timestamp')
+					? {
+							'ufo:pageVisibilityHiddenTimestamp': getEarliestHiddenTiming(
+								interaction.start,
+								interaction.end,
+							),
+						}
+					: {}),
+
+				'ufo:wasPageHiddenBeforeInit': getHasHiddenTimingBeforeSetup(),
+
+				'ufo:isOpenedInBackground': isOpenedInBackground(interaction.type),
+
+				...(fg('platform_ufo_is_tab_throttled')
+					? {
+							'ufo:isTabThrottled': isTabThrottled(start, end),
+						}
+					: {}),
+
+				...(fg('ufo_detect_aborting_interaction_during_ssr')
+					? {
+							'ufo:hasAbortingInteractionDuringSSR': getHasAbortingEventDuringSSR(),
+						}
+					: {}),
+
 				// root
 				...getBrowserMetadataToLegacyFormat(),
 				...batteryInfo,
@@ -795,37 +827,37 @@ async function createInteractionMetricsPayload(
 		payload.attributes.properties['event:sizeInKb'] = getPayloadSize(payload.attributes.properties);
 	}
 
-	if (fg('platform_ufo_enable_trimmed_payload')) {
-		// in order of importance, first one being least important
-		// we can add more fields as necessary
-		const interactionMetricsFieldsToTrim = ['requestInfo', 'featureFlags', 'resourceTimings'];
-		type TrimmableProperties = typeof payload.attributes.properties & {
-			interactionMetrics?: typeof payload.attributes.properties.interactionMetrics &
-				Record<string, unknown>;
-			'event:isTrimmed'?: boolean;
-			'event:trimmedFields'?: string[];
-		};
-		const properties = payload.attributes.properties as TrimmableProperties;
-		const interactionMetrics = properties.interactionMetrics as
-			| (typeof properties.interactionMetrics & Record<string, unknown>)
-			| undefined;
+	// in order of importance, first one being least important
+	// we can add more fields as necessary
+	const interactionMetricsFieldsToTrim = fg('ufo_remove_featureflags_from_trimmed_fields')
+		? ['requestInfo', 'resourceTimings']
+		: ['requestInfo', 'featureFlags', 'resourceTimings'];
+	type TrimmableProperties = typeof payload.attributes.properties & {
+		interactionMetrics?: typeof payload.attributes.properties.interactionMetrics &
+			Record<string, unknown>;
+		'event:isTrimmed'?: boolean;
+		'event:trimmedFields'?: string[];
+	};
+	const properties = payload.attributes.properties as TrimmableProperties;
+	const interactionMetrics = properties.interactionMetrics as
+		| (typeof properties.interactionMetrics & Record<string, unknown>)
+		| undefined;
 
-		if (interactionMetrics) {
-			for (const field of interactionMetricsFieldsToTrim) {
-				if (getPayloadSize(properties) <= MAX_PAYLOAD_SIZE) {
-					continue;
-				}
-
-				interactionMetrics[field] = undefined;
-				properties['event:isTrimmed'] = true;
-
-				let trimmedFields = properties['event:trimmedFields'];
-				if (!Array.isArray(trimmedFields)) {
-					trimmedFields = [];
-				}
-				trimmedFields.push(`interactionMetrics.${field}`);
-				properties['event:trimmedFields'] = trimmedFields;
+	if (interactionMetrics) {
+		for (const field of interactionMetricsFieldsToTrim) {
+			if (getPayloadSize(properties) <= MAX_PAYLOAD_SIZE) {
+				continue;
 			}
+
+			interactionMetrics[field] = undefined;
+			properties['event:isTrimmed'] = true;
+
+			let trimmedFields = properties['event:trimmedFields'];
+			if (!Array.isArray(trimmedFields)) {
+				trimmedFields = [];
+			}
+			trimmedFields.push(`interactionMetrics.${field}`);
+			properties['event:trimmedFields'] = trimmedFields;
 		}
 	}
 

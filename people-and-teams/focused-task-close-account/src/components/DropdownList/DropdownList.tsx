@@ -17,15 +17,15 @@ export class DropdownList extends React.Component<DropDownListProps, State> {
 		isExpanded: false,
 	};
 
-	showDropdownList = () => {
+	showDropdownList = (): void => {
 		this.setState({ isExpanded: true });
 	};
 
-	hideDropdownList = () => {
+	hideDropdownList = (): void => {
 		this.setState({ isExpanded: false });
 	};
 
-	getVisibleSites = () => {
+	getVisibleSites = (): string[] => {
 		return this.state.isExpanded
 			? this.props.accessibleSites
 			: this.props.accessibleSites.slice(0, COLLAPSED_LIST_SITE_COUNT);

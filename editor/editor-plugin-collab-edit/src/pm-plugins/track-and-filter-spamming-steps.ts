@@ -99,7 +99,7 @@ export const createFilterTransaction = (
 	recentTransactionsTimestamps: RecentTransactionTimestamps,
 	trackFilteredTransaction: TrackFilteredTransaction,
 ) => {
-	return (tr: Transaction) => {
+	return (tr: Transaction): boolean => {
 		if (Boolean(tr.getMeta('appendTransaction'))) {
 			return true;
 		}
@@ -156,7 +156,7 @@ export const createFilterTransaction = (
 };
 
 // Helper function to create a u ique transaction key
-export function generateTransactionKey(tr: Transaction) {
+export function generateTransactionKey(tr: Transaction): string {
 	const stepPositions = tr.steps.map((step) => {
 		if (
 			step instanceof RemoveNodeMarkStep ||

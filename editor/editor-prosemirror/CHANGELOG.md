@@ -1,5 +1,19 @@
 # @atlaskit/editor-prosemirror
 
+## 7.3.0
+
+### Minor Changes
+
+- [`3242cbd5e88b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3242cbd5e88b9) -
+  Update packages to match prosemirror library updates
+
+## 7.2.3
+
+### Patch Changes
+
+- [`fafd3de4c5880`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fafd3de4c5880) -
+  Update tests to account for version bump
+
 ## 7.2.2
 
 ### Patch Changes

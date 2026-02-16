@@ -31,6 +31,7 @@ import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-commo
 import { startMeasure, stopMeasure } from '@atlaskit/editor-common/performance-measures';
 import { getDistortedDurationMonitor } from '@atlaskit/editor-common/performance/measure-render';
 import { getResponseEndTime } from '@atlaskit/editor-common/performance/navigation';
+import { useScrollToBlock } from '../hooks/useScrollToBlock';
 import {
 	getAnalyticsAppearance,
 	getAnalyticsEventSeverity,
@@ -146,13 +147,13 @@ const handleMouseTripleClickInTables = (event: MouseEvent) => {
 
 	const elementToSelect: Element | null | undefined = anchorInCell
 		? // Ignored via go/ees005
-		  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		  anchorNode!.parentElement?.closest('div,p')
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+			anchorNode!.parentElement?.closest('div,p')
 		: focusInCell
-		? // Ignored via go/ees005
-		  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		  focusNode!.parentElement?.closest('div,p')
-		: tableCell;
+			? // Ignored via go/ees005
+				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+				focusNode!.parentElement?.closest('div,p')
+			: tableCell;
 	if (elementToSelect) {
 		selection.selectAllChildren(elementToSelect);
 	}
@@ -237,7 +238,7 @@ export const RendererFunctionalComponent = (
 		[props.dataProviders],
 	);
 
-	const { contentMode: parentContextContentMode } = useRendererContext();
+	const { contentMode: parentContextContentMode, nestedRendererType } = useRendererContext();
 
 	const createRendererContext = useMemo(
 		() =>
@@ -351,6 +352,8 @@ export const RendererFunctionalComponent = (
 				allowTableAlignment: props.UNSTABLE_allowTableAlignment,
 				allowTableResizing: props.UNSTABLE_allowTableResizing,
 				disableTableOverflowShadow: props.disableTableOverflowShadow,
+				allowFixedColumnWidthOption: props.allowFixedColumnWidthOption,
+				shouldDisplayExtensionAsInline: props.shouldDisplayExtensionAsInline,
 			};
 		},
 		[createRendererContext, providerFactory, fireAnalyticsEvent],
@@ -446,7 +449,7 @@ export const RendererFunctionalComponent = (
 										NORMAL_SEVERITY_THRESHOLD,
 									analyticsEventSeverityTracking?.severityDegradedThreshold ??
 										DEGRADED_SEVERITY_THRESHOLD,
-							  )
+								)
 							: undefined;
 
 					const isTTRTrackingExplicitlyDisabled = analyticsEventSeverityTracking?.enabled === false;
@@ -463,6 +466,11 @@ export const RendererFunctionalComponent = (
 								distortedDuration: renderedMeasurementDistortedDurationMonitor!.distortedDuration,
 								ttfb: getResponseEndTime(),
 								nodes: countNodes(props.document),
+								nestedRendererType:
+									editorExperiment('platform_synced_block', true) &&
+									fg('platform_synced_block_patch_1')
+										? nestedRendererType
+										: undefined,
 								severity,
 							},
 							eventType: EVENT_TYPE.OPERATIONAL,
@@ -551,6 +559,8 @@ export const RendererFunctionalComponent = (
 		[props.featureFlags, props.isTopLevelRenderer, createRendererContext, props.contentMode],
 	);
 
+	useScrollToBlock(editorRef, props.document);
+
 	try {
 		const schema = getSchema(props.schema, props.adfStage);
 		const { result, stat, pmDoc } = renderDocument(
@@ -569,6 +579,7 @@ export const RendererFunctionalComponent = (
 			props.skipValidation,
 			props.validationOverrides,
 		);
+
 		if (props.onComplete) {
 			props.onComplete(stat);
 		}
@@ -770,6 +781,7 @@ export type RendererWrapperProps = {
 	isTopLevelRenderer?: boolean;
 	onClick?: (event: React.MouseEvent) => void;
 	onMouseDown?: (event: React.MouseEvent) => void;
+	product?: string;
 	shouldRemoveEmptySpaceAroundContent?: boolean;
 	ssr?: MediaSSR;
 	useBlockRenderForCodeBlock: boolean;
@@ -849,37 +861,15 @@ const RendererWrapper = React.memo((props: RendererWrapperProps) => {
 					 * Telepointer changes will also cause a childList mutation, so we manually ignore it.
 					 * Telepointer changes are always a singular node-adds or node-removes.
 					 */
-					const isAdfStreamingEnabled =
-						fg('platform_editor_ai_adf_prompts_in_all_products') ||
-						expValEqualsNoExposure(
-							'platform_editor_ai_iw_adf_streaming',
-							'cohort',
-							'adf_gpt41mini',
-						) ||
-						expValEqualsNoExposure(
-							'platform_editor_ai_iw_adf_streaming',
-							'cohort',
-							'adf_gemini25flash',
-						) ||
-						expValEqualsNoExposure(
-							'platform_editor_ai_non_iw_adf_streaming',
-							'cohort',
-							'adf_gpt41mini',
-						) ||
-						expValEqualsNoExposure(
-							'platform_editor_ai_non_iw_adf_streaming',
-							'cohort',
-							'adf_gemini25flash',
-						);
 					if (
-						isAdfStreamingEnabled &&
 						mutation.type === 'childList' &&
 						!(
 							(mutation.addedNodes.length === 1 &&
 								(mutation.addedNodes[0] as Element)?.id === TELEPOINTER_ID) ||
 							(mutation.removedNodes.length === 1 &&
 								(mutation.removedNodes[0] as Element)?.id === TELEPOINTER_ID)
-						)
+						) &&
+						fg('platform_editor_ai_adf_prompts_in_all_products')
 					) {
 						const lastChild = renderer.lastChild;
 						if (lastChild) {

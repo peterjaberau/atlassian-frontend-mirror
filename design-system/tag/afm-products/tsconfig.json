@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.products.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"declaration": true,
 		"target": "es5",
@@ -43,6 +43,9 @@
 			"path": "../../link/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../lozenge/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../motion/afm-products/tsconfig.json"
 		},
 		{
@@ -50,6 +53,9 @@
 		},
 		{
 			"path": "../../primitives/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../people-and-teams/teams-avatar/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../tokens/afm-products/tsconfig.json"

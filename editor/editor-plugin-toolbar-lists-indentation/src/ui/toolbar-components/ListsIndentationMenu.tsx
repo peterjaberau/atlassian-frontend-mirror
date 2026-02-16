@@ -45,7 +45,21 @@ export const ListsIndentationMenu = ({
 		indentationState?.outdentDisabled &&
 		!taskListActive;
 
-	return expValEquals('platform_editor_toolbar_aifc_patch_6', 'isEnabled', true) ? (
+	if (expValEquals('platform_editor_hide_toolbar_tooltips_fix', 'isEnabled', true)) {
+		return (
+			<ToolbarDropdownMenu
+				iconBefore={<MoreItemsIcon label={formatMessage(messages.lists)} />}
+				isDisabled={allItemsDisabled}
+				testId="editor-toolbar__lists-and-indentation-menu"
+				label={formatMessage(messages.lists)}
+				tooltipComponent={<ToolbarTooltip content={formatMessage(messages.lists)}/>}
+			>
+				{children}
+			</ToolbarDropdownMenu>
+		);
+	}
+
+	return (
 		<ToolbarTooltip content={formatMessage(messages.lists)}>
 			<ToolbarDropdownMenu
 				iconBefore={<MoreItemsIcon label={formatMessage(messages.lists)} />}
@@ -56,14 +70,5 @@ export const ListsIndentationMenu = ({
 				{children}
 			</ToolbarDropdownMenu>
 		</ToolbarTooltip>
-	) : (
-		<ToolbarDropdownMenu
-			iconBefore={<MoreItemsIcon label={formatMessage(messages.lists)} />}
-			isDisabled={allItemsDisabled}
-			testId="editor-toolbar__lists-and-indentation-menu"
-			label={formatMessage(messages.lists)}
-		>
-			{children}
-		</ToolbarDropdownMenu>
 	);
 };

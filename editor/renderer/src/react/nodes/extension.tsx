@@ -12,10 +12,18 @@ import { type RendererContext, type ExtensionViewportSize } from '../types';
 import { type ExtensionLayout } from '@atlaskit/adf-schema';
 import ExtensionRenderer from '../../ui/ExtensionRenderer';
 
-import type { ExtensionHandlers } from '@atlaskit/editor-common/extensions';
+import type {
+	ExtensionHandlers,
+	ExtensionParams,
+	Parameters,
+} from '@atlaskit/editor-common/extensions';
 import { type ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import { overflowShadow, WidthConsumer } from '@atlaskit/editor-common/ui';
-import type { OverflowShadowProps } from '@atlaskit/editor-common/ui';
+import type {
+	OverflowShadowProps,
+	OverflowShadowState,
+	ShadowObserver,
+} from '@atlaskit/editor-common/ui';
 import { calcBreakoutWidth } from '@atlaskit/editor-common/utils';
 import { RendererCssClassName } from '../../consts';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
@@ -27,6 +35,7 @@ interface Props {
 	extensionKey: string;
 	extensionType: string;
 	extensionViewportSizes?: ExtensionViewportSize[];
+	isInsideOfInlineExtension?: boolean;
 	layout?: ExtensionLayout;
 	localId?: string;
 	marks?: PMMark[];
@@ -37,6 +46,7 @@ interface Props {
 	path?: PMNode[];
 	providers: ProviderFactory;
 	rendererContext: RendererContext;
+	shouldDisplayExtensionAsInline?: (extensionParams?: ExtensionParams<Parameters>) => boolean;
 	text?: string;
 }
 
@@ -94,6 +104,9 @@ export const renderExtension = (
 	extensionViewportSizes?: ExtensionViewportSize[],
 	nodeHeight?: string,
 	localId?: string,
+	shouldDisplayExtensionAsInline?: (extensionParams?: ExtensionParams<Parameters>) => boolean,
+	node?: ExtensionParams<Parameters>,
+	isInsideOfInlineExtension?: boolean,
 ): React.JSX.Element => {
 	const overflowContainerClass = !removeOverflow
 		? RendererCssClassName.EXTENSION_OVERFLOW_CONTAINER
@@ -113,18 +126,26 @@ export const renderExtension = (
 	 */
 	const viewportSize = getViewportSize(extensionId, extensionViewportSizes);
 	const extensionHeight = nodeHeight || viewportSize;
+	const isInline =
+		shouldDisplayExtensionAsInline?.(node) &&
+		expValEquals('platform_editor_render_bodied_extension_as_inline', 'isEnabled', true);
+	const inlineClassName = isInline ? RendererCssClassName.EXTENSION_AS_INLINE : '';
 
 	if (expValEquals('platform_editor_renderer_extension_width_fix', 'isEnabled', true)) {
 		return (
 			<div
 				ref={options.handleRef}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-				className={`${RendererCssClassName.EXTENSION} ${options.shadowClassNames} ${centerAlignClass}`}
+				className={`${RendererCssClassName.EXTENSION} ${inlineClassName} ${options.shadowClassNames} ${centerAlignClass}`}
 				style={{
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-					width: isTopLevel ? calcBreakoutWidthCss(layout as ExtensionLayout) : '100%',
+					width: isInline
+						? undefined
+						: isTopLevel
+							? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+								calcBreakoutWidthCss(layout as ExtensionLayout)
+							: '100%',
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-					minHeight: extensionHeight && `${extensionHeight}px`,
+					minHeight: isInline ? undefined : extensionHeight && `${extensionHeight}px`,
 				}}
 				data-layout={layout}
 				data-local-id={localId}
@@ -135,7 +156,14 @@ export const renderExtension = (
 					tabIndex={fg('platform_editor_dec_a11y_fixes') ? options.tabIndex : undefined}
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 					className={overflowContainerClass}
-					css={[fg('platform_fix_macro_renders_in_layouts') && containerStyle]}
+					css={[
+						!(
+							isInsideOfInlineExtension &&
+							expValEquals('confluence_inline_insert_excerpt_width_bugfix', 'isEnabled', true)
+						) &&
+							fg('platform_fix_macro_renders_in_layouts') &&
+							containerStyle,
+					]}
 				>
 					{content}
 				</div>
@@ -149,12 +177,12 @@ export const renderExtension = (
 				<div
 					ref={options.handleRef}
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-					className={`${RendererCssClassName.EXTENSION} ${options.shadowClassNames} ${centerAlignClass}`}
+					className={`${RendererCssClassName.EXTENSION} ${inlineClassName} ${options.shadowClassNames} ${centerAlignClass}`}
 					style={{
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-						width: isTopLevel ? calcBreakoutWidth(layout, width) : '100%',
+						width: isInline ? undefined : isTopLevel ? calcBreakoutWidth(layout, width) : '100%',
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-						minHeight: `${extensionHeight}px`,
+						minHeight: isInline ? undefined : `${extensionHeight}px`,
 					}}
 					data-layout={layout}
 					data-local-id={localId}
@@ -163,7 +191,14 @@ export const renderExtension = (
 						tabIndex={fg('platform_editor_dec_a11y_fixes') ? options.tabIndex : undefined}
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 						className={overflowContainerClass}
-						css={[fg('platform_fix_macro_renders_in_layouts') && containerStyle]}
+						css={[
+							!(
+								isInsideOfInlineExtension &&
+								expValEquals('confluence_inline_insert_excerpt_width_bugfix', 'isEnabled', true)
+							) &&
+								fg('platform_fix_macro_renders_in_layouts') &&
+								containerStyle,
+						]}
 					>
 						{content}
 					</div>
@@ -184,6 +219,7 @@ const Extension = (props: React.PropsWithChildren<Props & OverflowShadowProps>) 
 		parameters,
 		nodeHeight,
 		localId,
+		isInsideOfInlineExtension,
 	} = props;
 
 	return (
@@ -211,6 +247,9 @@ const Extension = (props: React.PropsWithChildren<Props & OverflowShadowProps>) 
 							extensionViewportSizes,
 							nodeHeight,
 							localId,
+							undefined,
+							undefined,
+							isInsideOfInlineExtension,
 						);
 					}
 					// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -233,12 +272,188 @@ const Extension = (props: React.PropsWithChildren<Props & OverflowShadowProps>) 
 					extensionViewportSizes,
 					nodeHeight,
 					localId,
+					undefined,
+					undefined,
+					isInsideOfInlineExtension,
 				);
 			}}
 		</ExtensionRenderer>
 	);
 };
 
-export default overflowShadow(Extension, {
+const _default_1: {
+	new (props: Props & OverflowShadowProps): {
+		calcOverflowDiff: () => number;
+		calcScrollableWidth: () => number;
+		componentDidCatch?: (error: Error, errorInfo: React.ErrorInfo) => void;
+		componentDidMount?: () => void;
+		componentDidUpdate: () => void;
+		componentWillMount?: () => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		componentWillReceiveProps?: (
+			nextProps: Readonly<Props & OverflowShadowProps>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			nextContext: any,
+		) => void;
+		componentWillUnmount: () => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		componentWillUpdate?: (
+			nextProps: Readonly<Props & OverflowShadowProps>,
+			nextState: Readonly<OverflowShadowState>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			nextContext: any,
+		) => void;
+		container?: HTMLElement;
+		context: unknown;
+		diff?: number;
+		forceUpdate: (callback?: (() => void) | undefined) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		getSnapshotBeforeUpdate?: (
+			prevProps: Readonly<Props & OverflowShadowProps>,
+			prevState: Readonly<OverflowShadowState>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		) => any;
+		handleContainer: (container: HTMLElement | null) => void;
+		handleScroll: (event: Event) => void;
+		initShadowObserver: () => void;
+		overflowContainer?: HTMLElement | null;
+		overflowContainerWidth: number;
+		readonly props: Readonly<Props & OverflowShadowProps>;
+		refs: {
+			[key: string]: React.ReactInstance;
+		};
+		render: () => React.JSX.Element;
+		scrollable?: NodeList;
+		setState: <K extends keyof OverflowShadowState>(
+			state:
+				| OverflowShadowState
+				| ((
+						prevState: Readonly<OverflowShadowState>,
+						props: Readonly<Props & OverflowShadowProps>,
+				  ) => OverflowShadowState | Pick<OverflowShadowState, K> | null)
+				| Pick<OverflowShadowState, K>
+				| null,
+			callback?: (() => void) | undefined,
+		) => void;
+		shadowObserver?: ShadowObserver;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		shouldComponentUpdate?: (
+			nextProps: Readonly<Props & OverflowShadowProps>,
+			nextState: Readonly<OverflowShadowState>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			nextContext: any,
+		) => boolean;
+		showLeftShadow: (overflowContainer: HTMLElement | null | undefined) => boolean;
+		state: {
+			showLeftShadow: boolean;
+			showRightShadow: boolean;
+		};
+		UNSAFE_componentWillMount?: () => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		UNSAFE_componentWillReceiveProps?: (
+			nextProps: Readonly<Props & OverflowShadowProps>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			nextContext: any,
+		) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		UNSAFE_componentWillUpdate?: (
+			nextProps: Readonly<Props & OverflowShadowProps>,
+			nextState: Readonly<OverflowShadowState>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			nextContext: any,
+		) => void;
+		updateShadows: () => void;
+	};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	new (
+		props: Props & OverflowShadowProps,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		context: any,
+	): {
+		calcOverflowDiff: () => number;
+		calcScrollableWidth: () => number;
+		componentDidCatch?: (error: Error, errorInfo: React.ErrorInfo) => void;
+		componentDidMount?: () => void;
+		componentDidUpdate: () => void;
+		componentWillMount?: () => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		componentWillReceiveProps?: (
+			nextProps: Readonly<Props & OverflowShadowProps>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			nextContext: any,
+		) => void;
+		componentWillUnmount: () => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		componentWillUpdate?: (
+			nextProps: Readonly<Props & OverflowShadowProps>,
+			nextState: Readonly<OverflowShadowState>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			nextContext: any,
+		) => void;
+		container?: HTMLElement;
+		context: unknown;
+		diff?: number;
+		forceUpdate: (callback?: (() => void) | undefined) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		getSnapshotBeforeUpdate?: (
+			prevProps: Readonly<Props & OverflowShadowProps>,
+			prevState: Readonly<OverflowShadowState>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		) => any;
+		handleContainer: (container: HTMLElement | null) => void;
+		handleScroll: (event: Event) => void;
+		initShadowObserver: () => void;
+		overflowContainer?: HTMLElement | null;
+		overflowContainerWidth: number;
+		readonly props: Readonly<Props & OverflowShadowProps>;
+		refs: {
+			[key: string]: React.ReactInstance;
+		};
+		render: () => React.JSX.Element;
+		scrollable?: NodeList;
+		setState: <K extends keyof OverflowShadowState>(
+			state:
+				| OverflowShadowState
+				| ((
+						prevState: Readonly<OverflowShadowState>,
+						props: Readonly<Props & OverflowShadowProps>,
+				  ) => OverflowShadowState | Pick<OverflowShadowState, K> | null)
+				| Pick<OverflowShadowState, K>
+				| null,
+			callback?: (() => void) | undefined,
+		) => void;
+		shadowObserver?: ShadowObserver;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		shouldComponentUpdate?: (
+			nextProps: Readonly<Props & OverflowShadowProps>,
+			nextState: Readonly<OverflowShadowState>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			nextContext: any,
+		) => boolean;
+		showLeftShadow: (overflowContainer: HTMLElement | null | undefined) => boolean;
+		state: {
+			showLeftShadow: boolean;
+			showRightShadow: boolean;
+		};
+		UNSAFE_componentWillMount?: () => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		UNSAFE_componentWillReceiveProps?: (
+			nextProps: Readonly<Props & OverflowShadowProps>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			nextContext: any,
+		) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		UNSAFE_componentWillUpdate?: (
+			nextProps: Readonly<Props & OverflowShadowProps>,
+			nextState: Readonly<OverflowShadowState>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			nextContext: any,
+		) => void;
+		updateShadows: () => void;
+	};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	contextType?: React.Context<any> | undefined;
+} = overflowShadow(Extension, {
 	overflowSelector: `.${RendererCssClassName.EXTENSION_OVERFLOW_CONTAINER}`,
 });
+export default _default_1;

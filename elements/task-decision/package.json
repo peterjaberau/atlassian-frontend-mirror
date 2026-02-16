@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/task-decision",
-	"version": "19.2.17",
+	"version": "19.2.22",
 	"description": "Tasks and decisions react components",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -64,6 +64,7 @@
 		"@atlaskit/elements-test-helpers": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
 		"@atlaskit/util-data-test": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"@types/url-search-params": "root:*",
@@ -84,6 +85,11 @@
 			"styling": [
 				"compiled"
 			]
+		}
+	},
+	"platform-feature-flags": {
+		"platform_editor_fix_missing_task_id": {
+			"type": "boolean"
 		}
 	}
 }

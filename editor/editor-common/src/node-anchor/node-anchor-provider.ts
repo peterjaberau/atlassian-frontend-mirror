@@ -7,6 +7,32 @@ import { isEmptyDocument } from '../utils';
 
 import { DynamicBitArray } from './dynamic-bit-array';
 
+/**
+ * Gets a numeric experiment param, returning undefined if the value is not a valid number.
+ * This guards against test overrides returning booleans or strings for numeric params.
+ */
+const getNumericExperimentParam = (
+	paramName: 'nodeCountThreshold' | 'docSizeThreshold',
+	fallbackValue: number,
+): number | undefined => {
+	const rawValue = expVal('cc_editor_limited_mode_expanded', paramName, fallbackValue);
+
+	if (typeof rawValue === 'number') {
+		return rawValue;
+	}
+
+	// Handle string values from test overrides
+	if (typeof rawValue === 'string') {
+		const parsed = parseInt(rawValue, 10);
+
+		if (!isNaN(parsed)) {
+			return parsed;
+		}
+	}
+
+	return undefined;
+};
+
 export class NodeAnchorProvider {
 	private cache = new WeakMap<object, string>();
 	private count = BigInt(0);
@@ -63,6 +89,21 @@ export class NodeAnchorProvider {
 		return this.cache.get(node);
 	}
 
+	public setIdForNode(node: PMNode, id: string): void {
+		// [FEATURE FLAG: platform_editor_fix_node_anchor_dom_cache]
+		// This method is part of the fix to prevent drag handle misalignment.
+		// To clean up: remove the feature flag check, keep the method body
+		if (!fg('platform_editor_fix_node_anchor_dom_cache')) {
+			return;
+		}
+
+		if (this.limitedMode) {
+			return;
+		}
+
+		this.cache.set(node, id);
+	}
+
 	// After set to limited mode, we clear the cache to free up memory
 	// and prevent further ids from being generated
 	// Once in limited mode, we won't exit it
@@ -76,30 +117,92 @@ export class NodeAnchorProvider {
 
 const nodeIdProviderMap = new WeakMap<EditorView, NodeAnchorProvider>();
 
-// This is duplicate from the limited mode plugin to avoid circular dependency
-// We can refactor this later to have a shared util package
-const isLimitedModeEnabled = (editorView: EditorView): boolean => {
-	const nodeSizeLimit = expVal('cc_editor_limited_mode', 'nodeSize', 100);
-	let limitedMode = false;
-	// some tests have nodeSizeLimit as boolean
-	if (typeof nodeSizeLimit === 'number') {
-		// duplicate logic from limited mode plugin to determine if we're in limited mode
-		// @ts-expect-error - true is not allowed as a default value
-		if (expVal('cc_editor_limited_mode_include_lcm', 'isEnabled', true)) {
-			let customDocSize = editorView.state.doc.nodeSize;
-			editorView.state.doc.descendants((node) => {
-				if (node.attrs?.extensionKey === 'legacy-content') {
-					customDocSize += node.attrs?.parameters?.adf?.length ?? 0;
-				}
-			});
+const LIMITED_MODE_NODE_SIZE_THRESHOLD = 40000;
 
-			limitedMode = customDocSize > nodeSizeLimit;
-		} else {
-			limitedMode = editorView.state.doc.nodeSize > nodeSizeLimit;
+/**
+ * Calculates custom document size including LCM ADF lengths (for non-expanded path).
+ * This function can be removed when cc_editor_limited_mode_expanded is cleaned up.
+ */
+const getCustomDocSize = (doc: PMNode): number => {
+	let lcmAdfLength = 0;
+
+	doc.descendants((node: PMNode) => {
+		if (node.attrs?.extensionKey === 'legacy-content') {
+			lcmAdfLength += node.attrs?.parameters?.adf?.length ?? 0;
 		}
-	}
+	});
 
-	return limitedMode;
+	return doc.nodeSize + lcmAdfLength;
+};
+
+/**
+ * Determines whether limited mode should be enabled.
+ * This logic mirrors the limited mode plugin implementation, but lives here to avoid a circular dependency.
+ * If it changes, update the matching logic in `editor-plugin-limited-mode/src/pm-plugins/main.ts`.
+ *
+ * Under the expanded gate, limited mode is activated when ANY of the following conditions are met:
+ * 1. Document size exceeds `docSizeThreshold` (if defined) - checked first as O(1)
+ * 2. Node count exceeds `nodeCountThreshold` (if defined)
+ * 3. Document contains a legacy-content macro (LCM) (if `includeLcmInThreshold` is true)
+ *
+ * Performance optimisations:
+ * - Doc size is checked first (O(1)) - if it exceeds threshold, we skip traversal entirely.
+ * - If `includeLcmInThreshold` is enabled and we find an LCM, we exit traversal early.
+ * - If neither node count nor LCM conditions are configured, we skip traversal entirely.
+ */
+const isLimitedModeEnabled = (editorView: EditorView): boolean => {
+	const doc = editorView.state.doc;
+
+	if (expVal('cc_editor_limited_mode_expanded', 'isEnabled', false)) {
+		const nodeCountThreshold = getNumericExperimentParam('nodeCountThreshold', 5000);
+		const docSizeThreshold = getNumericExperimentParam('docSizeThreshold', 30000);
+		const includeLcmInThreshold = Boolean(expVal('cc_editor_limited_mode_expanded', 'includeLcmInThreshold', false));
+
+		// Early exit: doc size exceeds threshold - O(1), no traversal needed
+		if (docSizeThreshold !== undefined && doc.nodeSize > docSizeThreshold) {
+			return true;
+		}
+
+		// Early exit: no traversal needed if neither condition is configured
+		const needNodeCount = nodeCountThreshold !== undefined;
+
+		if (!needNodeCount && !includeLcmInThreshold) {
+			return false;
+		}
+
+		// Single traversal for node count and/or LCM detection
+		let nodeCount = 0;
+		let hasLcm = false;
+
+		doc.descendants((node: PMNode) => {
+			nodeCount += 1;
+
+			if (node.attrs?.extensionKey === 'legacy-content') {
+				hasLcm = true;
+
+				// Early exit: LCM found and condition is enabled - no need to continue counting
+				if (includeLcmInThreshold) {
+					return false;
+				}
+			}
+		});
+
+		// LCM condition takes precedence (if we early exited traversal, this is why)
+		if (includeLcmInThreshold && hasLcm) {
+			return true;
+		}
+
+		// Check node count threshold
+		if (needNodeCount && nodeCount > nodeCountThreshold) {
+			return true;
+		}
+
+		return false;
+	} else {
+		const customDocSize = getCustomDocSize(doc);
+
+		return customDocSize > LIMITED_MODE_NODE_SIZE_THRESHOLD;
+	}
 };
 
 // Get the NodeIdProvider for a specific EditorView instance.
@@ -107,7 +210,7 @@ const isLimitedModeEnabled = (editorView: EditorView): boolean => {
 export const getNodeIdProvider: (editorView: EditorView) => NodeAnchorProvider = (editorView) => {
 	if (!nodeIdProviderMap.has(editorView)) {
 		if (fg('platform_editor_native_anchor_patch_2')) {
-			// if the limited mode flag is on, enable limited mode based on document size
+			// if the limited mode flag is on, enable limited mode based on the threshold
 			// only for the first time
 			const limitedMode = isLimitedModeEnabled(editorView);
 			const isEmptyDoc = isEmptyDocument(editorView.state.doc);

@@ -45,7 +45,6 @@
 		"@atlaskit/ssr": "workspace:^",
 		"@atlassian/ptc-test-utils": "workspace:^",
 		"@testing-library/react": "root:*",
-		"@testing-library/react-hooks": "root:*",
 		"@testing-library/user-event": "root:*",
 		"react-dom": "root:*"
 	},
@@ -88,7 +87,7 @@
 		}
 	},
 	"name": "@atlaskit/teams-app-internal-analytics",
-	"version": "1.23.1",
+	"version": "1.24.1",
 	"description": "A package used by the teams app and platform packages to handle people and teams analytics",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",

@@ -20,6 +20,7 @@ import GrowthAnalyticsListener from './growth/GrowthAnalyticsListener';
 import OmniChannelAnalyticsListener from './omni-channel/OmniChannelAnalyticsListener';
 import TownsquareHomeAnalyticsListener from './townsquareHome/TownsquareHomeAnalyticsListener';
 import RovoExtensionAnalyticsListener from './rovoExtension/RovoExtensionAnalyticsListener';
+import TeamworkGraphAnalyticsListener from './teamworkGraph/TeamworkGraphAnalyticsListener';
 
 export type Props = {
 	/** Children! */
@@ -49,6 +50,7 @@ const listenerMap = {
 	[FabricChannel.omniChannel]: OmniChannelAnalyticsListener,
 	[FabricChannel.townsquareHome]: TownsquareHomeAnalyticsListener,
 	[FabricChannel.rovoExtension]: RovoExtensionAnalyticsListener,
+	[FabricChannel.teamworkGraph]: TeamworkGraphAnalyticsListener,
 };
 
 class FabricAnalyticsListeners extends React.Component<Props> {
@@ -60,7 +62,7 @@ class FabricAnalyticsListeners extends React.Component<Props> {
 		this.logger = new Logger({ logLevel: props.logLevel });
 	}
 
-	render() {
+	render(): React.ReactNode {
 		const { client, children, logLevel, excludedChannels } = this.props;
 		if (typeof logLevel === 'number') {
 			this.logger.setLogLevel(logLevel);

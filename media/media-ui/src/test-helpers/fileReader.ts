@@ -1,8 +1,8 @@
 declare var global: any;
 
 class MockFileReader {
-	loadEvent = () => {};
-	errorEvent = (_: {}) => {};
+	loadEvent = (): void => {};
+	errorEvent = (_: {}): void => {};
 	result: string | null | ArrayBuffer;
 
 	constructor(result: string | null | ArrayBuffer = 'mockResult') {
@@ -52,6 +52,6 @@ const mockFileReaderWithError = () => {
 	return fileReader;
 };
 
-const unmockFileReader = () => FileReader.mockImplementation(() => new GlobalFileReader());
+const unmockFileReader = (): any => FileReader.mockImplementation(() => new GlobalFileReader());
 
 export { mockFileReader, mockFileReaderWithError, unmockFileReader, mockFileReaderError };

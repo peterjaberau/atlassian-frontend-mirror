@@ -24,6 +24,7 @@
 		"**/codemods/**/*.ts",
 		"**/codemods/**/*.tsx",
 		"./examples-helpers/**/*",
+		"./examples-helpers/**/*.json",
 		"./src/__fixtures__/**/*",
 		"./src/extractors/common/__mocks__/**/*",
 		"./src/utils/analytics/__mocks__/**/*",
@@ -85,9 +86,6 @@
 			"path": "../../design-system/dropdown-menu/tsconfig.app.json"
 		},
 		{
-			"path": "../../confluence/embedded-confluence-public/tsconfig.app.json"
-		},
-		{
 			"path": "../../measurement/feature-gate-js-client/tsconfig.app.json"
 		},
 		{
@@ -98,6 +96,9 @@
 		},
 		{
 			"path": "../../design-system/icon/tsconfig.app.json"
+		},
+		{
+			"path": "../../media/icon-file-type/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/inline-message/tsconfig.app.json"
@@ -155,6 +156,9 @@
 		},
 		{
 			"path": "../../design-system/range/tsconfig.app.json"
+		},
+		{
+			"path": "../../ai-mate/rovo-triggers/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/section-message/tsconfig.app.json"

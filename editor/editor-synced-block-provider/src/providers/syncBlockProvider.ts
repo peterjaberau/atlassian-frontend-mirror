@@ -2,13 +2,16 @@ import { useMemo } from 'react';
 
 import type { RendererSyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
 import type { JSONNode } from '@atlaskit/editor-json-transformer/types';
-import { fg } from '@atlaskit/platform-feature-flags';
 
+import { getProductFromSourceAri } from '../clients/block-service/ari';
 import { getPageIdAndTypeFromConfluencePageAri } from '../clients/confluence/ari';
 import { fetchConfluencePageInfo } from '../clients/confluence/sourceInfo';
+import { fetchJiraWorkItemInfo } from '../clients/jira/sourceInfo';
 import {
 	SyncBlockError,
 	type BlockInstanceId,
+	type DeletionReason,
+	type ReferenceSyncBlockData,
 	type ResourceId,
 	type SyncBlockAttrs,
 	type SyncBlockData,
@@ -20,11 +23,14 @@ import {
 	SyncBlockDataProvider,
 	type ADFFetchProvider,
 	type ADFWriteProvider,
+	type BlockSubscriptionErrorCallback,
+	type BlockUpdateCallback,
 	type DeleteSyncBlockResult,
 	type SyncBlockInstance,
 	type SyncBlockParentInfo,
 	type SyncBlockSourceInfo,
 	type SyncedBlockRendererProviderOptions,
+	type Unsubscribe,
 	type UpdateReferenceSyncBlockResult,
 	type WriteSyncBlockResult,
 } from './types';
@@ -71,7 +77,7 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 	 *
 	 * @returns The data key
 	 */
-	nodeDataKey(node: SyncBlockNode) {
+	nodeDataKey(node: SyncBlockNode): string {
 		return node.attrs.resourceId;
 	}
 
@@ -83,33 +89,29 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 	 * @returns Array of {resourceId?: string, error?: string}.
 	 */
 	async fetchNodesData(nodes: SyncBlockNode[]): Promise<SyncBlockInstance[]> {
-		const resourceIdSet = new Set<string>(nodes.map((node) => node.attrs.resourceId));
-		const resourceIds = [...resourceIdSet];
-		if (resourceIds.length === 0) {
+		const blockIdentifiers = nodes.map((node) => ({
+			resourceId: node.attrs.resourceId,
+			blockInstanceId: node.attrs.localId,
+		}));
+		if (blockIdentifiers.length === 0) {
 			return [];
 		}
 
-		if (fg('platform_synced_block_dogfooding')) {
-			try {
-				return await this.fetchProvider.batchFetchData(resourceIds);
-			} catch {
-				// If batch fetch fails, return error for all resourceIds
-				return resourceIds.map((resourceId) => ({
-					error: SyncBlockError.Errored,
-					resourceId,
-				}));
-			}
-		} else {
+		try {
+			return await this.fetchProvider.batchFetchData(blockIdentifiers);
+		} catch {
+			// If batch fetch fails, fall back to individual fetch behavior
+			// This allows loading states to be shown before errors, matching non-batch behavior
 			return Promise.allSettled(
-				resourceIds.map((resourceId) => {
-					return this.fetchProvider.fetchData(resourceId).then(
+				blockIdentifiers.map((blockIdentifier) => {
+					return this.fetchProvider.fetchData(blockIdentifier.resourceId).then(
 						(data) => {
 							return data;
 						},
 						() => {
 							return {
-								error: SyncBlockError.Errored,
-								resourceId,
+								error: { type: SyncBlockError.Errored },
+								resourceId: blockIdentifier.resourceId,
 							};
 						},
 					);
@@ -177,7 +179,10 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 	 *
 	 * @returns Array of {resourceId?: string, error?: string}.
 	 */
-	async deleteNodesData(resourceIds: ResourceId[]): Promise<Array<DeleteSyncBlockResult>> {
+	async deleteNodesData(
+		resourceIds: ResourceId[],
+		deletionReason: DeletionReason,
+	): Promise<Array<DeleteSyncBlockResult>> {
 		if (!this.writeProvider) {
 			return Promise.reject(new Error('Write provider not set'));
 		}
@@ -186,7 +191,7 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 				if (!this.writeProvider) {
 					return Promise.reject('Write provider not set');
 				}
-				return this.writeProvider.deleteData(resourceId);
+				return this.writeProvider.deleteData(resourceId, deletionReason);
 			}),
 		);
 		return results.map((result, index) => {
@@ -207,23 +212,56 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 	 *
 	 * @returns The source info
 	 */
-	fetchSyncBlockSourceInfo(
-		localId: BlockInstanceId,
-		sourceAri: string,
-		sourceProduct: SyncBlockProduct,
+	async fetchSyncBlockSourceInfo(
+		localId?: BlockInstanceId,
+		sourceAri?: string,
+		sourceProduct?: SyncBlockProduct,
 		fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void,
+		hasAccess: boolean = true,
+		urlType: 'view' | 'edit' = 'edit',
+		isUnpublished?: boolean,
 	): Promise<SyncBlockSourceInfo | undefined> {
-		if (!sourceAri || !sourceProduct) {
+		const ari = sourceAri ?? this.writeProvider?.parentAri;
+		const product = sourceProduct ?? getProductFromSourceAri(ari);
+
+		if (!ari || !product) {
 			return Promise.reject(new Error('Source ari or source product is undefined'));
 		}
 
-		switch (sourceProduct) {
-			case 'confluence-page':
-				return fetchConfluencePageInfo(sourceAri, localId, fireAnalyticsEvent);
+		switch (product) {
+			case 'confluence-page': {
+				const sourceInfo = await fetchConfluencePageInfo(
+					ari,
+					hasAccess,
+					urlType,
+					localId,
+					isUnpublished,
+				);
+
+				if (!sourceInfo) {
+					return Promise.resolve(undefined);
+				}
+				return {
+					...sourceInfo,
+					onSameDocument: this.writeProvider?.parentAri === ari,
+					productType: product,
+				};
+			}
 			case 'jira-work-item':
-				return Promise.reject(new Error('Jira work item source product not supported'));
+				const sourceInfo: SyncBlockSourceInfo | undefined = await fetchJiraWorkItemInfo(
+					ari,
+					hasAccess,
+				);
+				if (!sourceInfo) {
+					return Promise.resolve(undefined);
+				}
+				return {
+					...sourceInfo,
+					onSameDocument: this.writeProvider?.parentAri === ari,
+					productType: product,
+				};
 			default:
-				return Promise.reject(new Error(`${sourceProduct} source product not supported`));
+				return Promise.reject(new Error(`${product} source product not supported`));
 		}
 	}
 
@@ -287,6 +325,33 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 		}
 		return this.writeProvider.updateReferenceData(blocks, noContent);
 	}
+
+	fetchReferences(resourceId: string, isSource: boolean): Promise<ReferenceSyncBlockData> {
+		if (!this.fetchProvider) {
+			throw new Error('Fetch provider not set');
+		}
+		return this.fetchProvider.fetchReferences(
+			isSource ? this.generateResourceIdForReference(resourceId) : resourceId,
+		);
+	}
+
+	/**
+	 * Subscribes to real-time updates for a specific block.
+	 * @param resourceId - The resource ID of the block to subscribe to
+	 * @param onUpdate - Callback function invoked when the block is updated
+	 * @param onError - Optional callback function invoked on subscription errors
+	 * @returns Unsubscribe function to stop receiving updates, or undefined if not supported
+	 */
+	subscribeToBlockUpdates(
+		resourceId: string,
+		onUpdate: BlockUpdateCallback,
+		onError?: BlockSubscriptionErrorCallback,
+	): Unsubscribe | undefined {
+		if (this.fetchProvider.subscribeToBlockUpdates) {
+			return this.fetchProvider.subscribeToBlockUpdates(resourceId, onUpdate, onError);
+		}
+		return undefined;
+	}
 }
 
 type UseMemoizedSyncedBlockProviderProps = {
@@ -318,6 +383,7 @@ export const useMemoizedSyncedBlockProvider = ({
 	);
 
 	syncBlockProvider.setProviderOptions(providerOptions);
+
 	const ssrData = getSSRData ? getSSRData() : undefined;
 	if (ssrData) {
 		syncBlockProvider.setSSRData(ssrData);

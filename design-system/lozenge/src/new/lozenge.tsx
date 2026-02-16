@@ -5,7 +5,7 @@
 import { jsx } from '@atlaskit/css';
 
 import LozengeBase from './lozenge-base';
-import { type NewLozengeProps } from './types';
+import { type LozengeBaseProps, type NewLozengeProps } from './types';
 
 /**
  * __Lozenge__
@@ -16,26 +16,32 @@ import { type NewLozengeProps } from './types';
  * - [Code](https://atlassian.design/components/lozenge/code)
  * - [Usage](https://atlassian.design/components/lozenge/usage)
  */
-const Lozenge = ({
+const Lozenge: {
+    ({ appearance, spacing, maxWidth, style, testId, children, iconBefore, }: NewLozengeProps): JSX.Element;
+    displayName: string;
+} = ({
 	appearance = 'neutral',
+	spacing = 'default',
 	maxWidth = 200,
 	style,
 	testId,
 	children,
 	iconBefore,
+	trailingMetric,
+	trailingMetricAppearance,
 }: NewLozengeProps) => {
-	return (
-		<LozengeBase
-			appearance={appearance}
-			iconBefore={iconBefore}
-			maxWidth={maxWidth}
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-			style={style}
-			testId={testId}
-		>
-			{children}
-		</LozengeBase>
-	);
+	const baseProps: LozengeBaseProps = {
+		appearance,
+		spacing,
+		iconBefore,
+		trailingMetric,
+		trailingMetricAppearance,
+		maxWidth,
+		style,
+		testId,
+		children,
+	};
+	return <LozengeBase {...baseProps}>{children}</LozengeBase>;
 };
 
 Lozenge.displayName = 'Lozenge';

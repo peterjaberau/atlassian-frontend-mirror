@@ -1,5 +1,90 @@
 # @atlaskit/editor-plugin-selection
 
+## 7.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.7
+
+### Patch Changes
+
+- [`cbd94bd913e71`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cbd94bd913e71) -
+  [ux] EDITOR-4514 fix gap cursor positioning after paste by adding request animation frame to wait
+  for new content to be inserted into dom
+- Updated dependencies
+
+## 7.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.5
+
+### Patch Changes
+
+- [`c39074cee52e9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c39074cee52e9) -
+  [ux] [EDITOR-3095] platform_editor_fix_list_item_nav_bug_in_layout fg cleanup
+- Updated dependencies
+
+## 7.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.3
+
+### Patch Changes
+
+- [`5c3f8d87c2290`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c3f8d87c2290) -
+  Cleanup general AIFC bug fix feature gate
+- Updated dependencies
+
+## 7.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.0.1
 
 ### Patch Changes

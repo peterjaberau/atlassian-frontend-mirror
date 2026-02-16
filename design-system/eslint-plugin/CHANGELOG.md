@@ -1,5 +1,103 @@
 # @atlaskit/eslint-plugin-design-system
 
+## 13.40.0
+
+### Minor Changes
+
+- [`8c9a9c4333c8a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8c9a9c4333c8a) -
+  The `use-side-nav-items-package` lint rule has been updated to change the fix for barrel imports
+  to a suggestion.
+
+## 13.39.0
+
+### Minor Changes
+
+- [`4467a975004be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4467a975004be) -
+  Adds the rule `use-side-nav-items-package`, for assisting with the migration of side nav item
+  components to the package `@atlaskit/side-nav-items`.
+
+## 13.38.1
+
+### Patch Changes
+
+- [`414f1cb19fe79`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/414f1cb19fe79) -
+  Fix ensure-design-token-usage so Tag’s color prop is allowed when scope lookup fails by adding an
+  AST fallback for imports from @atlaskit/tag.
+
+## 13.38.0
+
+### Minor Changes
+
+- [`93ff2e6c56a27`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93ff2e6c56a27) -
+  The `ensure-design-token-usage` ESLint rule now allows `color` prop with string values (e.g.,
+  `"red"`, `"blue"`) on Tag components imported from `@atlaskit/tag` or its sub-entrypoints (e.g.,
+  `@atlaskit/tag/simple-tag`, `@atlaskit/tag/removable-tag`)
+
+## 13.37.0
+
+### Minor Changes
+
+- [`37d704adec380`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/37d704adec380) -
+  Adds the `ensure-avatar-tag-avatar-props` eslint rule which ensures that the `avatar` prop on
+  `AvatarTag` does not include controlled props (`size`, `borderColor`, `appearance`). These are
+  managed internally by `AvatarTag` based on the `type` prop.
+
+## 13.36.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.36.1
+
+### Patch Changes
+
+- [`3c3757717bc78`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c3757717bc78) -
+  Introduced a temporary feature to the `no-unsafe-design-token-usage` rule to allow token fallbacks
+  for tokens specified in `UNSAFE_ignoreTokens` even if `fallbackUsage` is set to 'none'. This
+  should not be used and exists only to aid migration. It will be removed in the near future.
+
+## 13.36.0
+
+### Minor Changes
+
+- [`3147ae92ea7bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3147ae92ea7bd) -
+  Updates lozenge-badge-tag-labelling-system-migration eslint rule to include the migration_fallback
+  prop so that teams can adopt the Tag API without triggering an immediate visual change.
+
+## 13.35.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.35.0
+
+### Minor Changes
+
+- [`0a325377cc8bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a325377cc8bf) -
+  `use-primitives-text` will autofix `<Text size="UNSAFE_small">` to `<Text size="small">`.
+
+## 13.34.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.34.0
+
+### Minor Changes
+
+- [`dd764a0fde24c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dd764a0fde24c) -
+  Add rule to enforce simple ADS forms.
+
+## 13.33.0
+
+### Minor Changes
+
+- [`dfd88c3eda55b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dfd88c3eda55b) -
+  Add rule to enforce simplified fields in form implementations.
+
 ## 13.32.0
 
 ### Minor Changes

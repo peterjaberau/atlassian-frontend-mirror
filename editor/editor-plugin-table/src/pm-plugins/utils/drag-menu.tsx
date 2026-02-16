@@ -11,9 +11,13 @@ import {
 	backspace,
 	deleteColumn,
 	deleteRow,
+	moveColumnLeftOld,
 	moveColumnLeft,
+	moveColumnRightOld,
 	moveColumnRight,
+	moveRowDownOld,
 	moveRowDown,
+	moveRowUpOld,
 	moveRowUp,
 	tooltip,
 } from '@atlaskit/editor-common/keymaps';
@@ -42,6 +46,8 @@ import TableRowDeleteIcon from '@atlaskit/icon/core/table-row-delete';
 import TableRowMoveDownIcon from '@atlaskit/icon/core/table-row-move-down';
 import TableRowMoveUpIcon from '@atlaskit/icon/core/table-row-move-up';
 import type { NewIconProps, IconProps } from '@atlaskit/icon/types';
+import { fg } from '@atlaskit/platform-feature-flags';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { DraggableData, DraggableType, PluginInjectionAPI, TableDirection } from '../../types';
 import { getClosestSelectionRect } from '../../ui/toolbar';
@@ -74,7 +80,7 @@ export const canMove = (
 	totalItemsOfSourceTypeCount: number,
 	selection: Selection,
 	selectionRect?: Rect,
-) => {
+): boolean => {
 	if (!selectionRect) {
 		return false;
 	}
@@ -161,6 +167,7 @@ export const getDragMenuConfig = (
 		ariaLiveElementAttributes?: AriaLiveElementAttributes,
 	) => void,
 	isCommentEditor = false,
+	isColumnSortingEnabled = true,
 ): DragMenuConfig[] => {
 	const { selection } = editorView.state;
 	const { getIntl } = getTablePluginState(editorView.state);
@@ -194,13 +201,23 @@ export const getDragMenuConfig = (
 						keymap: addColumnAfter,
 					},
 				];
+
+	const isNewKeymapExperiment = expValEquals(
+		'editor-a11y-fy26-keyboard-move-row-column',
+		'isEnabled',
+		true,
+	);
+
 	const moveOptions =
 		direction === 'row'
 			? [
 					{
 						label: 'up',
 						icon: () => <TableRowMoveUpIcon spacing={'spacious'} label={''} />,
-						keymap: moveRowUp,
+						keymap: isNewKeymapExperiment
+							? moveRowUp
+							: // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+								moveRowUpOld,
 						canMove: canMove('table-row', -1, tableMap?.height ?? 0, selection, selectionRect),
 						getOriginIndexes: getSelectedRowIndexes,
 						getTargetIndex: (selectionRect: Rect) => selectionRect.top - 1,
@@ -208,7 +225,10 @@ export const getDragMenuConfig = (
 					{
 						label: 'down',
 						icon: () => <TableRowMoveDownIcon spacing={'spacious'} label={''} />,
-						keymap: moveRowDown,
+						keymap: isNewKeymapExperiment
+							? moveRowDown
+							: // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+								moveRowDownOld,
 						canMove: canMove('table-row', 1, tableMap?.height ?? 0, selection, selectionRect),
 						getOriginIndexes: getSelectedRowIndexes,
 						getTargetIndex: (selectionRect: Rect) => selectionRect.bottom,
@@ -218,7 +238,10 @@ export const getDragMenuConfig = (
 					{
 						label: 'left',
 						icon: () => <TableColumnMoveLeftIcon spacing={'spacious'} label={''} />,
-						keymap: moveColumnLeft,
+						keymap: isNewKeymapExperiment
+							? moveColumnLeft
+							: // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+								moveColumnLeftOld,
 						canMove: canMove('table-column', -1, tableMap?.width ?? 0, selection, selectionRect),
 						getOriginIndexes: getSelectedColumnIndexes,
 						getTargetIndex: (selectionRect: Rect) => selectionRect.left - 1,
@@ -226,7 +249,10 @@ export const getDragMenuConfig = (
 					{
 						label: 'right',
 						icon: () => <TableColumnMoveRightIcon spacing={'spacious'} label={''} />,
-						keymap: moveColumnRight,
+						keymap: isNewKeymapExperiment
+							? moveColumnRight
+							: // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+								moveColumnRightOld,
 						canMove: canMove('table-column', 1, tableMap?.width ?? 0, selection, selectionRect),
 						getOriginIndexes: getSelectedColumnIndexes,
 						getTargetIndex: (selectionRect: Rect) => selectionRect.right,
@@ -369,7 +395,7 @@ export const getDragMenuConfig = (
 			title: `Move ${direction} ${label}`,
 			disabled: !canMove,
 			icon: icon,
-			onClick: (state: EditorState, dispatch?: CommandDispatch) => {
+			onClick: (_state: EditorState, _dispatch?: CommandDispatch) => {
 				if (canMove) {
 					requestAnimationFrame(() => {
 						moveSourceWithAnalytics(editorAnalyticsAPI, ariaNotifyPlugin, getIntl)(
@@ -392,7 +418,13 @@ export const getDragMenuConfig = (
 	];
 
 	const allConfigs = [...restConfigs];
-	allConfigs.unshift(...sortConfigs);
+
+	if (
+		(isColumnSortingEnabled && fg('platform_editor_enable_table_dnd')) ||
+		!fg('platform_editor_enable_table_dnd')
+	) {
+		allConfigs.unshift(...sortConfigs);
+	}
 
 	return allConfigs.filter(Boolean) as DragMenuConfig[];
 };

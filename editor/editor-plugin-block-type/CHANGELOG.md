@@ -1,5 +1,109 @@
 # @atlaskit/editor-plugin-block-type
 
+## 11.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.9
+
+### Patch Changes
+
+- [`0a4441336cdd0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a4441336cdd0) -
+  Add platform_editor_toolbar_aifc_use_editor_typography experiment, and use editor custom
+  typography tokens in dropdown menus
+- Updated dependencies
+
+## 11.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.5
+
+### Patch Changes
+
+- [`38dee2c85c456`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38dee2c85c456) -
+  [ux] [EDITOR-4486] render tooltips for ToolbarDropdownMenu using new TooltipComponent prop behind
+  platform_editor_hide_toolbar_tooltips_fix
+- Updated dependencies
+
+## 11.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.2
+
+### Patch Changes
+
+- [`3d0b3f8b4d802`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d0b3f8b4d802) -
+  Remove platform_editor_toolbar_aifc_responsive experiment
+- Updated dependencies
+
+## 11.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.0
+
+### Minor Changes
+
+- [`6e8029473620b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e8029473620b) -
+  [EDITOR-4496] clean up experiment platform_editor_toolbar_aifc_patch_3 and remove view-mode plugin
+  dependency from loom plugin
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 11.1.0
 
 ### Minor Changes

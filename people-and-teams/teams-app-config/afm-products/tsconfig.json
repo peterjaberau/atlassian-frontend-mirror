@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.products.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__teams-app-config/app",
@@ -25,9 +25,6 @@
 	"references": [
 		{
 			"path": "../../../uip/atlassian-context/afm-products/tsconfig.json"
-		},
-		{
-			"path": "../../../measurement/feature-gate-js-client/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"

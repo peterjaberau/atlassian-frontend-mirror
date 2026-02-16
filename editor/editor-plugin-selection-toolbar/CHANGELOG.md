@@ -1,5 +1,95 @@
 # @atlaskit/editor-plugin-selection-toolbar
 
+## 8.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- [`9041ec452a104`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9041ec452a104) -
+  [EDITOR-4515] clean up fg platform_editor_toolbar_aifc_patch_7
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`6e8029473620b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e8029473620b) -
+  [EDITOR-4496] clean up experiment platform_editor_toolbar_aifc_patch_3 and remove view-mode plugin
+  dependency from loom plugin
+
+### Patch Changes
+
+- [`7080196995b11`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7080196995b11) -
+  Cleaning up FG platform_editor_ai_generic_prep_for_aifc
+- Updated dependencies
+
+## 8.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- [`e1361a964ccd9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e1361a964ccd9) -
+  Clean up platform_editor_toolbar_aifc_placement_config feature flag
+- Updated dependencies
+
 ## 8.0.3
 
 ### Patch Changes

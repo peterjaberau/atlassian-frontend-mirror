@@ -1,5 +1,26 @@
 # @atlaskit/checkbox
 
+## 17.3.3
+
+### Patch Changes
+
+- [`bfa01f2ed5c65`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bfa01f2ed5c65) -
+  Internal only CSS refactor to eliminate nested CSS selectors (specifically sibling combinators
+  like & + svg) in favor of an atomic-friendly styling approach using CSS custom properties. This
+  change is behind the `platform-checkbox-atomic-styles` feature gate.
+
+## 17.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 17.3.0
 
 ### Minor Changes

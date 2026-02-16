@@ -112,16 +112,22 @@ snapshot(InlineCardTextWrap, {
 });
 snapshot(InlineCardError, {
 	description: 'inline card error view',
-	featureFlags: {},
+	featureFlags: {
+		'navx-2565-inline-card-error-state-underline': true
+	},
 });
 snapshot(InlineCardError, {
 	description: 'inline card error view renders correctly when hovering over url in errored view',
-	featureFlags: {},
+	featureFlags: {
+		'navx-2565-inline-card-error-state-underline': true,
+	},
 	states: [{ state: 'hovered', selector: { byTestId: 'inline-card-errored-view' } }],
 });
 snapshot(InlineCardErrorTruncate, {
 	description: 'inline card error view with truncation',
-	featureFlags: {},
+	featureFlags: {
+		'navx-2565-inline-card-error-state-underline': true,
+	},
 });
 snapshot(InlineCardForbidden, {
 	description: 'inline card forbidden view',
@@ -220,13 +226,6 @@ snapshot(InlineCardUnauthorised, {
 });
 
 snapshot(InlineCardUnauthorised, {
-	description: `inline card unauthorised view with experiment`,
-	featureFlags: {
-		platform_inline_smartcard_connect_button_exp: ['control', 'test1', 'test2'],
-	},
-});
-
-snapshot(InlineCardUnauthorised, {
 	description:
 		'inline card unauthorised view renders correctly when hovering over url in unauthorized view',
 	featureFlags: {},
@@ -243,23 +242,13 @@ snapshot(InlineCardUnauthorisedTruncate, {
 	featureFlags: {},
 });
 
-snapshot(InlineCardUnauthorisedTruncate, {
-	description: `inline card unauthorised view with truncation and experiment`,
-	featureFlags: {
-		platform_inline_smartcard_connect_button_exp: ['control', 'test1'],
-	},
-});
-
 snapshot(InlineCardUnauthorised, {
 	description: 'inline card unauthorised view renders correctly when hovering over connect account',
 	featureFlags: {},
 	states: [{ state: 'hovered', selector: { byTestId: 'button-connect-account' } }],
 });
 snapshot(InlineCardUnauthorisedNoAuth, {
-	description: `inline card unauthorised view with no auth`,
-	featureFlags: {
-		'navx-2479-sl-fix-inilne-card-show-connect-button': [true, false],
-	},
+	description: 'inline card unauthorised view with no auth',
 });
 
 snapshot(InlineCardFontSizeDefault, {

@@ -1,6 +1,6 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::27c9a3631c47b134bfb9da3e921e0601>>
+ * @codegen <<SignedSource::7c689115fea10ca7f4a4d36b687d0d4b>>
  * @codegenCommand yarn workspace @atlaskit/eslint-plugin-design-system codegen
  */
 import type { Linter } from 'eslint';
@@ -10,6 +10,7 @@ const rules: Linter.FlatConfig = {
 	plugins: {},
 	rules: {
 		'@atlaskit/design-system/consistent-css-prop-usage': 'error',
+		'@atlaskit/design-system/ensure-avatar-tag-avatar-props': 'error',
 		'@atlaskit/design-system/ensure-design-token-usage': 'error',
 		'@atlaskit/design-system/icon-label': 'warn',
 		'@atlaskit/design-system/no-banned-imports': 'error',
@@ -60,6 +61,9 @@ const rules: Linter.FlatConfig = {
 		'@atlaskit/design-system/use-popup-label': 'warn',
 		'@atlaskit/design-system/use-primitives-text': 'warn',
 		'@atlaskit/design-system/use-should-render-to-parent': 'warn',
+		'@atlaskit/design-system/use-side-nav-items-package': 'warn',
+		'@atlaskit/design-system/use-simple-field': 'warn',
+		'@atlaskit/design-system/use-simple-form': 'warn',
 		'@atlaskit/design-system/use-tag-group-label': 'warn',
 		'@atlaskit/design-system/use-tokens-typography': 'warn',
 		'@atlaskit/design-system/use-visually-hidden': 'error',

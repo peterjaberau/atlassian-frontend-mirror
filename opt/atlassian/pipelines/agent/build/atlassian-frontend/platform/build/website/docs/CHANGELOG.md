@@ -1,5 +1,37 @@
 # @atlaskit/docs
 
+## 11.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.2
+
+### Patch Changes
+
+- [`db16d1751c5ad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db16d1751c5ad) -
+  Internal changes to typography.
+
+## 11.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.0
+
+### Minor Changes
+
+- [`92073c29a77de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/92073c29a77de) -
+  Adds the ability to link to sections within docs, based on headings.
+
 ## 11.2.8
 
 ### Patch Changes

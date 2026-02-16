@@ -78,9 +78,6 @@
 			"path": "../linking-common/tsconfig.app.json"
 		},
 		{
-			"path": "../../design-system/onboarding/tsconfig.app.json"
-		},
-		{
 			"path": "../../platform/feature-flags/tsconfig.app.json"
 		},
 		{
@@ -102,7 +99,7 @@
 			"path": "../../data/ufo-external/tsconfig.app.json"
 		},
 		{
-			"path": "../../platform/feature-flags-test-utils/tsconfig.app.json"
+			"path": "../../accessibility/axe-integration/a11y-jest-testing/tsconfig.app.json"
 		},
 		{
 			"path": "../link-picker-atlassian-plugin/tsconfig.app.json"

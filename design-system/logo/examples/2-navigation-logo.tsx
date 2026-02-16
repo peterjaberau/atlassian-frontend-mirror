@@ -20,6 +20,7 @@ import {
 	BitbucketIcon,
 	CompassIcon,
 	ConfluenceIcon,
+	DxIcon,
 	FocusIcon,
 	GuardIcon,
 	JiraIcon,
@@ -44,6 +45,7 @@ const logoOptions = [
 	AlignIcon,
 	BitbucketIcon,
 	CompassIcon,
+	DxIcon,
 	ConfluenceIcon,
 	FocusIcon,
 	GuardIcon,
@@ -109,7 +111,7 @@ const Wrapper = (props: WrapperDivProps) => (
 	</Fragment>
 );
 
-export default () => (
+const _default: () => JSX.Element = () => (
 	<Fragment>
 		{logoOptions.map((Child, index) => (
 			<div
@@ -126,3 +128,4 @@ export default () => (
 		))}
 	</Fragment>
 );
+export default _default;

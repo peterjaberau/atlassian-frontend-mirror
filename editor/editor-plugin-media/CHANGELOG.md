@@ -1,5 +1,123 @@
 # @atlaskit/editor-plugin-media
 
+## 9.4.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.14
+
+### Patch Changes
+
+- [`d23c1256b236c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d23c1256b236c) -
+  Disabled image editing for gifs
+
+## 9.4.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.10
+
+### Patch Changes
+
+- [`5e2874bf0d495`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e2874bf0d495) -
+  Cleanup exp platform_editor_nested_media_selection_fix
+- Updated dependencies
+
+## 9.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.5
+
+### Patch Changes
+
+- [`23b8923f86fb9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/23b8923f86fb9) -
+  swap feature gate platform_editor_media_video_check_fix with
+  platform_editor_media_video_check_fix_new
+
+## 9.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.3
+
+### Patch Changes
+
+- [`0a9962a3aa24c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a9962a3aa24c) -
+  tidy up experiment platform_editor_resizer_styles_cleanup
+- Updated dependencies
+
+## 9.4.2
+
+### Patch Changes
+
+- [`688d81c54687e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/688d81c54687e) -
+  fix media client config undefined issue in media node
+- Updated dependencies
+
+## 9.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.0
+
+### Minor Changes
+
+- [`f552961081787`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f552961081787) -
+  Removed the editing button from the toolbar for external media Introduced cropping for image
+  editing
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.3.3
+
+### Patch Changes
+
+- [`0457795b04c62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0457795b04c62) -
+  EDITOR-4396 Media toolbar button doesn't when missing the mediaInsert Plugin
+
 ## 9.3.2
 
 ### Patch Changes

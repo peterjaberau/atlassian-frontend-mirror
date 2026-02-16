@@ -1,10 +1,68 @@
 import { defineMessages } from 'react-intl-next';
 
-export const defaultMessages = defineMessages({
+export const defaultMessages: {
+    ariaLabelCheckbox: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; cancel: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; errorFlagDescription: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; errorFlagTitle: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; export: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; exportButton: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; exportTermsDescription: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; exportTermsError: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; exportTermsTitle: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; modalDescription: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; modalDescription2: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; modalTitle: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; successFlagDescription: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    }; successFlagTitle: {
+        defaultMessage: string;
+        description: string;
+        id: string;
+    };
+} = defineMessages({
 	exportButton: {
 		id: 'organization.audit.log.export.button',
 		defaultMessage: 'Export log',
-		description: 'Button text for exporting audit logs',
+		description: 'Button text for exporting audit log',
 	},
 	modalTitle: {
 		id: 'organization.audit.log.export.modal.title',
@@ -30,7 +88,7 @@ export const defaultMessages = defineMessages({
 	exportTermsDescription: {
 		id: 'organization.audit.log.export.terms.description',
 		defaultMessage:
-			"I understand that if I share these audit logs with people that don't otherwise have access to them, any existing user permissions set in Atlassian Administration and other apps will no longer apply to them.",
+			"I understand that if I share this audit log data with people that don't otherwise have access to it, any existing user permissions set in Atlassian Administration and other apps will no longer apply to them.",
 		description: 'Terms and conditions description text',
 	},
 	exportTermsError: {
@@ -68,5 +126,10 @@ export const defaultMessages = defineMessages({
 		id: 'organization.audit.log.export.error.description',
 		defaultMessage: 'Try again later',
 		description: 'Error flag description when export fails',
+	},
+	ariaLabelCheckbox: {
+		id: 'organization.audit.log.export.modal.aria.label.checkbox',
+		defaultMessage: 'checkbox',
+		description: 'Aria label for checkbox',
 	},
 });

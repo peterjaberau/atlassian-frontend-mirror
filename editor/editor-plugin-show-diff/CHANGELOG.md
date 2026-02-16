@@ -1,5 +1,65 @@
 # @atlaskit/editor-plugin-show-diff
 
+## 4.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.7
+
+### Patch Changes
+
+- [`6911179854bdb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6911179854bdb) -
+  Remove diff highlighting if there are overlapping mark steps (ie. add and then remove)
+- Updated dependencies
+
+## 4.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.4
+
+### Patch Changes
+
+- [`bdd272290540a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bdd272290540a) -
+  Migrate platform_editor_jan_a11y_fixes flag to platform_editor_enghealth_a11y_jan_fixes
+  experiment.
+- Updated dependencies
+
+## 4.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.2
+
+### Patch Changes
+
+- [`917bb70243d23`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/917bb70243d23) -
+  [ux] [ENGHEALTH-43911] increase visual contrast for deleted text when viewing changes
+
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 4.0.0
 
 ### Patch Changes

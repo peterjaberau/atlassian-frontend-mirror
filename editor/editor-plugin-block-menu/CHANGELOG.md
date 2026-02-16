@@ -1,5 +1,192 @@
 # @atlaskit/editor-plugin-block-menu
 
+## 6.0.39
+
+### Patch Changes
+
+- [`febd89b7de294`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/febd89b7de294) -
+  Remove unused 'copy content' feature from block menu project
+- Updated dependencies
+
+## 6.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.34
+
+### Patch Changes
+
+- [`8cdbba82920a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8cdbba82920a6) -
+  [ux] Remove unsupported marks when transforming to text
+- [`9d0d19d5018ae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9d0d19d5018ae) -
+  Remove jsx literal strings in block menu fall back components
+- Updated dependencies
+
+## 6.0.33
+
+### Patch Changes
+
+- [`3b3aa281c8524`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b3aa281c8524) -
+  Editor 4149 Fix keyboard navigation inside turn into
+- Updated dependencies
+
+## 6.0.32
+
+### Patch Changes
+
+- [`9b8e6a65567af`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9b8e6a65567af) -
+  ENGHEALTH-48871: Add missing menu role to block menu.
+- Updated dependencies
+
+## 6.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.29
+
+### Patch Changes
+
+- [`7b1f3cc37e760`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b1f3cc37e760) -
+  Fire `element undid` event after undo transform
+- Updated dependencies
+
+## 6.0.28
+
+### Patch Changes
+
+- [`957d9e1880c62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/957d9e1880c62) -
+  EDITOR-3806 Block menu action experience tracking
+- Updated dependencies
+
+## 6.0.27
+
+### Patch Changes
+
+- [`4cafa94a73e1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4cafa94a73e1e) -
+  Add delete track event for block menu
+- Updated dependencies
+
+## 6.0.26
+
+### Patch Changes
+
+- [`e00b363b9fa30`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e00b363b9fa30) -
+  [ux] EDITOR-4481 Clean up platform_editor_toolbar_aifc_user_intent_fix
+- Updated dependencies
+
+## 6.0.25
+
+### Patch Changes
+
+- [`ba6391ff5fd6b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ba6391ff5fd6b) -
+  update block menu transformed analytics event
+- Updated dependencies
+
+## 6.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.23
+
+### Patch Changes
+
+- [`0d8216e610e34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0d8216e610e34) -
+  [ux] Add cmd-option-a shortcut for copylink to block from block menu
+- Updated dependencies
+
+## 6.0.22
+
+### Patch Changes
+
+- [`33f11753a7104`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/33f11753a7104) -
+  [ux] Added i18n for sections' titles in the Turn into menu.
+- Updated dependencies
+
+## 6.0.21
+
+### Patch Changes
+
+- [`b30d6077b3e91`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b30d6077b3e91) -
+  [ux] Suggested section should be hidden when total number to native transfroms is less than 7.
+- [`265980d7959cf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/265980d7959cf) -
+  [ux] recursive node decoration and 'selected danger' classname
+- Updated dependencies
+
+## 6.0.20
+
+### Patch Changes
+
+- [`edb1034803ecf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/edb1034803ecf) -
+  Fix undo/redo via keyboard when block menu is open
+- Updated dependencies
+
+## 6.0.19
+
+### Patch Changes
+
+- [`5a2e9d04ff4d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5a2e9d04ff4d5) -
+  [ux] Shows only available transforms in 'Suggested' section.
+
+## 6.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.17
+
+### Patch Changes
+
+- [`2d587fc62431a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2d587fc62431a) -
+  [ux] Fix block menu position on move / scroll moved selection back to same position if possible
+- Updated dependencies
+
+## 6.0.16
+
+### Patch Changes
+
+- [`0caee373bff2d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0caee373bff2d) -
+  Exported additional types to fix typescript portable annotation errors
+- Updated dependencies
+
+## 6.0.15
+
+### Patch Changes
+
+- [`2a1bf10d70beb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a1bf10d70beb) -
+  EDITOR-4293 Fix block menu selection highlight issues
+- Updated dependencies
+
 ## 6.0.14
 
 ### Patch Changes

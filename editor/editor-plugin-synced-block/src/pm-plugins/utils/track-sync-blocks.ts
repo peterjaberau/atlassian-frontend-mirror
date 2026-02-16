@@ -26,16 +26,18 @@ export const trackSyncBlocks = (
 	) as (ReplaceStep | ReplaceAroundStep)[];
 
 	// this is a quick check to see if any insertion/deletion of bodiedSyncBlock happened
-	const hasBodiedSyncBlockChanges = replaceSteps.some((step) => {
+	const hasBodiedSyncBlockChanges = replaceSteps.some((step, idx) => {
 		const { from, to } = step;
+
+		const docAtStep = tr.docs[idx];
 
 		let hasChange = false;
 		if (from !== to) {
 			step.getMap().forEach((oldStart, oldEnd) => {
 				if (oldStart !== oldEnd && !hasChange) {
-					const deletedSlice = state.doc.slice(
+					const deletedSlice = docAtStep.slice(
 						Math.max(0, oldStart),
-						Math.min(state.doc.content.size, oldEnd),
+						Math.min(docAtStep.content.size, oldEnd),
 					);
 
 					deletedSlice.content.forEach((node) => {
@@ -82,6 +84,7 @@ export const trackSyncBlocks = (
 				const syncBlockAttr = node.attrs as SyncBlockAttrs;
 				syncBlockMapNew[syncBlockAttr.localId] = {
 					attrs: syncBlockAttr,
+					node: node,
 					from: offset,
 					to: offset + node.nodeSize,
 				};
@@ -113,7 +116,7 @@ export const trackSyncBlocks = (
  *
  * @returns true if steps modifies children node within bodiedSyncBlock
  */
-export const hasEditInSyncBlock = (tr: Transaction, state: EditorState) => {
+export const hasEditInSyncBlock = (tr: Transaction, state: EditorState): boolean => {
 	const { bodiedSyncBlock } = state.schema.nodes;
 
 	for (const step of tr.steps) {

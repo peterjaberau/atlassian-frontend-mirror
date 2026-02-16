@@ -1,5 +1,167 @@
 # @atlaskit/editor-synced-block-renderer
 
+## 5.8.0
+
+### Minor Changes
+
+- [`617747c789f4e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/617747c789f4e) -
+  Use correct editorExperiment instead of expVal for evaluating platform_synced_block
+
+## 5.7.1
+
+### Patch Changes
+
+- [`764672ccc7992`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/764672ccc7992) -
+  EDITOR-4049 Add support for prefetching of synced blocks data to synced block provider.
+- Updated dependencies
+
+## 5.7.0
+
+### Minor Changes
+
+- [`7daf10b49fce7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7daf10b49fce7) -
+  Pass in event handlers to the sync block options
+
+## 5.6.7
+
+### Patch Changes
+
+- [`7ba3979b92b42`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ba3979b92b42) -
+  Remove platform_synced_block_dogfooding feature gate
+- Updated dependencies
+
+## 5.6.6
+
+### Patch Changes
+
+- [`b296c8dca4192`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b296c8dca4192) -
+  EDITOR-4991 add new value to renderer context to track nested renderer type, used in analytics
+  event to track what renderer we are in for synced blocks
+- Updated dependencies
+
+## 5.6.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.6.4
+
+### Patch Changes
+
+- [`faddbf566c913`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/faddbf566c913) -
+  [ux] Add error message in reference sync block when source is unpublished
+- Updated dependencies
+
+## 5.6.3
+
+### Patch Changes
+
+- [`f11ff647ea458`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f11ff647ea458) -
+  [ux] [EDITOR-4521] Implement source deleted reference UI, update block deleted/unsynced reference
+  UI to add delete button, unsynced label and source title/url
+- Updated dependencies
+
+## 5.6.2
+
+### Patch Changes
+
+- [`74c826b26352b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/74c826b26352b) -
+  [ux] EDITOR-4765 In SSR, if server returned error, we should render loading state instead of error
+  state
+- [`a372f642e42a5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a372f642e42a5) -
+  [ux] EDITOR-4716 Fix content shifting when tooltip is shown for tasks in Synced Block
+- Updated dependencies
+
+## 5.6.1
+
+### Patch Changes
+
+- [`28434cbe03f1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28434cbe03f1e) -
+  [ux] [EDITOR-2851]
+  - Implement unsync feature for source sync block
+  - Update deletion confirmation modal and reference block UI after source deletion
+
+- Updated dependencies
+
+## 5.6.0
+
+### Minor Changes
+
+- [`f998026c7a01a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f998026c7a01a) -
+  EDITOR-2849 fix editor SSR
+
+## 5.5.0
+
+### Minor Changes
+
+- [`10cc4958a1511`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/10cc4958a1511) -
+  EDITOR-2849 add media ssr options to renderer
+
+## 5.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.0
+
+### Minor Changes
+
+- [`870c3baec758b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/870c3baec758b) -
+  Enable consumers to use GraphQL subscription for fetching the block data when the block changes
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.2
+
+### Patch Changes
+
+- [`7f41011a1b0ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f41011a1b0ff) -
+  EDITOR-1665 update sync block experience events to use general experience ids, keep existing error
+  events and add success events
+- Updated dependencies
+
+## 5.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.0
+
+### Minor Changes
+
+- [`4490bcc4595c4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4490bcc4595c4) -
+  Render some smart links loading states in SSR to match Editor's renderer
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.1
+
+### Patch Changes
+
+- [`1f4c761b661e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f4c761b661e1) -
+  [ux] EDITOR-4174 wrap synced block and bodied sync block with sentry error boundaries
+- Updated dependencies
+
+## 5.2.0
+
+### Minor Changes
+
+- [`8100ae00326b4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8100ae00326b4) -
+  EDITOR-2850-add media ssr support for sync blocks
+
+### Patch Changes
+
+- [`fff45a651440a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fff45a651440a) -
+  EDITOR-1665 add experience tracking analytics for sync block save, fetch and delete
+- Updated dependencies
+
 ## 5.1.0
 
 ### Minor Changes

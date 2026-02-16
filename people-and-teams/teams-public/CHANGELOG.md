@@ -1,5 +1,88 @@
 # @atlaskit/teams-public
 
+## 0.69.1
+
+### Patch Changes
+
+- [`057762a8dac32`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/057762a8dac32) -
+  Remove prevent_parallel_team_web_links_fetch feature gate
+
+## 0.69.0
+
+### Minor Changes
+
+- [`2f0921abc9f22`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f0921abc9f22) -
+  Migrated requested containers analytics events to teams-app-internal-analytics package
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.68.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.68.0
+
+### Minor Changes
+
+- [`daa158d9edf95`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/daa158d9edf95) -
+  Updated team container properties icon sizing
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.67.2
+
+### Patch Changes
+
+- [`b747588709139`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b747588709139) -
+  [ux] Added i18n exports using the common i18n import pattern
+
+## 0.67.1
+
+### Patch Changes
+
+- [`5ebf0ce5b3f25`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5ebf0ce5b3f25) -
+  [ux] Fix for empty container height issues in New team profile right panel
+
+## 0.67.0
+
+### Minor Changes
+
+- [`06a4db25b0965`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/06a4db25b0965) -
+  Support multi team state management for teams and containers
+
+## 0.66.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.66.0
+
+### Minor Changes
+
+- [`f75df2b4b4bc6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f75df2b4b4bc6) -
+  Cleaned up feature gate related to the teams public internal analytics instrumentation
+
+## 0.65.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.65.4
+
+### Patch Changes
+
+- [`d0487f184cf07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d0487f184cf07) -
+  clean up enable_teams_public_migration_using_teams-client
+- Updated dependencies
+
 ## 0.65.3
 
 ### Patch Changes

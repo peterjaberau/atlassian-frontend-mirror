@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/teams-client",
-	"version": "4.30.0",
+	"version": "4.30.1",
 	"description": "A client to retrieve team related data",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -45,7 +45,6 @@
 	},
 	"dependencies": {
 		"@atlaskit/atlassian-context": "workspace:^",
-		"@atlaskit/feature-gate-js-client": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/ufo": "workspace:^",
 		"@babel/runtime": "root:*",
@@ -60,10 +59,10 @@
 		"react": "^18.2.0"
 	},
 	"devDependencies": {
+		"@atlaskit/feature-gate-js-client": "workspace:^",
 		"@atlassian/codegen": "workspace:^",
 		"@atlassian/ptc-test-utils": "workspace:^",
 		"@testing-library/react": "root:*",
-		"@testing-library/react-hooks": "root:*",
 		"@types/faker": "root:*",
 		"react-dom": "root:*",
 		"swagger-typescript-api": "root:*",
@@ -106,6 +105,9 @@
 	},
 	"platform-feature-flags": {
 		"enable_edit_team_name_external_type_teams": {
+			"type": "boolean"
+		},
+		"new_team_profile_fedramp": {
 			"type": "boolean"
 		}
 	}

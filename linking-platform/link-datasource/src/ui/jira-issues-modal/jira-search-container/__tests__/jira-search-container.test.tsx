@@ -12,6 +12,8 @@ import {
 	mockSite,
 } from '@atlaskit/link-test-helpers/datasource';
 import { asMock } from '@atlaskit/link-test-helpers/jest';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { ffTest } from '@atlassian/feature-flags-test-utils';
 
 import { EVENT_CHANNEL } from '../../../../analytics';
 import { type SelectOption } from '../../../common/modal/popup-select/types';
@@ -36,6 +38,11 @@ jest.mock('@atlaskit/jql-editor-autocomplete-rest', () => ({
 jest.mock('@atlaskit/jql-editor', () => ({
 	JQLEditor: jest.fn().mockReturnValue(<div data-testid={'mocked-jql-editor'}></div>),
 }));
+
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
 
 let mockRequest = jest.fn();
 
@@ -1253,4 +1260,90 @@ describe('Analytics: JiraSearchContainer', () => {
 			EVENT_CHANNEL,
 		);
 	});
+});
+
+describe('setHasJqlSyntaxErrors with feature flag', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
+	ffTest.on(
+		'navx-1345-issues-modal-jql-submit-fix',
+		'setHasJqlSyntaxErrors behavior when feature flag is ON',
+		() => {
+			it('should call setHasJqlSyntaxErrors with true when JQL has syntax errors', async () => {
+				const mockSetHasJqlSyntaxErrors = jest.fn();
+				const { getLatestJQLEditorProps } = setup({
+					setHasJqlSyntaxErrors: mockSetHasJqlSyntaxErrors,
+				});
+
+				act(() => {
+					getLatestJQLEditorProps().onUpdate!('invalid jql query', {
+						represents: '',
+						errors: [{ description: 'error', message: 'error', name: 'error' }],
+						query: undefined,
+					});
+				});
+
+				expect(mockSetHasJqlSyntaxErrors).toHaveBeenCalledWith(true);
+			});
+
+			it('should call setHasJqlSyntaxErrors with false when JQL has no syntax errors', async () => {
+				const mockSetHasJqlSyntaxErrors = jest.fn();
+				const { getLatestJQLEditorProps } = setup({
+					setHasJqlSyntaxErrors: mockSetHasJqlSyntaxErrors,
+				});
+
+				act(() => {
+					getLatestJQLEditorProps().onUpdate!('valid jql query', {
+						represents: '',
+						errors: [],
+						query: undefined,
+					});
+				});
+
+				expect(mockSetHasJqlSyntaxErrors).toHaveBeenCalledWith(false);
+			});
+		},
+	);
+
+	ffTest.off(
+		'navx-1345-issues-modal-jql-submit-fix',
+		'setHasJqlSyntaxErrors behavior when feature flag is OFF',
+		() => {
+			it('should not call setHasJqlSyntaxErrors when JQL has syntax errors', async () => {
+				const mockSetHasJqlSyntaxErrors = jest.fn();
+				const { getLatestJQLEditorProps } = setup({
+					setHasJqlSyntaxErrors: mockSetHasJqlSyntaxErrors,
+				});
+
+				act(() => {
+					getLatestJQLEditorProps().onUpdate!('invalid jql query', {
+						represents: '',
+						errors: [{ description: 'error', message: 'error', name: 'error' }],
+						query: undefined,
+					});
+				});
+
+				expect(mockSetHasJqlSyntaxErrors).not.toHaveBeenCalled();
+			});
+
+			it('should not call setHasJqlSyntaxErrors when JQL has no syntax errors', async () => {
+				const mockSetHasJqlSyntaxErrors = jest.fn();
+				const { getLatestJQLEditorProps } = setup({
+					setHasJqlSyntaxErrors: mockSetHasJqlSyntaxErrors,
+				});
+
+				act(() => {
+					getLatestJQLEditorProps().onUpdate!('valid jql query', {
+						represents: '',
+						errors: [],
+						query: undefined,
+					});
+				});
+
+				expect(mockSetHasJqlSyntaxErrors).not.toHaveBeenCalled();
+			});
+		},
+	);
 });

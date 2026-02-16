@@ -51,43 +51,8 @@ describe('VCCalculator_FY26_04', () => {
 			});
 		});
 
-		describe('platform_ufo_remove_ssr_placeholder_in_ttvc_v4 feature flag', () => {
-			it('should not include mutation:ssr-placeholder when feature flag is disabled', () => {
-				mockFg.mockImplementation(() => false);
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:ssr-placeholder',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					} as ViewportEntryData,
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
-			});
-
-			it('should include mutation:ssr-placeholder when feature flag is enabled', () => {
-				mockFg.mockImplementation(
-					(flag) => flag === 'platform_ufo_remove_ssr_placeholder_in_ttvc_v4',
-				);
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:ssr-placeholder',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					} as ViewportEntryData,
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
-			});
-		});
-
 		describe('mutation:display-contents-children-attribute', () => {
 			it('should include mutation:display-contents-children-attribute with visual attribute', () => {
-				mockFg.mockImplementation((flag) =>
-					flag === 'platform_ufo_fix_ttvc_v4_attribute_exclusions' ? false : false,
-				);
 				const entry: VCObserverEntry = {
 					time: 0,
 					data: {
@@ -112,7 +77,7 @@ describe('VCCalculator_FY26_04', () => {
 						visible: true,
 					} as ViewportEntryData,
 				};
-				expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
+				expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
 			});
 		});
 
@@ -210,167 +175,159 @@ describe('VCCalculator_FY26_04', () => {
 		});
 	});
 
-	describe('isEntryIncluded with mutation:display-contents-children-attribute and platform_ufo_fix_ttvc_v4_attribute_exclusions', () => {
-		describe('when feature flag is enabled', () => {
-			beforeEach(() => {
-				mockFg.mockImplementation(
-					(flag) => flag === 'platform_ufo_fix_ttvc_v4_attribute_exclusions',
-				);
-			});
+	describe('isEntryIncluded with mutation:display-contents-children-attribute', () => {
+		it('should exclude when attributeName is null', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:display-contents-children-attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+					attributeName: null,
+				} as ViewportEntryData,
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
+		});
 
-			it('should exclude when attributeName is null', () => {
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:display-contents-children-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-						attributeName: null,
-					} as ViewportEntryData,
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
-			});
+		it('should exclude when attributeName is undefined', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:display-contents-children-attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				} as ViewportEntryData,
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
+		});
 
-			it('should exclude when attributeName is undefined', () => {
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:display-contents-children-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					} as ViewportEntryData,
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
-			});
+		it('should exclude when attributeName starts with data-test', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:display-contents-children-attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+					attributeName: 'data-test-id',
+				} as ViewportEntryData,
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
+		});
 
-			it('should exclude when attributeName starts with data-test', () => {
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:display-contents-children-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-						attributeName: 'data-test-id',
-					} as ViewportEntryData,
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
-			});
+		it('should exclude when attributeName starts with data-test-custom-value', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:display-contents-children-attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+					attributeName: 'data-test-custom-value',
+				} as ViewportEntryData,
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
+		});
 
-			it('should exclude when attributeName starts with data-test-custom-value', () => {
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:display-contents-children-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-						attributeName: 'data-test-custom-value',
-					} as ViewportEntryData,
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
-			});
+		describe('KNOWN_ATTRIBUTES_THAT_DOES_NOT_CAUSE_LAYOUT_SHIFTS', () => {
+			it.each(KNOWN_ATTRIBUTES_THAT_DOES_NOT_CAUSE_LAYOUT_SHIFTS)(
+				'should exclude when attributeName is %s',
+				(attributeName) => {
+					const entry: VCObserverEntry = {
+						time: 0,
+						data: {
+							type: 'mutation:display-contents-children-attribute',
+							elementName: 'div',
+							rect: new DOMRect(),
+							visible: true,
+							attributeName,
+						} as ViewportEntryData,
+					};
+					expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
+				},
+			);
+		});
 
-			describe('KNOWN_ATTRIBUTES_THAT_DOES_NOT_CAUSE_LAYOUT_SHIFTS', () => {
-				it.each(KNOWN_ATTRIBUTES_THAT_DOES_NOT_CAUSE_LAYOUT_SHIFTS)(
-					'should exclude when attributeName is %s',
-					(attributeName) => {
-						const entry: VCObserverEntry = {
-							time: 0,
-							data: {
-								type: 'mutation:display-contents-children-attribute',
-								elementName: 'div',
-								rect: new DOMRect(),
-								visible: true,
-								attributeName,
-							} as ViewportEntryData,
-						};
-						expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
-					},
-				);
-			});
+		describe('NON_VISUAL_ARIA_ATTRIBUTES', () => {
+			it.each(NON_VISUAL_ARIA_ATTRIBUTES)(
+				'should exclude when attributeName is %s',
+				(attributeName) => {
+					const entry: VCObserverEntry = {
+						time: 0,
+						data: {
+							type: 'mutation:display-contents-children-attribute',
+							elementName: 'div',
+							rect: new DOMRect(),
+							visible: true,
+							attributeName,
+						} as ViewportEntryData,
+					};
+					expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
+				},
+			);
+		});
 
-			describe('NON_VISUAL_ARIA_ATTRIBUTES', () => {
-				it.each(NON_VISUAL_ARIA_ATTRIBUTES)(
-					'should exclude when attributeName is %s',
-					(attributeName) => {
-						const entry: VCObserverEntry = {
-							time: 0,
-							data: {
-								type: 'mutation:display-contents-children-attribute',
-								elementName: 'div',
-								rect: new DOMRect(),
-								visible: true,
-								attributeName,
-							} as ViewportEntryData,
-						};
-						expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
-					},
-				);
-			});
+		describe('THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES', () => {
+			it.each(THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES)(
+				'should exclude when attributeName is %s',
+				(attributeName) => {
+					const entry: VCObserverEntry = {
+						time: 0,
+						data: {
+							type: 'mutation:display-contents-children-attribute',
+							elementName: 'div',
+							rect: new DOMRect(),
+							visible: true,
+							attributeName,
+						} as ViewportEntryData,
+					};
+					expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
+				},
+			);
+		});
 
-			describe('THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES', () => {
-				it.each(THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES)(
-					'should exclude when attributeName is %s',
-					(attributeName) => {
-						const entry: VCObserverEntry = {
-							time: 0,
-							data: {
-								type: 'mutation:display-contents-children-attribute',
-								elementName: 'div',
-								rect: new DOMRect(),
-								visible: true,
-								attributeName,
-							} as ViewportEntryData,
-						};
-						expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
-					},
-				);
-			});
+		it('should include when attributeName is a visual attribute', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:display-contents-children-attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+					attributeName: 'class',
+				} as ViewportEntryData,
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
+		});
 
-			it('should include when attributeName is a visual attribute', () => {
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:display-contents-children-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-						attributeName: 'class',
-					} as ViewportEntryData,
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
-			});
+		it('should include when attributeName is another visual attribute', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:display-contents-children-attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+					attributeName: 'style',
+				} as ViewportEntryData,
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
+		});
 
-			it('should include when attributeName is another visual attribute', () => {
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:display-contents-children-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-						attributeName: 'style',
-					} as ViewportEntryData,
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
-			});
-
-			it('should include when attributeName is a custom visual attribute', () => {
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:display-contents-children-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-						attributeName: 'data-custom-visual-property',
-					} as ViewportEntryData,
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
-			});
+		it('should include when attributeName is a custom visual attribute', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:display-contents-children-attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+					attributeName: 'data-custom-visual-property',
+				} as ViewportEntryData,
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
 		});
 	});
 
@@ -476,25 +433,6 @@ describe('VCCalculator_FY26_04', () => {
 			expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
 		});
 
-		it('should handle mutation:ssr-placeholder when flag is enabled', () => {
-			mockFg.mockImplementation((flag) => {
-				if (flag === 'platform_ufo_remove_ssr_placeholder_in_ttvc_v4') {
-					return true;
-				}
-				return false;
-			});
-			const entry: VCObserverEntry = {
-				time: 0,
-				data: {
-					type: 'mutation:ssr-placeholder',
-					elementName: 'div',
-					rect: new DOMRect(),
-					visible: true,
-				} as ViewportEntryData,
-			};
-			expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
-		});
-
 		it('should properly handle entry excluded from parent but not from next calculator', () => {
 			mockFg.mockImplementation(() => false);
 			const entry: VCObserverEntry = {
@@ -511,8 +449,7 @@ describe('VCCalculator_FY26_04', () => {
 	});
 
 	describe('isEntryIncluded with combination of feature flags for display-contents-children-attribute', () => {
-		it('should exclude when attribute exclusion flag is enabled and attribute is in exclusion list', () => {
-			mockFg.mockImplementation((flag) => flag === 'platform_ufo_fix_ttvc_v4_attribute_exclusions');
+		it('should exclude when attribute is in exclusion list', () => {
 			const entry: VCObserverEntry = {
 				time: 0,
 				data: {
@@ -527,7 +464,6 @@ describe('VCCalculator_FY26_04', () => {
 		});
 
 		it('should include with visual attribute', () => {
-			mockFg.mockImplementation(() => false);
 			const entry: VCObserverEntry = {
 				time: 0,
 				data: {
@@ -544,7 +480,6 @@ describe('VCCalculator_FY26_04', () => {
 
 	describe('edge cases', () => {
 		it('should handle entry with empty string attributeName', () => {
-			mockFg.mockImplementation((flag) => flag === 'platform_ufo_fix_ttvc_v4_attribute_exclusions');
 			const entry: VCObserverEntry = {
 				time: 0,
 				data: {
@@ -559,7 +494,6 @@ describe('VCCalculator_FY26_04', () => {
 		});
 
 		it('should handle entry with very long attributeName', () => {
-			mockFg.mockImplementation((flag) => flag === 'platform_ufo_fix_ttvc_v4_attribute_exclusions');
 			const entry: VCObserverEntry = {
 				time: 0,
 				data: {
@@ -574,7 +508,6 @@ describe('VCCalculator_FY26_04', () => {
 		});
 
 		it('should handle entry with data-test in middle of attributeName', () => {
-			mockFg.mockImplementation((flag) => flag === 'platform_ufo_fix_ttvc_v4_attribute_exclusions');
 			const entry: VCObserverEntry = {
 				time: 0,
 				data: {
@@ -590,7 +523,6 @@ describe('VCCalculator_FY26_04', () => {
 		});
 
 		it('should handle entry with case-sensitive attributeName check', () => {
-			mockFg.mockImplementation((flag) => flag === 'platform_ufo_fix_ttvc_v4_attribute_exclusions');
 			const entry: VCObserverEntry = {
 				time: 0,
 				data: {
@@ -602,6 +534,61 @@ describe('VCCalculator_FY26_04', () => {
 				} as ViewportEntryData,
 			};
 			// Case sensitive check - should not match 'data-test'
+			expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
+		});
+	});
+
+	describe('mutation:attribute:framework-routing entries', () => {
+		it('should exclude mutation:attribute:framework-routing entries', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:attribute:framework-routing',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
+		});
+
+		it('should still include other valid entry types', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:element',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
+		});
+
+		it('should still include mutation:attribute entries', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+					attributeName: 'class',
+				} as ViewportEntryData,
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
+		});
+
+		it('should still include mutation:display-contents-children-element entries', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:display-contents-children-element',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				} as ViewportEntryData,
+			};
 			expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
 		});
 	});

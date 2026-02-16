@@ -8,7 +8,7 @@ import {
 	localStorageFetchProvider,
 	localStorageWriteProvider,
 } from '@af/editor-examples-helpers/utils';
-import { TRANSFORM_MENU_SECTION } from '@atlaskit/editor-common/block-menu';
+import { BLOCK_ACTIONS_MENU_SECTION } from '@atlaskit/editor-common/block-menu';
 import type { EditorAppearance } from '@atlaskit/editor-common/types';
 import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { EditorContext } from '@atlaskit/editor-core/editor-context';
@@ -93,10 +93,11 @@ function ComposableEditorPage() {
 				profilecardProvider: undefined,
 				taskDecisionProvider: undefined,
 			},
-			providerCreator: {
-				createEmojiProvider: undefined,
-				createMediaProvider: undefined,
-			},
+		providerCreator: {
+			createEmojiProvider: undefined,
+			createMediaProvider: undefined,
+			createSmartLinkProvider: undefined,
+		},
 		},
 	});
 
@@ -204,6 +205,7 @@ function ComposableEditorPage() {
 			},
 			toolbarPlugin: {
 				enableNewToolbarExperience: true,
+				contextualFormattingEnabled: 'controlled',
 			},
 		},
 	});
@@ -288,6 +290,7 @@ function ComposableEditorPage() {
 		source: 'first-party',
 		blockMenu: {
 			getMenuItems: nestedMenuItemsGetMenuItem,
+			placement: 'featured',
 		},
 		inlineToolbar: {
 			getMenuItems: nestedMenuItemsGetMenuItem,
@@ -388,8 +391,8 @@ function ComposableEditorPage() {
 				key: 'deeply-nested-menu-1',
 				parent: {
 					type: 'block-menu-section' as const,
-					key: TRANSFORM_MENU_SECTION.key,
-					rank: 9001,
+					key: BLOCK_ACTIONS_MENU_SECTION.key,
+					rank: 100,
 				},
 				component: ({ children }) => (
 					<ToolbarNestedDropdownMenu

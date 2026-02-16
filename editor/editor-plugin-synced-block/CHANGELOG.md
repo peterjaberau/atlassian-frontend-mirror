@@ -1,5 +1,262 @@
 # @atlaskit/editor-plugin-synced-block
 
+## 5.3.17
+
+### Patch Changes
+
+- [`daa7b80542389`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/daa7b80542389) -
+  Do not truncate lozenge in macro view
+- Updated dependencies
+
+## 5.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.15
+
+### Patch Changes
+
+- [`f24892f905e1a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f24892f905e1a) -
+  [ux] EDITOR-5002 update delete and unsync synced block modal messages
+- Updated dependencies
+
+## 5.3.14
+
+### Patch Changes
+
+- [`ab4e4e442ad49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab4e4e442ad49) -
+  [ux] [EDITOR-3694] Add loading state to bodiedSyncBlock for when saving new block to BE
+- Updated dependencies
+
+## 5.3.13
+
+### Patch Changes
+
+- [`7ba3979b92b42`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ba3979b92b42) -
+  Remove platform_synced_block_dogfooding feature gate
+- Updated dependencies
+
+## 5.3.12
+
+### Patch Changes
+
+- [`011b84236ffaa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/011b84236ffaa) -
+  EDITOR-4175 add analytics events for the synced block toolbar buttons
+- Updated dependencies
+
+## 5.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.9
+
+### Patch Changes
+
+- [`8782c30447091`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8782c30447091) -
+  [ux] EDITOR-4756 Fix convert to synced block logic by expanding selection to block range before
+  conversion
+- Updated dependencies
+
+## 5.3.8
+
+### Patch Changes
+
+- [`f11ff647ea458`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f11ff647ea458) -
+  [ux] [EDITOR-4521] Implement source deleted reference UI, update block deleted/unsynced reference
+  UI to add delete button, unsynced label and source title/url
+- Updated dependencies
+
+## 5.3.7
+
+### Patch Changes
+
+- [`dac15aa628811`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dac15aa628811) -
+  [ux] fix wrapped media/embed link is displayed out of border in synced block
+- [`aa5302b457078`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa5302b457078) -
+  [ux] EDITOR-4763 Ensure initial source sync block data are always registered
+- Updated dependencies
+
+## 5.3.6
+
+### Patch Changes
+
+- [`e2542bcabe129`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2542bcabe129) -
+  [ux] EDITOR-4753 fix sync block label styles and border styles when it is in error state
+
+## 5.3.5
+
+### Patch Changes
+
+- [`81230b670d02c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/81230b670d02c) -
+  ED-29744 camel case experience attributes
+- [`7702ea47c5329`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7702ea47c5329) -
+  [ux] Show editor flag when unpublished sync block is pasted
+- [`515026ad93e46`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/515026ad93e46) -
+  [ux] EDITOR-4772 fix synced block label tooltip not showing
+- [`acc0b8da50cdc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/acc0b8da50cdc) -
+  [ux] EDITOR-4708 fix sync block step tracking to consider doc at that step rather than previous
+  doc step
+- Updated dependencies
+
+## 5.3.4
+
+### Patch Changes
+
+- [`2d1d47b369e5a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2d1d47b369e5a) -
+  [ux] EDITOR-4766 Use correct selection when transforming to synced block
+- [`3d0b3f8b4d802`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d0b3f8b4d802) -
+  Remove platform_editor_toolbar_aifc_responsive experiment
+- Updated dependencies
+
+## 5.3.3
+
+### Patch Changes
+
+- [`9068b92adf796`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9068b92adf796) -
+  [ux] EDITOR-4439 Implement option to raise warn flag on paste for unsupported content
+- Updated dependencies
+
+## 5.3.2
+
+### Patch Changes
+
+- [`41d5a8796f3e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/41d5a8796f3e1) -
+  [EDITOR-4472] Update content copy for sync block
+- [`28434cbe03f1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28434cbe03f1e) -
+  [ux] [EDITOR-2851]
+  - Implement unsync feature for source sync block
+  - Update deletion confirmation modal and reference block UI after source deletion
+
+- Updated dependencies
+
+## 5.3.1
+
+### Patch Changes
+
+- [`87abc5dda86fe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87abc5dda86fe) -
+  [ux] Show last edited time in sync block tooltip
+- Updated dependencies
+
+## 5.3.0
+
+### Minor Changes
+
+- [`870c3baec758b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/870c3baec758b) -
+  Enable consumers to use GraphQL subscription for fetching the block data when the block changes
+
+### Patch Changes
+
+- [`5c522f81f181e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c522f81f181e) -
+  [ux] EDITOR-4369 Support synced location for references on Jira in source and reference synced
+  block
+- [`058065aadf69f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/058065aadf69f) -
+  [ux] [EDITOR-2851] Support reference sync block unsyc
+- Updated dependencies
+
+## 5.2.2
+
+### Patch Changes
+
+- [`7f41011a1b0ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f41011a1b0ff) -
+  EDITOR-1665 update sync block experience events to use general experience ids, keep existing error
+  events and add success events
+- Updated dependencies
+
+## 5.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.0
+
+### Minor Changes
+
+- [`52bc7d7cbabcb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52bc7d7cbabcb) -
+  Stop flickering of reference block title
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.13
+
+### Patch Changes
+
+- [`7b1f7ff1a2235`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b1f7ff1a2235) -
+  [ux] [EDITOR-4536] Update synced location dropdown UI
+- Updated dependencies
+
+## 5.1.12
+
+### Patch Changes
+
+- [`f0124a523d8f1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f0124a523d8f1) -
+  [ux] [EDITOR-2845] Implement synced location for source and reference sync block
+- Updated dependencies
+
+## 5.1.11
+
+### Patch Changes
+
+- [`1f4c761b661e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f4c761b661e1) -
+  [ux] EDITOR-4174 wrap synced block and bodied sync block with sentry error boundaries
+- Updated dependencies
+
+## 5.1.10
+
+### Patch Changes
+
+- [`c975226c67ed8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c975226c67ed8) -
+  [ux] [EDITOR-4472] Update tooltip copy for copy sync block button
+- [`98a4415c99228`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/98a4415c99228) -
+  [ux] Set selection to the start of the previous selection when creating new synced block
+- [`fff45a651440a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fff45a651440a) -
+  EDITOR-1665 add experience tracking analytics for sync block save, fetch and delete
+- [`e3856219900ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e3856219900ac) -
+  Revert removal of 'copy synced block' from block menu
+- Updated dependencies
+
+## 5.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.8
+
+### Patch Changes
+
+- [`2f2aca53f492c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f2aca53f492c) -
+  [ux] Remove 'copy synced block' from block menu
+- Updated dependencies
+
+## 5.1.7
+
+### Patch Changes
+
+- [`38c83ce57623b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38c83ce57623b) -
+  [ux] [EDITOR-3853] Update copy for sync block placeholder and copy flag
+- [`8b821f7771cc4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8b821f7771cc4) -
+  [ux] Only show delete option when reference sync block unsynced
+- Updated dependencies
+
 ## 5.1.6
 
 ### Patch Changes

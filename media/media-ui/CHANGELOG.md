@@ -1,5 +1,43 @@
 # @atlaskit/media-ui
 
+## 28.7.28
+
+### Patch Changes
+
+- [`4785b4823f2b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4785b4823f2b6) -
+  Removed platform_media_disable_video_640p_artifact_usage FG
+
+## 28.7.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.26
+
+### Patch Changes
+
+- [`e4b717d8304e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e4b717d8304e8) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+
+## 28.7.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.23
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 28.7.22
 
 ### Patch Changes

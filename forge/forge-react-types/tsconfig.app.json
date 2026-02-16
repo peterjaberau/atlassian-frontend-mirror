@@ -62,6 +62,9 @@
 			"path": "../../design-system/navigation-system/tsconfig.app.json"
 		},
 		{
+			"path": "../../design-system/object/tsconfig.app.json"
+		},
+		{
 			"path": "../../design-system/popup/tsconfig.app.json"
 		},
 		{
@@ -117,6 +120,9 @@
 		},
 		{
 			"path": "../forge-ui/tsconfig.app.json"
+		},
+		{
+			"path": "../../avp/viz-platform-charts/tsconfig.app.json"
 		}
 	],
 	"files": []

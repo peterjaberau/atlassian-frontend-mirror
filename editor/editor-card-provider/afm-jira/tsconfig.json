@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.jira.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"target": "es5",
 		"outDir": "../../../../../jira/tsDist/@atlaskit__editor-card-provider/app",
@@ -28,6 +28,9 @@
 		},
 		{
 			"path": "../../../measurement/feature-gate-js-client/afm-jira/tsconfig.json"
+		},
+		{
+			"path": "../../../helpers/frontend-utilities/afm-jira/tsconfig.json"
 		},
 		{
 			"path": "../../../linking-platform/json-ld-types/afm-jira/tsconfig.json"

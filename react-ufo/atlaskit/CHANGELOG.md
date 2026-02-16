@@ -1,5 +1,195 @@
 # @atlaskit/ufo-interaction-ignore
 
+## 5.2.3
+
+### Patch Changes
+
+- [`c7cf6502b98d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c7cf6502b98d5) -
+  FG cleanup - platform_ufo_dedupe_repeated_vc_offenders
+
+## 5.2.2
+
+### Patch Changes
+
+- [`f2fec0bde1efb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2fec0bde1efb) -
+  Detect (and have fix ready) for bug in VC aborting event detection during SSR time
+
+## 5.2.1
+
+### Patch Changes
+
+- [`de657e97bdb75`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/de657e97bdb75) -
+  FG cleanup - platform_ufo_vc_ignore_display_none_mutations
+
+## 5.2.0
+
+### Minor Changes
+
+- [`b7f9d9f2e93dc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b7f9d9f2e93dc) -
+  Detect browser throttling in UFO client
+
+### Patch Changes
+
+- [`03e2c7f2a7b38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/03e2c7f2a7b38) -
+  Remove `featureFlags` field in the list of fields trimmed in the event of payload size exceeding
+  240KB
+
+## 5.1.4
+
+### Patch Changes
+
+- [`aa7b28d013b4f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa7b28d013b4f) -
+  Add Speed Index metric using TTVC v4 ruleset
+- [`e565e9abbe8fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e565e9abbe8fd) -
+  Added Previous Interaction information to terminal error metric
+
+## 5.1.3
+
+### Patch Changes
+
+- [`376606c3c8197`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/376606c3c8197) -
+  FG cleanup - platform_ufo_enable_media_for_ttvc_v3
+
+## 5.1.2
+
+### Patch Changes
+
+- [`6ddf2105a76b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6ddf2105a76b8) -
+  FG cleanup - platform_ufo_native_pagevisibility_monitoring
+
+## 5.1.1
+
+### Patch Changes
+
+- [`4ebbeaeb5454b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4ebbeaeb5454b) -
+  FG cleanup - platform_ufo_is_opened_in_background
+
+## 5.1.0
+
+### Minor Changes
+
+- [`c4ed6da74c937`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c4ed6da74c937) -
+  OBSRVE-2971 Adding the OTel Context Manager to handle trace context for React UFO tracing
+
+### Patch Changes
+
+- [`cd27ffb264a01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd27ffb264a01) -
+  Added config option for sending the terminal error metric
+- [`ac82093b2419b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ac82093b2419b) -
+  bugfixes with disabling TTVC v3
+
+## 5.0.13
+
+### Patch Changes
+
+- [`3f0729c82ac47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f0729c82ac47) -
+  FG cleanup - platform_ufo_disable_vcnext_observations, remove getMutatedElements fn
+
+## 5.0.12
+
+### Patch Changes
+
+- [`898be43686c8a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/898be43686c8a) -
+  FG cleanup - platform_ufo_fix_post_interaction_check_vc_debug
+- [`36667747cf1b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/36667747cf1b8) -
+  FG cleanup - platform_ufo_auto_add_ssr_entry_in_ttvc_v4
+- [`18a9917b5d23d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/18a9917b5d23d) -
+  FG cleanup - platform_ufo_round_vc_ratios
+
+## 5.0.11
+
+### Patch Changes
+
+- [`1818e2c8ca066`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1818e2c8ca066) -
+  FG cleanup - platform_ufo_fix_ttvc_v4_attribute_exclusions
+
+## 5.0.10
+
+### Patch Changes
+
+- [`fd0346f95f6bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fd0346f95f6bd) -
+  Distinguish events opened in background vs opened in foreground and later backgrounded
+
+## 5.0.9
+
+### Patch Changes
+
+- [`ff09fea96cf45`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ff09fea96cf45) -
+  Add custom terminal error reporting metric
+
+## 5.0.8
+
+### Patch Changes
+
+- [`eeb197f1a3f0c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eeb197f1a3f0c) -
+  Track whether event would be dropped by native page visibility monitoring before setup
+
+## 5.0.7
+
+### Patch Changes
+
+- [`d962c32704964`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d962c32704964) -
+  FG cleanup - platform_ufo_remove_ssr_placeholder_in_ttvc_v4
+- [`6367a096e4f17`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6367a096e4f17) -
+  FG cleanup - platform_ufo_vcnext_for_ttvc_v5
+
+## 5.0.6
+
+### Patch Changes
+
+- [`32b7ffaaecbca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/32b7ffaaecbca) -
+  add page visibility hidden timestamp field in UFO payload
+
+## 5.0.5
+
+### Patch Changes
+
+- [`d3ed1b65a2181`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d3ed1b65a2181) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+
+## 5.0.4
+
+### Patch Changes
+
+- [`461f1fb9cf949`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/461f1fb9cf949) -
+  FG cleanup - platform_ufo_add_segment_names_to_dom_offenders
+
+## 5.0.3
+
+### Patch Changes
+
+- [`0c485e6a6efa4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c485e6a6efa4) -
+  round off reported VC ratios
+
+## 5.0.2
+
+### Patch Changes
+
+- [`a394e2061cccd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a394e2061cccd) -
+  classify attribute changes from routing as mutation:attribute:framework-routing in VC observer,
+  and exclude it from TTVC v3 onwards
+
+## 5.0.1
+
+### Patch Changes
+
+- [`60444262e8606`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/60444262e8606) -
+  Deduplicate reported VC offenders in UFO payload
+
+## 5.0.0
+
+### Major Changes
+
+- [`f06d1289b0fbd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f06d1289b0fbd) -
+  Decouple fy26.04 and vcNext TTVC revisions, default revision to be fy26.04
+
+## 4.17.1
+
+### Patch Changes
+
+- [`0310b1753d4b1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0310b1753d4b1) -
+  FG cleanup - platform_ufo_enable_trimmed_payload
+
 ## 4.17.0
 
 ### Minor Changes

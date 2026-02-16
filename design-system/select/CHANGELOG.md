@@ -1,5 +1,40 @@
 # @atlaskit/select
 
+## 21.7.4
+
+### Patch Changes
+
+- [`e976346cb86df`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e976346cb86df) -
+  Update checkbox border color for accessibility.
+
+## 21.7.3
+
+### Patch Changes
+
+- [`e966e6a5ef441`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e966e6a5ef441) -
+  Internal refactoring and declaring undeclared dependencies.
+- Updated dependencies
+
+## 21.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.7.0
+
+### Minor Changes
+
+- [`2ff0f3751e4e4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ff0f3751e4e4) -
+  Clean up the `platform_dst_nav4_layering_in_main_slot_fixes` feature gate. This change was
+  abandoned because it broke usage of fixed positioning in apps.
+
 ## 21.6.4
 
 ### Patch Changes

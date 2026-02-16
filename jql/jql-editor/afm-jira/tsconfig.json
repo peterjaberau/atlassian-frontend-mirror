@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.jira.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"target": "es5",
 		"outDir": "../../../../../jira/tsDist/@atlaskit__jql-editor/app",
@@ -36,13 +36,22 @@
 			"path": "../../../design-system/button/afm-jira/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/css/afm-jira/tsconfig.json"
+		},
+		{
 			"path": "../../../editor/editor-prosemirror/afm-jira/tsconfig.json"
+		},
+		{
+			"path": "../../../elements/emoji/afm-jira/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/form/afm-jira/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/icon/afm-jira/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/icon-lab/afm-jira/tsconfig.json"
 		},
 		{
 			"path": "../../jql-ast/afm-jira/tsconfig.json"
@@ -85,6 +94,9 @@
 		},
 		{
 			"path": "../../../design-system/tooltip/afm-jira/tsconfig.json"
+		},
+		{
+			"path": "../../../townsquare/townsquare-emoji-provider/afm-jira/tsconfig.json"
 		}
 	]
 }

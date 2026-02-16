@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.products.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__heading/app",
@@ -24,12 +24,6 @@
 		"../src/**/stories/**/*"
 	],
 	"references": [
-		{
-			"path": "../../css/afm-products/tsconfig.json"
-		},
-		{
-			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
-		},
 		{
 			"path": "../../primitives/afm-products/tsconfig.json"
 		},

@@ -5,7 +5,7 @@ import { createClassName } from '../styles/util';
 
 const className = createClassName('bodiedExtension');
 
-export const styles = `
+export const styles: string = `
 .${className}-inner {
   background-color: ${N30};
   border: 10px solid ${N30};
@@ -24,11 +24,11 @@ export const styles = `
 }
 `;
 
-export default function bodiedExtension({ attrs }: NodeSerializerOpts) {
+export default function bodiedExtension({ attrs, node }: NodeSerializerOpts): string {
 	const inner = createTag(
 		'div',
 		{ class: className + '-inner' },
-		`&nbsp;${attrs.extensionKey}&nbsp;`,
+		`&nbsp;${attrs.extensionKey || node.type.name}&nbsp;`,
 	);
 	return createTag('div', { class: className + '-outer' }, inner);
 }

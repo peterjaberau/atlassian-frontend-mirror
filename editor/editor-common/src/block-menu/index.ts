@@ -3,6 +3,7 @@ export { messages } from './messages';
 
 export {
 	BLOCK_ACTIONS_MENU_SECTION,
+	BLOCK_ACTIONS_FEATURED_EXTENSION_SLOT_MENU_ITEM,
 	BLOCK_ACTIONS_CREATE_SYNCED_BLOCK_MENU_ITEM,
 	BLOCK_ACTIONS_COPY_LINK_TO_BLOCK_MENU_ITEM,
 	DELETE_MENU_SECTION,
@@ -35,6 +36,8 @@ export {
 	TRANSFORM_STRUCTURE_DECISION_MENU_ITEM,
 	TRANSFORM_STRUCTURE_PARAGRAPH_MENU_ITEM,
 	TRANSFORM_SUGGESTED_MENU_ITEM,
+	TRANSFORM_DEFAULT_EXTENSION_SLOT_MENU_ITEM,
+	BLOCK_MENU_ACTION_TEST_ID,
 } from './key';
 
 export {
@@ -55,7 +58,6 @@ export {
 	FORMAT_TASK_LIST_MENU_ITEM,
 	COPY_MENU_SECTION,
 	MOVE_UP_DOWN_MENU_SECTION,
-	COPY_BLOCK_MENU_ITEM,
 	COPY_LINK_MENU_ITEM,
 	MOVE_UP_MENU_ITEM,
 	MOVE_DOWN_MENU_ITEM,
@@ -78,6 +80,7 @@ export {
 	POSITION_MENU_SECTION_RANK,
 	DELETE_MENU_SECTION_RANK,
 	TRANSFORM_SUGGESTED_MENU_SECTION_RANK,
+	TRANSFORM_CREATE_MENU_SECTION_RANK,
 } from './rank';
 
 export {
@@ -97,3 +100,17 @@ export {
 	extractBlockIdFromLinkHash,
 	isBlockLinkHash,
 } from './block-link';
+
+export {
+	expandAllParentsThenScroll,
+	findParentExpands,
+	isExpandCollapsed,
+	expandElement,
+	findNodeWithExpandParents,
+	SCROLL_TO_BLOCK_TIMING,
+	getLocalIdSelector,
+} from './scroll-to-block-utils';
+
+export type { NodeWithExpandParents } from './scroll-to-block-utils';
+
+export type { BlockMenuPlacement } from './placement';

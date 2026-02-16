@@ -7,38 +7,32 @@ export type EditorExperimentOverridesMultivariate = {
 	[K in keyof EditorExperimentsConfig as MultivariateConfig<
 		EditorExperimentsConfig[K]['defaultValue']
 	> extends true
-		? K
-		: never]: EditorExperimentsConfig[K]['defaultValue'];
+	? K
+	: never]: EditorExperimentsConfig[K]['defaultValue'];
 };
 
 export type EditorExperimentOverridesBoolean = {
 	[K in keyof EditorExperimentsConfig as BooleanConfig<
 		EditorExperimentsConfig[K]['defaultValue']
 	> extends true
-		? K
-		: // Optional as boolean will default to true if not specified here
-			never]?: EditorExperimentsConfig[K]['defaultValue'];
+	? K
+	: // Optional as boolean will default to true if not specified here
+	never]?: EditorExperimentsConfig[K]['defaultValue'];
 };
 
 export const testMultivariateOverrides: EditorExperimentOverridesMultivariate = {
 	'example-multivariate': 'one',
 	'platform_editor_ai-prompts-placeholder': 'control',
 	platform_editor_controls: 'control',
-	confluence_whiteboards_quick_insert: 'control',
-	confluence_whiteboards_quick_insert_localised: 'control',
-	confluence_whiteboards_quick_insert_localised_aa: 'control',
 	cc_editor_ai_content_mode: 'control',
-	platform_editor_add_orange_highlight_color: 'control',
-	platform_editor_ai_iw_adf_streaming: 'control',
-	platform_editor_ai_non_iw_adf_streaming: 'control',
 	platform_hover_card_preview_panel: 'control',
-	platform_hover_card_preview_panel_modal: 'control',
 	smart_link_confluence_short_link_analytics: 'control',
-	platform_inline_smartcard_connect_button_exp: 'control',
 	cc_editor_insm_outlier_events: 'test',
 	platform_editor_hoverlink_ui_fixes_exp: 'control',
 	platform_editor_table_sticky_header_improvements: 'test_with_overflow',
 	platform_sl_3p_unauth_paste_as_block_card: 'control',
+	cc_fd_db_top_editor_toolbar: 'control',
+	cc_fd_db_top_editor_toolbar_aa: 'control',
 };
 
 export const testBooleanOverrides: EditorExperimentOverridesBoolean = {
@@ -65,7 +59,6 @@ export const testBooleanOverrides: EditorExperimentOverridesBoolean = {
 	platform_editor_tables_drag_and_drop: false,
 	platform_editor_tables_table_selector: false,
 	platform_renderer_fix_analytics_memo_callback: false,
-	platform_editor_stop_width_reflows: false,
 	platform_editor_no_cursor_on_edit_page_init: false,
 	'jira-work-sync-desc-comment-summary': false,
 	platform_editor_breakout_resizing: false,
@@ -75,6 +68,5 @@ export const testBooleanOverrides: EditorExperimentOverridesBoolean = {
 	platform_editor_find_and_replace_improvements: false,
 	platform_editor_toggle_expand_on_match_found: false,
 	platform_editor_reduce_noisy_steps_ncs: false,
-	platform_editor_text_highlight_padding: false,
 	confluence_compact_text_format: false,
 };

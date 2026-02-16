@@ -1,5 +1,101 @@
 # @atlaskit/editor-plugin-highlight
 
+## 7.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.8
+
+### Patch Changes
+
+- [`9da7abaf781fa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9da7abaf781fa) -
+  [ux] clean up platform_editor_text_highlight_padding
+- Updated dependencies
+
+## 7.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.3
+
+### Patch Changes
+
+- [`653c0c803b286`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/653c0c803b286) -
+  EDITOR-4620 Clean up platform_editor_toolbar_aifc_patch_6
+- Updated dependencies
+
+## 7.3.2
+
+### Patch Changes
+
+- [`25c388e0f807a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/25c388e0f807a) -
+  EDITOR-4684 Clean up platform_editor_add_orange_highlight_color experiment - orange highlight
+  color is now permanently enabled
+- Updated dependencies
+
+## 7.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.0
+
+### Minor Changes
+
+- [`ee5135bafb31d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee5135bafb31d) -
+  [EDITOR-4495] clean up platform_editor_toolbar_aifc_patch_4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.2.0
 
 ### Minor Changes

@@ -1,5 +1,23 @@
 # @atlaskit/inline-message
 
+## 15.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 15.5.1
 
 ### Patch Changes

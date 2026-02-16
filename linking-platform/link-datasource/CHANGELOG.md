@@ -1,5 +1,61 @@
 # @atlaskit/link-datasource
 
+## 4.33.3
+
+### Patch Changes
+
+- [`5f7b94aaccfec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5f7b94aaccfec) -
+  [ux] Cleaned up the platform_inline_smartcard_connect_button_exp experiment gate, enabling the
+  blue unauthorised connect button by default. Updated VR tests across multiple packages relying on
+  the inline smart card
+- Updated dependencies
+
+## 4.33.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.33.1
+
+### Patch Changes
+
+- [`ea409a683cd48`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ea409a683cd48) -
+  fg cleanup: lp_disable_datasource_table_max_height_restriction
+
+## 4.33.0
+
+### Minor Changes
+
+- [`52e8d22762662`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52e8d22762662) -
+  Adding functionality to update JQL search with latest JQL query input (if valid) before inserting
+  using Jira Work Items Modal in confluence - Insert button remains disabled until search input is
+  valid/well-formed. Gated behind navx-1345-issues-modal-jql-submit-fix
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.32.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.32.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.32.3
+
+### Patch Changes
+
+- [`08c554687a400`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08c554687a400) -
+  FG cleanup navx-sllv-fix-inline-edit-error
+- Updated dependencies
+
 ## 4.32.2
 
 ### Patch Changes

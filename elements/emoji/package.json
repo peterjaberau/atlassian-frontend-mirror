@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/emoji",
-	"version": "69.10.1",
+	"version": "69.10.13",
 	"description": "Fabric emoji React components",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -75,12 +75,12 @@
 		"@atlaskit/elements-test-helpers": "workspace:^",
 		"@atlaskit/media-core": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@emotion/jest": "root:*",
 		"@testing-library/dom": "root:*",
 		"@testing-library/jest-dom": "root:*",
 		"@testing-library/react": "root:*",
-		"@testing-library/react-hooks": "root:*",
 		"@testing-library/user-event": "root:*",
 		"@types/js-search": "root:*",
 		"dotenv": "root:*",
@@ -131,9 +131,6 @@
 			"type": "boolean"
 		},
 		"platform_emoji_ssr_width_auto_allowed": {
-			"type": "boolean"
-		},
-		"platform_emoji_width_auto_fittoheight": {
 			"type": "boolean"
 		},
 		"platform_emoji_prevent_img_src_changing": {

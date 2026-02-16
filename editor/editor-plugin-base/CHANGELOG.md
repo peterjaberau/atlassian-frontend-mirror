@@ -1,5 +1,69 @@
 # @atlaskit/editor-plugin-base
 
+## 8.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- [`3242cbd5e88b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3242cbd5e88b9) -
+  Update packages to match prosemirror library updates
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- [`a5727f82cae80`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a5727f82cae80) -
+  [NO-ISSUE] Cleans up experiment platform_editor_scroll_gutter_fix
+- Updated dependencies
+
 ## 8.0.0
 
 ### Patch Changes

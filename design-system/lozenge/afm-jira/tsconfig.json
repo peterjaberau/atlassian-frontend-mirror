@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.jira.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"declaration": true,
 		"target": "es5",
@@ -28,6 +28,9 @@
 			"path": "../../../analytics/analytics-next/afm-jira/tsconfig.json"
 		},
 		{
+			"path": "../../badge/afm-jira/tsconfig.json"
+		},
+		{
 			"path": "../../css/afm-jira/tsconfig.json"
 		},
 		{
@@ -41,6 +44,9 @@
 		},
 		{
 			"path": "../../primitives/afm-jira/tsconfig.json"
+		},
+		{
+			"path": "../../spinner/afm-jira/tsconfig.json"
 		},
 		{
 			"path": "../../tokens/afm-jira/tsconfig.json"

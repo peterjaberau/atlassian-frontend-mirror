@@ -1,5 +1,176 @@
 # @atlaskit/editor-plugin-insert-block
 
+## 8.6.0
+
+### Minor Changes
+
+- [`88336b2b8f870`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88336b2b8f870) -
+  Add A/A test for cc_fd_db_top_editor_toolbar experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.0
+
+### Minor Changes
+
+- [`fcc51e510981b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fcc51e510981b) -
+  [ux] Add logic to filter and pin create database menu item to editor toolbar for experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.5
+
+### Patch Changes
+
+- [`017f1e5b9810c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/017f1e5b9810c) -
+  EDITOR-4663 Add experience tracking for primary toolbar button actions
+- Updated dependencies
+
+## 8.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.3
+
+### Patch Changes
+
+- [`7fc08532f3729`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fc08532f3729) -
+  Remove platform_editor_toolbar_aifc_undo_redo_confluence feature gate
+- Updated dependencies
+
+## 8.4.2
+
+### Patch Changes
+
+- [`b43aaf2b5d0ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b43aaf2b5d0ff) -
+  Remove platform_editor_toolbar_aifc_undo_redo_confluence feature gate
+- Updated dependencies
+
+## 8.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.0
+
+### Minor Changes
+
+- [`7b679117f4605`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b679117f4605) -
+  [ux] Productionizes `confluence-whiteboards-quick-insert-eligible` and
+  `confluence-whiteboards-quick-insert-l10n-eligible` feature gates and
+  `confluence_whiteboards_quick_insert_localised` experiment. Ship "Diagram" variant.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.3
+
+### Patch Changes
+
+- [`6431f5f6492ae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6431f5f6492ae) -
+  Remove unused platform_editor_toolbar_aifc_ga_blockers feature gate
+- Updated dependencies
+
+## 8.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.0
+
+### Minor Changes
+
+- [`e97bcf6a8bbf4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e97bcf6a8bbf4) -
+  [ux] Productionizes the experiment confluence_whiteboards_quick_insert by productionizing the
+  DIAGRAM variation of the experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.8
+
+### Patch Changes
+
+- [`653c0c803b286`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/653c0c803b286) -
+  EDITOR-4620 Clean up platform_editor_toolbar_aifc_patch_6
+- Updated dependencies
+
+## 8.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.6
+
+### Patch Changes
+
+- [`3d0b3f8b4d802`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d0b3f8b4d802) -
+  Remove platform_editor_toolbar_aifc_responsive experiment
+- Updated dependencies
+
+## 8.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.2
+
+### Patch Changes
+
+- [`11bd6ea9cb0ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/11bd6ea9cb0ba) -
+  [ux] Clean up platform_editor_refactor_view_more
+- Updated dependencies
+
+## 8.2.1
+
+### Patch Changes
+
+- [`0457795b04c62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0457795b04c62) -
+  EDITOR-4396 Media toolbar button doesn't when missing the mediaInsert Plugin
+- Updated dependencies
+
 ## 8.2.0
 
 ### Minor Changes

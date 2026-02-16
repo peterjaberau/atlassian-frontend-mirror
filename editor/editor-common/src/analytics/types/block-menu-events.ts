@@ -62,21 +62,25 @@ export type ElementTransformErrorAEP = OperationalAEP<
 	ElementTransformErrorAttr
 >;
 
-interface ElementTransformPerformanceAttr {
+interface ElementTransformAttr {
 	duration: number;
-	isList: boolean;
+	inputMethod: INPUT_METHOD.BLOCK_MENU;
+	isEmptyLine: boolean;
 	isNested: boolean;
-	nodeCount: number;
-	sourceNodeTypes: Record<string, number>;
+	outputNodesCount: number;
+	sourceNodesCount: number;
+	sourceNodesCountByType: Record<string, number>;
+	sourceNodeType: string;
 	startTime: number;
 	targetNodeType: string;
 }
 
-export type ElementTransformPerformanceAEP = OperationalAEP<
+export type ElementTransformAEP = TrackAEP<
 	ACTION.TRANSFORMED,
 	ACTION_SUBJECT.ELEMENT,
-	ACTION_SUBJECT_ID.TRANSFORM,
-	ElementTransformPerformanceAttr
+	undefined,
+	ElementTransformAttr,
+	undefined
 >;
 
 export type BlockMenuEventPayload =
@@ -84,4 +88,4 @@ export type BlockMenuEventPayload =
 	| BlockMenuItemClickedAEP
 	| ElementConvertedAEP
 	| ElementTransformErrorAEP
-	| ElementTransformPerformanceAEP;
+	| ElementTransformAEP;

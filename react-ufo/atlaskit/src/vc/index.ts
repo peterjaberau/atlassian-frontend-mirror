@@ -1,5 +1,3 @@
-import { fg } from '@atlaskit/platform-feature-flags';
-
 import type { RevisionPayload, VCRawDataType, VCResult } from '../common/vc/types';
 import { isVCRevisionEnabled } from '../config';
 
@@ -30,9 +28,7 @@ export class VCObserverWrapper implements VCObserverInterface {
 			enablePageLayoutPlaceholder: opts.ssrEnablePageLayoutPlaceholder ?? false,
 		});
 
-		const ttvcV4RevisionName = fg('platform_ufo_vcnext_to_fy26_04_revision_update') ? 'fy26.04' : 'next';
-
-		if (isVCRevisionEnabled('fy25.03') || isVCRevisionEnabled(ttvcV4RevisionName)) {
+		if (isVCRevisionEnabled('fy25.03') || isVCRevisionEnabled('fy26.04')) {
 			this.newVCObserver = new VCObserverNew({
 				selectorConfig: opts.selectorConfig,
 				isPostInteraction: opts.isPostInteraction,
@@ -83,7 +79,10 @@ export class VCObserverWrapper implements VCObserverInterface {
 			this.oldVCObserver?.start({ startTime });
 		}
 
-		if (isVCRevisionEnabled('fy25.03', experienceKey)) {
+		if (
+			isVCRevisionEnabled('fy25.03', experienceKey) ||
+			isVCRevisionEnabled('fy26.04', experienceKey)
+		) {
 			this.newVCObserver?.start({ startTime });
 		}
 
@@ -99,7 +98,10 @@ export class VCObserverWrapper implements VCObserverInterface {
 			this.oldVCObserver?.stop();
 		}
 
-		if (isVCRevisionEnabled('fy25.03', experienceKey)) {
+		if (
+			isVCRevisionEnabled('fy25.03', experienceKey) ||
+			isVCRevisionEnabled('fy26.04', experienceKey)
+		) {
 			this.newVCObserver?.stop();
 		}
 
@@ -126,29 +128,30 @@ export class VCObserverWrapper implements VCObserverInterface {
 				? await this.oldVCObserver?.getVCResult(param)
 				: {};
 
-		const v3v4Result = isVCRevisionEnabled('fy25.03', experienceKey)
-			? await this.newVCObserver?.getVCResult({
-					start: param.start,
-					stop: param.stop,
-					interactionId: param.interactionId,
-					ssr: param.ssr,
-					include3p,
-					excludeSmartAnswersInSearch,
-					includeSSRRatio,
-					interactionType: param.interactionType,
-					isPageVisible: param.isPageVisible,
-					interactionAbortReason: param.interactionAbortReason,
-					includeRawData,
-					includeSSRInV3: param.includeSSRInV3,
-					rawDataStopTime: param.rawDataStopTime,
-				})
-			: [];
+		const v3v4Result =
+			isVCRevisionEnabled('fy25.03', experienceKey) || isVCRevisionEnabled('fy26.04', experienceKey)
+				? await this.newVCObserver?.getVCResult({
+						start: param.start,
+						stop: param.stop,
+						interactionId: param.interactionId,
+						ssr: param.ssr,
+						include3p,
+						excludeSmartAnswersInSearch,
+						includeSSRRatio,
+						interactionType: param.interactionType,
+						isPageVisible: param.isPageVisible,
+						interactionAbortReason: param.interactionAbortReason,
+						includeRawData,
+						includeSSRInV3: param.includeSSRInV3,
+						rawDataStopTime: param.rawDataStopTime,
+					})
+				: [];
 
-		if (!v3v4Result) {
+		if (!v3v4Result || v3v4Result.length === 0) {
 			return v1v2Result ?? {};
 		}
 
-		const ssrRatio = v3v4Result[0].ssrRatio;
+		const ssrRatio = v3v4Result?.[0]?.ssrRatio;
 
 		return {
 			...(includeSSRRatio && ssrRatio !== undefined ? { 'ufo:vc:ssrRatio': ssrRatio } : {}),

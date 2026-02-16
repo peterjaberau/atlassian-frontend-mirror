@@ -1,3 +1,4 @@
+import type { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
 import type {
 	EditorCommand,
@@ -55,8 +56,9 @@ export type SyncedBlockEditorProps = {
 
 export type SyncedBlockRendererProps = {
 	api?: ExtractInjectionAPI<SyncedBlockPlugin>;
-	useFetchSyncBlockData: () => UseFetchSyncBlockDataResult;
+	syncBlockFetchResult: UseFetchSyncBlockDataResult;
 };
+
 export interface SyncedBlockPluginOptions extends LongPressSelectionPluginOptions {
 	enableSourceCreation?: boolean;
 	syncBlockDataProvider: SyncBlockDataProvider;
@@ -85,7 +87,7 @@ export type SyncedBlockPlugin = NextEditorPlugin<
 			flushSyncedBlocks: () => Promise<boolean>;
 		};
 		commands: {
-			copySyncedBlockReferenceToClipboard: () => EditorCommand;
+			copySyncedBlockReferenceToClipboard: (inputMethod: INPUT_METHOD) => EditorCommand;
 			insertSyncedBlock: () => EditorCommand;
 		};
 		dependencies: [

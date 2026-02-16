@@ -17,7 +17,7 @@ import { FieldId } from './field-id-context';
 const messageContainerStyles = cssMap({
 	root: {
 		color: token('color.text.danger', '#AE2A19'),
-		font: token('font.body.UNSAFE_small'),
+		font: token('font.body.small'),
 		marginBlockStart: token('space.050', '4px'),
 	},
 });
@@ -114,7 +114,7 @@ const CharacterCounter = ({
 	shouldShowAsError = true,
 	inputId,
 	testId,
-}: CharacterCounterProps) => {
+}: CharacterCounterProps): JSX.Element | null => {
 	const [announcementText, setAnnouncementText] = useState('');
 	const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 

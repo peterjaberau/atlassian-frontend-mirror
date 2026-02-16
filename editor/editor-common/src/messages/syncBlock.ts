@@ -6,21 +6,19 @@ export const syncBlockMessages = defineMessages({
 		defaultMessage: 'Copy',
 		description: 'Button label for copying the reference of sync block element to your clipboard',
 	},
-	copySyncBlockTooltip: {
-		id: 'fabric.editor.copySyncBlockTooltip',
-		defaultMessage: 'Copy reference to clipboard',
-		description:
-			'Tooltip for the button to copy the reference of sync block element to your clipboard',
+	copySyncedBlockTooltip: {
+		id: 'fabric.editor.copySyncedBlockTooltip',
+		defaultMessage: 'Copy synced block',
+		description: 'Tooltip for the button to copy synced block element ',
 	},
-
 	editSourceLabel: {
 		id: 'fabric.editor.editSourceLabel',
 		defaultMessage: 'Edit source',
 		description: 'Button label for editing the source of sync block element',
 	},
 	editSourceTooltip: {
-		id: 'fabric.editor.editSourceTooltip',
-		defaultMessage: 'Edit at the source location',
+		id: 'fabric.editor.editSourceTooltipEnabled',
+		defaultMessage: 'Edit synced content at source location',
 		description: 'Tooltip for the button to navigate to the source page of the sync block element',
 	},
 	editSourceTooltipDisabled: {
@@ -37,6 +35,11 @@ export const syncBlockMessages = defineMessages({
 		id: 'fabric.editor.syncedBlock.label.text',
 		defaultMessage: 'Synced block',
 		description: 'Label which appears above the synced block when it is selected',
+	},
+	unsyncedBlockLabel: {
+		id: 'fabric.editor.unsyncedBlock.label.text',
+		defaultMessage: 'Unsynced block',
+		description: 'Label which appears above the unsynced block when it is selected',
 	},
 	permissionDeniedHeading: {
 		id: 'fabric.editor.syncedBlockPermissionDeniedHeading',
@@ -90,16 +93,33 @@ export const syncBlockMessages = defineMessages({
 		defaultMessage: 'Synced from: {title}',
 		description: 'Tooltip that shows the source page title of the synced block',
 	},
+	referenceSyncBlockLastEdited: {
+		id: 'fabric.editor.referenceSyncBlockLastEdited',
+		defaultMessage: 'Last edited: ',
+		description: 'Tooltip that shows the last edited time of the synced block',
+	},
 	taskInDestinationSyncedBlockTooltip: {
 		id: 'fabric.editor.taskInDestinationSyncedBlockTooltip',
 		defaultMessage: 'This content is synced. Edit it at the source.',
 		description: 'Tooltip that shows when you hover over a task in the destination synced block',
 	},
-	deleteConfirmationModalTitle: {
-		id: 'fabric.editor.deleteConfirmationModalTitle',
-		defaultMessage: "You're about to delete synced content",
+	deleteConfirmationModalTitleSingle: {
+		id: 'fabric.editor.deleteConfirmationModalTitleSingle',
+		defaultMessage: 'Delete synced block?',
 		description:
-			'Title of delete confirmation modal that appears when user tries to delete source synced block',
+			'Title of delete confirmation modal that appears when user tries to delete source synced block that has no reference',
+	},
+	deletionConfirmationModalTitleSingle: {
+		id: 'fabric.editor.deletionConfirmationModalTitleSingle',
+		defaultMessage: 'Delete synced content?',
+		description:
+			'Title of delete confirmation modal that appears when user tries to delete source synced block that has no reference',
+	},
+	deleteConfirmationModalTitleMultiple: {
+		id: 'fabric.editor.deleteConfirmationModalTitleMultiple',
+		defaultMessage: 'Delete content in {count, plural, one {1 location} other {# locations}}?',
+		description:
+			'Title of delete confirmation modal that appears when user tries to delete source synced block that has references',
 	},
 	deleteConfirmationModalCancelButton: {
 		id: 'fabric.editor.deleteConfirmationModalCancelButton',
@@ -119,10 +139,38 @@ export const syncBlockMessages = defineMessages({
 		description:
 			'Text on button which retries deleting the sync block when the previous deletion failed',
 	},
+	deleteConfirmationModalDescriptionMultiple: {
+		id: 'fabric.editor.deleteConfirmationModalDescriptionMultiple',
+		defaultMessage:
+			'Deleting this content will also remove it from synced locations, where it will appear as an “Unsynced block”.',
+		description:
+			'Description of delete confirmation modal that appears when user tries to delete source synced block',
+	},
 	deleteConfirmationModalDescription: {
 		id: 'fabric.editor.deleteConfirmationModalDescriptionSingle',
 		defaultMessage:
 			'Deleting this content will also remove {syncBlockCount, plural, one {a synced block. References to this block} other {# synced blocks. References to these blocks}} in other locations will show an error. Continue with deletion?',
+		description:
+			'Description of delete confirmation modal that appears when user tries to delete source synced block',
+	},
+	deletionConfirmationModalDescription: {
+		id: 'fabric.editor.deletionConfirmationModalDescription',
+		defaultMessage:
+			'If you delete this synced block, it will become an “Unsynced block” in other locations. This action is permanent and cannot be undone.',
+		description:
+			'Description of delete confirmation modal that appears when user tries to delete source synced block',
+	},
+	deleteConfirmationModalDescriptionNoRef: {
+		id: 'fabric.editor.deleteConfirmationModalDescriptionNoRef',
+		defaultMessage:
+			"You'll no longer be able to reuse this synced block to keep content updated across locations. ",
+		description:
+			'Description of delete confirmation modal that appears when user tries to delete source synced block',
+	},
+	deletionConfirmationModalDescriptionNoRef: {
+		id: 'fabric.editor.deletionConfirmationModalDescriptionNoRef',
+		defaultMessage:
+			'Your content will no longer appear, and the synced block will be deleted. This action is permanent and cannot be undone.',
 		description:
 			'Description of delete confirmation modal that appears when user tries to delete source synced block',
 	},
@@ -150,8 +198,8 @@ export const syncBlockMessages = defineMessages({
 			'Description in flag which appears when a sync block cannot be deleted in offline mode',
 	},
 	cannotDeleteTitle: {
-		id: 'fabric.editor.error.title.cannotDelete',
-		defaultMessage: "We couldn't delete the synced block",
+		id: 'fabric.editor.error.flag.title.cannotDelete',
+		defaultMessage: 'Failed to delete synced block',
 		description: 'Title in flag which appears when a sync block cannot be deleted',
 	},
 	cannotDeleteDescription: {
@@ -197,19 +245,42 @@ export const syncBlockMessages = defineMessages({
 	notFoundDescription: {
 		id: 'fabric.editor.syncedBlockNotFoundDescription.non-final',
 		defaultMessage:
-			'We’re unable to display this content as its source has been deleted or archived.',
+			"We're unable to display this content as its source has been deleted or archived.",
 		description: 'Description for error state where the synced block cannot be found',
+	},
+	sourceUnsyncedDescription: {
+		id: 'fabric.editor.syncedBlockSourceUnsyncedDescription',
+		defaultMessage:
+			"We're unable to display this content as it's been unsynced from <a>{title}</a>.",
+		description: 'Description for error state where the synced block has its source unsynced',
+	},
+	sourceDeletedDescription: {
+		id: 'fabric.editor.syncedBlockSourceDeletedDescription',
+		defaultMessage:
+			"We're unable to display this content as it's been deleted from <a>{title}</a>.",
+		description: 'Description for error state where the synced block has its source unsynced',
+	},
+	genericNotFoundDescription: {
+		id: 'fabric.editor.syncedBlockGenericNotFoundDescription',
+		defaultMessage: "We're unable to display this synced content as it's been deleted or unsynced.",
+		description:
+			'Description for error state where the synced block has its source unsynced or deleted',
 	},
 	retryButton: {
 		id: 'fabric.editor.retrySyncedBlock',
 		defaultMessage: 'Try again',
 		description: 'Label for button which retries loading the synced block',
 	},
-
 	offlineError: {
-		id: 'fabric.editor.error.description.offline',
-		defaultMessage: `We're unable to display this content at the moment because you are offline.`,
+		id: 'fabric.editor.error.description.reference.offline',
+		defaultMessage: `We're unable to display synced blocks when you're offline`,
 		description: 'Error message which is shown over sync block when the editor is offline',
+	},
+	unpublishedError: {
+		id: 'fabric.editor.error.description.reference.unpublished',
+		defaultMessage: 'Synced content will display <link>when the page is published</link>',
+		description:
+			'Error message which is shown over sync block when the source page is unpublished.',
 	},
 	syncBlockCopiedTitle: {
 		id: 'fabric.editor.syncBlockCopiedTitle',
@@ -226,5 +297,154 @@ export const syncBlockMessages = defineMessages({
 		id: 'fabric.editor.syncBlockCopiedAction',
 		defaultMessage: 'Learn more',
 		description: 'Action in flag which appears when a sync block is copied to learn more',
+	},
+	syncedLocationDropdownTitle: {
+		id: 'fabric.editor.syncedLocationDropdownTitle',
+		defaultMessage: 'Synced locations',
+		description:
+			'Title for the dropdown menu that shows the synced (referenced) locations of the source sync block',
+	},
+	syncedLocationDropdownHeading: {
+		id: 'fabric.editor.syncedLocationDropdownHeading',
+		defaultMessage: '{count} locations:',
+		description:
+			'Heading for the dropdown menu that shows the synced (referenced) locations of the source sync block',
+	},
+	syncedLocationDropdownError: {
+		id: 'fabric.editor.syncedLocationDropdownError',
+		defaultMessage:
+			"We can't load locations right now. Please wait a few minutes and refresh your browser.",
+		description:
+			'Error message shown in the synced location dropdown menu when fail to fetch the synced (referenced) locations of the source sync block',
+	},
+	syncedLocationDropdownNoResults: {
+		id: 'fabric.editor.syncedLocationDropdownNoResults',
+		defaultMessage: 'Copy and paste synced blocks to reuse in other locations.',
+		description:
+			'Message shown in the synced location dropdown menu when no shared locations are found',
+	},
+	syncedLocationDropdownLearnMoreLink: {
+		id: 'fabric.editor.syncedLocationDropdownLearnMoreLink',
+		defaultMessage: 'Learn more about synced blocks',
+		description:
+			'Link shown in the synced location dropdown menu to learn more about synced blocks',
+	},
+	syncedLocationDropdownSamePage: {
+		id: 'fabric.editor.syncedLocationDropdownSamePage',
+		defaultMessage: 'This page',
+		description:
+			'Message shown in the synced location dropdown option when the reference sync block is on the same page',
+	},
+	syncedLocationDropdownTitleBlockIndex: {
+		id: 'fabric.editor.syncedLocationDropdownTitleNote',
+		defaultMessage: 'block {index}',
+		description:
+			'Suffix for page title shown in synced location dropdown option when there are multiple references to the same page',
+	},
+	syncedLocationDropdownTitleNoteForConfluencePage: {
+		id: 'fabric.editor.syncedLocationDropdownTitleNoteForConfluencePage',
+		defaultMessage: 'This page',
+		description:
+			'Note shown next to the page title in the synced location dropdown option when the sync block is on the current page',
+	},
+	syncedLocationDropdownTitleNoteForJiraWorkItem: {
+		id: 'fabric.editor.syncedLocationDropdownTitleNoteForJiraWorkItem',
+		defaultMessage: 'This work item',
+		description:
+			'Note shown next to the work item title in the synced location dropdown option when the sync block is on the current work item',
+	},
+	syncedLocationDropdownSourceLozenge: {
+		id: 'fabric.editor.syncedLocationDropdownSourceLozenge',
+		defaultMessage: 'Source',
+		description:
+			'Lozenge label shown in the synced location dropdown option when the sync block is source',
+	},
+	syncedLocationDropdownRequestAccess: {
+		id: 'fabric.editor.syncedLocationDropdownRequestAccess',
+		defaultMessage: 'Request access',
+		description:
+			'Label shown in the synced location dropdown option when the sync block is not accessible to the user',
+	},
+	unpublishedSyncBlockPastedTitle: {
+		id: 'fabric.editor.unpublishedSyncBlockPastedTitle',
+		defaultMessage: 'Pasted from unpublished page',
+		description:
+			'Title in flag which appears when a reference to an unpublished sync block is pasted',
+	},
+	unpublishedSyncBlockPastedDescription: {
+		id: 'fabric.editor.unpublishedSyncBlockPastedDescription',
+		defaultMessage: 'When the page is published, the content will be displayed.',
+		description:
+			'Description in flag which appears when a reference to an unpublished sync block is pasted',
+	},
+	unsyncButton: {
+		id: 'fabric.editor.syncedBlock.unsync',
+		defaultMessage: 'Unsync',
+		description: 'Text on the button which unsyncs the sync block',
+	},
+	deleteConfirmationModalUnsyncButton: {
+		id: 'fabric.editor.deleteConfirmationModalUnsyncButton',
+		defaultMessage: 'Unsync',
+		description:
+			'Text on button which confirms unsyncing the sync block when user was trying to unsync source synced block',
+	},
+	unsyncConfirmationModalTitle: {
+		id: 'fabric.editor.unsyncConfirmationModalTitle',
+		defaultMessage: 'Unsync this content?',
+		description:
+			'Title of unsync confirmation modal that appears when user tries to unsync source synced block',
+	},
+	unsyncConfirmationModalDescriptionSingle: {
+		id: 'fabric.editor.unsyncConfirmationModalDescriptionSingle',
+		defaultMessage: 'Your content will stay here. It will no longer be a synced block.',
+		description:
+			'Description of unsync confirmation modal that appears when user tries to unsync source synced block with no reference',
+	},
+	unsyncConfirmModalDescriptionSingle: {
+		id: 'fabric.editor.unsyncConfirmModalDescriptionSingle',
+		defaultMessage:
+			'Your content will stay here. It will no longer be a synced block. This action is permanent and cannot be undone.',
+		description:
+			'Description of unsync confirmation modal that appears when user tries to unsync source synced block with no reference',
+	},
+	unsyncConfirmationModalDescriptionMultiple: {
+		id: 'fabric.editor.unsyncConfirmationModalDescriptionMultiple',
+		defaultMessage:
+			'Your content will stay here. In {syncBlockCount, plural, one {1 other synced location} other {# other synced locations}} it will appear as an “Unsynced block”. ',
+		description:
+			'Description of unsync confirmation modal that appears when user tries to unsync source synced block with multiple references',
+	},
+	unsyncConfirmModalDescriptionMultiple: {
+		id: 'fabric.editor.unsyncConfirmModalDescriptionMultiple',
+		defaultMessage:
+			'Your content will stay here. In {syncBlockCount, plural, one {1 other synced location} other {# other synced locations}} it will appear as an “Unsynced block”. This action is permanent and cannot be undone.',
+		description:
+			'Description of unsync confirmation modal that appears when user tries to unsync source synced block with multiple references',
+	},
+	cannotPasteSyncedBlockTitle: {
+		id: 'fabric.editor.cannotPasteSyncedBlockTitle',
+		defaultMessage: 'Unable to paste',
+		description: 'Title in flag which appears when a synced block cannot be pasted',
+	},
+	cannotPasteSyncedBlockDescription: {
+		id: 'fabric.editor.cannotPasteSyncedBlockDescription',
+		defaultMessage:
+			'We’re still building this feature. Currently, you can only paste synced content once your work item has been created. ',
+		description: 'Description in flag which appears when a synced block cannot be pasted',
+	},
+	cannotPasteSyncedBlockAction: {
+		id: 'fabric.editor.cannotPasteSyncedBlockAction',
+		defaultMessage: 'Learn more',
+		description: 'Action in flag which appears when a synced block cannot be pasted to learn more',
+	},
+	cannotCreateSyncBlockTitle: {
+		id: 'fabric.editor.cannotCreateSyncBlockTitle',
+		defaultMessage: 'Unable to create synced block',
+		description: 'Title in flag which appears when a synced block cannot be created',
+	},
+	CannotCreateSyncBlockDescription: {
+		id: 'fabric.editor.cannotCreateSyncBlockDescription',
+		defaultMessage: 'An error occurred while trying to create this synced block. ',
+		description: 'Description in flag which appears when a synced block cannot be created',
 	},
 });

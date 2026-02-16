@@ -1,5 +1,48 @@
 # @atlaskit/editor-ssr-renderer
 
+## 2.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.1
+
+### Patch Changes
+
+- [`3242cbd5e88b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3242cbd5e88b9) -
+  Update packages to match prosemirror library updates
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`04b96fcb2ac43`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/04b96fcb2ac43) -
+  Use existing function to check if SSR
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 2.0.1
 
 ### Patch Changes

@@ -20,13 +20,28 @@ import {
 	syncBlockGenericErrorAdf,
 	syncBlockLoadingStateAdf,
 	syncBlockInvalidRequestErrorAdf,
+	syncBlockUnsyncNotFoundAdf,
 } from './__fixtures__/sync-block.adf';
+import { SyncBlockActionsProvider } from '@atlaskit/editor-common/sync-block';
+
+const mockSourceInfo: Record<string, { title: string; url: string }> = {
+	'ari:cloud:confluence:test-sync-block-not-found:page/1234/abc': {
+		title: 'Test page with long title',
+		url: 'https://test.atlassian.net/wiki/spaces/TEST/pages/123',
+	},
+	'ari:cloud:confluence:test-sync-block-not-found-unsync:page/1234/abc': {
+		title: 'Test page with long title',
+		url: 'https://test.atlassian.net/wiki/spaces/TEST/pages/123',
+	},
+};
 
 export const SyncBlockRenderer = ({
 	doc,
 	mockRelayEnvironment = false,
+	isNotFoundError = false,
 }: {
 	doc: DocNode;
+	isNotFoundError?: boolean;
 	mockRelayEnvironment?: boolean;
 }) => {
 	const syncBlockNodes = useMemo(() => getSyncBlockNodesFromDoc(doc), [doc]);
@@ -48,12 +63,24 @@ export const SyncBlockRenderer = ({
 		/>
 	);
 
-
 	if (mockRelayEnvironment) {
 		return (
 			<RelayEnvironmentProvider environment={mockEnvironment}>
 				{rendererContent}
 			</RelayEnvironmentProvider>
+		);
+	}
+
+	if (isNotFoundError) {
+		return (
+			<SyncBlockActionsProvider
+				fetchSyncBlockSourceInfo={(sourceAri: string) => {
+					const sourceInfo = mockSourceInfo[sourceAri];
+					return Promise.resolve(sourceInfo);
+				}}
+			>
+				{rendererContent}
+			</SyncBlockActionsProvider>
 		);
 	}
 
@@ -69,7 +96,11 @@ export const SyncBlockWithPermissionDenied = () => {
 };
 
 export const SyncBlockNotFound = () => {
-	return <SyncBlockRenderer doc={syncBlockNotFoundAdf} />;
+	return <SyncBlockRenderer doc={syncBlockNotFoundAdf} isNotFoundError={true} />;
+};
+
+export const SyncBlockUnsyncNotFound = () => {
+	return <SyncBlockRenderer doc={syncBlockUnsyncNotFoundAdf} isNotFoundError={true} />;
 };
 
 export const SyncBlockGenericError = () => {

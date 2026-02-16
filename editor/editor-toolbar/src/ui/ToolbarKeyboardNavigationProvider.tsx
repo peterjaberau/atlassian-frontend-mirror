@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef } from 'react';
 
 import { getDocument } from '@atlaskit/browser-apis';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { ToolbarKeyboardNavigationProviderConfig } from '../types';
 
@@ -113,33 +113,24 @@ export const ToolbarKeyboardNavigationProvider = ({
 				return;
 			}
 
-			if (fg('platform_editor_toolbar_aifc_patch_7')) {
-				switch (event.key) {
-					case 'Escape':
-						handleEscape(event);
-						break;
-					case 'ArrowLeft':
-						event.preventDefault();
-						moveFocus('left');
-						break;
-					case 'ArrowRight':
-						event.preventDefault();
-						moveFocus('right');
-						break;
-					case 'Tab': {
-						handleTab();
-						break;
-					}
-					default:
+			switch (event.key) {
+				case 'Escape':
+					handleEscape(event);
+					break;
+				case 'ArrowLeft':
+					event.preventDefault();
+					moveFocus('left');
+					break;
+				case 'ArrowRight':
+					event.preventDefault();
+					moveFocus('right');
+					break;
+				case 'Tab': {
+					handleTab();
+					break;
 				}
-			} else {
-				switch (event.key) {
-					case 'Escape':
-						handleEscape(event);
-						break;
-					default:
-				}
-			}
+				default:
+			};
 		};
 
 		const globalKeyDownHandler = (event: KeyboardEvent): void => {
@@ -176,6 +167,11 @@ export const ToolbarKeyboardNavigationProvider = ({
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- ignored via go/DSP-18766
 			className="custom-key-handler-wrapper"
 			ref={wrapperRef}
+			role={
+				expValEquals('platform_editor_aifc_remove_duplicate_role', 'isEnabled', true)
+					? 'toolbar'
+					: undefined
+			}
 			aria-label={ariaLabel}
 			aria-controls={ariaControls}
 		>

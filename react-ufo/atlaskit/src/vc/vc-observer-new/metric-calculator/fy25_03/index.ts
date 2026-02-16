@@ -47,9 +47,7 @@ const getConsideredEntryTypes = (
 		entryTypes.push('mutation:smart-answers-attribute');
 	}
 
-	if (fg('platform_ufo_enable_media_for_ttvc_v3')) {
-		entryTypes.push('mutation:media');
-	}
+	entryTypes.push('mutation:media');
 
 	// Still included as part of TTVC v3
 	entryTypes.push('mutation:attribute:non-visual-input-name');
@@ -70,6 +68,10 @@ export default class VCCalculator_FY25_03 extends AbstractVCCalculatorBase {
 		if (
 			!getConsideredEntryTypes(include3p, excludeSmartAnswersInSearch).includes(entry.data.type)
 		) {
+			return false;
+		}
+
+		if (entry.data.type === 'mutation:attribute:framework-routing') {
 			return false;
 		}
 

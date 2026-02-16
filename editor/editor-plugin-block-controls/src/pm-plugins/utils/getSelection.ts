@@ -102,7 +102,15 @@ const oldGetSelection = (tr: Transaction, start: number) => {
 	}
 };
 
-const newGetSelection = (doc: PMNode, selectionEmpty: boolean, start: number) => {
+/**
+ * Gets the appropriate selection for the node at the given start position.
+ *
+ * @param doc The ProseMirror document.
+ * @param selectionEmpty Indicates if the current selection is empty.
+ * @param start The start position of the node.
+ * @returns The appropriate selection for the node.
+ */
+export const newGetSelection = (doc: PMNode, selectionEmpty: boolean, start: number) => {
 	const node = doc.nodeAt(start);
 	const isNodeSelection = node && NodeSelection.isSelectable(node);
 	const nodeSize = node ? node.nodeSize : 1;
@@ -113,6 +121,17 @@ const newGetSelection = (doc: PMNode, selectionEmpty: boolean, start: number) =>
 		if (nodeName === 'mediaGroup' && node?.childCount === 1) {
 			const $mediaStartPos = doc.resolve(start + 1);
 			return new NodeSelection($mediaStartPos);
+		}
+
+		// if heading with alignment nested inside a layout column, return TextSelection
+		// As NodeSelection cause the desc.selectNode is not a function error in the syncNodeSelection in prosemirror view
+		// Results in block menu not open on the first 2 clicks for a heading with alignment nested inside a layout column
+		if (
+			nodeName === 'heading' &&
+			node?.marks.some((mark) => mark.type.name === 'alignment') &&
+			doc.nodeAt(start - 1)?.type.name === 'layoutColumn'
+		) {
+			return TextSelection.create(doc, start, start + nodeSize);
 		}
 
 		return new NodeSelection(doc.resolve(start));

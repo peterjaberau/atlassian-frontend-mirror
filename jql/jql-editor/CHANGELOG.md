@@ -1,5 +1,51 @@
 # @atlaskit/jql-editor
 
+## 5.12.7
+
+### Patch Changes
+
+- [`4311851ff86b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4311851ff86b8) -
+  cleaning up enghealth-46329-no-literal-strings fg
+
+## 5.12.6
+
+### Patch Changes
+
+- [`a683937d723cb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a683937d723cb) -
+  Update JQL editor view radius
+
+## 5.12.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.12.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.12.3
+
+### Patch Changes
+
+- [`db16d1751c5ad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db16d1751c5ad) -
+  Internal changes to typography.
+
+## 5.12.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.12.1
+
+### Patch Changes
+
+- [`97eb8bff0959d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/97eb8bff0959d) -
+  Add data-vc html attributes to jql editor elements
+
 ## 5.12.0
 
 ### Minor Changes

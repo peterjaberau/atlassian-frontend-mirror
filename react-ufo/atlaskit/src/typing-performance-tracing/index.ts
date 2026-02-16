@@ -95,9 +95,15 @@ function typingPerformanceTracingTimeout(element: HTMLElement, name: string, rat
 		}, 0);
 	};
 
+	if (typeof element?.addEventListener !== 'function') {
+		return;
+	}
 	// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
 	element.addEventListener('keypress', onKeyPressHandler);
 	return () => {
+		if (typeof element?.removeEventListener !== 'function') {
+			return;
+		}
 		// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
 		element.removeEventListener('keypress', onKeyPressHandler);
 	};
@@ -173,9 +179,15 @@ function typingPerformanceTracingTimeoutNoAlloc(element: HTMLElement, name: stri
 		}, 0);
 	};
 
+	if (typeof element?.addEventListener !== 'function') {
+		return;
+	}
 	// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
 	element.addEventListener('keypress', onKeyPressHandler);
 	return () => {
+		if (typeof element?.removeEventListener !== 'function') {
+			return;
+		}
 		// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
 		element.removeEventListener('keypress', onKeyPressHandler);
 	};
@@ -276,11 +288,16 @@ function typingPerformanceTracingMutationObserver(
 		subtree: true,
 	});
 
+	if (typeof element?.addEventListener !== 'function') {
+		return () => mo.disconnect();
+	}
 	// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
 	element.addEventListener('keypress', onKeyPressHandler);
 	return () => {
-		// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
-		element.removeEventListener('keypress', onKeyPressHandler);
+		if (typeof element?.removeEventListener === 'function') {
+			// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
+			element.removeEventListener('keypress', onKeyPressHandler);
+		}
 		mo.disconnect();
 	};
 }

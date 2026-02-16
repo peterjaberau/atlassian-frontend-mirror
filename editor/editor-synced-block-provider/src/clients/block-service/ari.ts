@@ -44,10 +44,23 @@ export const generateBlockAriFromReference = ({
  * @param ari - the block ARI. E.G ari:cloud:blocks:cloudId:synced-block/localId
  * @returns the localId of the block node. A randomly generated UUID
  */
-export const getLocalIdFromBlockResourceId = (ari: string) => {
+export const getLocalIdFromBlockResourceId = (ari: string): string => {
 	const match = ari.match(/ari:cloud:blocks:[^:]+:synced-block\/([a-zA-Z0-9-]+)/);
 	if (match?.[1]) {
 		return match[1];
 	}
 	throw new Error(`Invalid page ARI: ${ari}`);
+};
+
+export const getProductFromSourceAri = (ari?: string): SyncBlockProduct | undefined => {
+	const jiraMatch = ari?.search(/ari:cloud:jira:.*/);
+	if (jiraMatch !== -1) {
+		return 'jira-work-item';
+	}
+	const confluenceMatch = ari?.search(/ari:cloud:confluence:.*/);
+	if (confluenceMatch !== -1) {
+		return 'confluence-page';
+	}
+
+	return undefined;
 };

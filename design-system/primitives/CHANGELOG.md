@@ -1,5 +1,35 @@
 # @atlaskit/primitives
 
+## 18.0.0
+
+### Major Changes
+
+- [`2abd451d54eb2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2abd451d54eb2) -
+  Removes atlassian-legacy-light/dark color themes from the tokens package. These themes are unused
+  and non-functional in terms of color contrast. As a result some primitive components may recieve
+  modern fallback color values in some scenarios, however these are inline with the latest token
+  themes.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- [`f111803c4e253`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f111803c4e253) -
+  Updating typography fallbacks to refreshed typography values as the deprecated legacy typography
+  theme has been removed.
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`f9c6c17de4114`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f9c6c17de4114) -
+  Cleaning up platform_migrate_to_native_box and removing codegen Box
+
 ## 17.0.0
 
 ### Major Changes

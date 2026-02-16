@@ -18,7 +18,7 @@ export const JIRA_PROBLEM = 'JiraProblem';
 export const JIRA_CUSTOM_TASK_TYPE = 'JiraCustomTaskType';
 
 //List of provider keys that support theme modes for the embedded content.
-export const PROVIDER_KEYS_WITH_THEMING = [
+export const PROVIDER_KEYS_WITH_THEMING: string[] = [
 	'jira-object-provider',
 	'confluence-object-provider',
 	'watermelon-object-provider',
@@ -149,7 +149,7 @@ export const JiraCustomTaskType = generateJiraTask(
 	'Musician Request',
 	{ name: 'done', appearance: 'success' },
 );
-export const JiraCustomTaskTypeWithIcon = (() => {
+export const JiraCustomTaskTypeWithIcon: any = (() => {
 	const json: any = generateJiraTask(
 		'Perform at the Conga Club',
 		JIRA_CUSTOM_TASK_TYPE,
@@ -172,7 +172,7 @@ export const JiraTaskWithNoEditPermission = generateJiraTask(
 	false,
 );
 
-export const JiraTasks = [
+export const JiraTasks: any[] = [
 	JiraTask,
 	JiraSubTask,
 	JiraStory,

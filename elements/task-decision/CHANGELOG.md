@@ -1,5 +1,38 @@
 # @atlaskit/task-decision
 
+## 19.2.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.21
+
+### Patch Changes
+
+- [`64f80db3e663a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64f80db3e663a) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+- Updated dependencies
+
+## 19.2.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.18
+
+### Patch Changes
+
+- [`b5aad0477b7bb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b5aad0477b7bb) -
+  EDITOR-3433: Fix missing task item id when using progressive renderer.
+
 ## 19.2.17
 
 ### Patch Changes

@@ -26,6 +26,7 @@ import { type CreateUIAnalyticsEvent, createAndFireEvent } from '@atlaskit/analy
 import { type MediaCardError, type MediaCardErrorPrimaryReason } from '../../errors';
 import { type CardPreviewSource, type CardDimensions, type CardStatus } from '../../types';
 import { type SSR } from '@atlaskit/media-common';
+import { type ProcessingFailReason } from '@atlaskit/media-state';
 
 export type CardPreviewAttributes = {
 	fileId: string;
@@ -101,6 +102,7 @@ export type RenderFailedEventPayload = OperationalEventPayload<
 			error?: MediaClientErrorReason | 'nativeError';
 			statusCode?: number;
 			request?: RequestMetadata;
+			processingFailReason?: ProcessingFailReason | 'not-available';
 		},
 	'failed',
 	'mediaCardRender'
@@ -171,6 +173,7 @@ export type RenderInlineCardFailedEventPayload = OperationalEventPayload<
 			failReason: FailedErrorFailReason | 'failed-processing';
 			error?: MediaClientErrorReason | 'nativeError';
 			request?: RequestMetadata;
+			processingFailReason?: ProcessingFailReason | 'not-available';
 		},
 	'failed',
 	'mediaInlineRender'
@@ -273,6 +276,7 @@ export const getRenderSucceededEventPayload = (
 	ssrReliability: SSRStatus,
 	traceContext: MediaTraceContext,
 	metadataTraceContext?: MediaTraceContext,
+	samplingRate?: number,
 ): RenderSucceededEventPayload => ({
 	eventType: 'operational',
 	action: 'succeeded',
@@ -285,6 +289,7 @@ export const getRenderSucceededEventPayload = (
 		ssrReliability,
 		traceContext,
 		metadataTraceContext,
+		...(samplingRate !== undefined && { samplingRate }),
 	},
 });
 
@@ -477,6 +482,7 @@ export const getRenderFailedFileStatusPayload = (
 	ssrReliability: SSRStatus,
 	traceContext: MediaTraceContext,
 	metadataTraceContext?: MediaTraceContext,
+	processingFailReason?: ProcessingFailReason,
 ): RenderFailedEventPayload => ({
 	eventType: 'operational',
 	action: 'failed',
@@ -487,6 +493,8 @@ export const getRenderFailedFileStatusPayload = (
 		performanceAttributes,
 		status: 'fail',
 		failReason: 'failed-processing',
+		// 'not-available' is used for cases before processingFailReason implementation (backward compatibility)
+		processingFailReason: processingFailReason || 'not-available',
 		ssrReliability,
 		traceContext,
 		metadataTraceContext,

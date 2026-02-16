@@ -15,7 +15,7 @@ function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r
  * This allows users to compose their themes and only use the tokens that are requested.
  * When a new theme is created, the import should automatically be added to the map
  *
- * @codegen <<SignedSource::9191189f78aa08332c0debbe868dc103>>
+ * @codegen <<SignedSource::c1144182e959da59d17686bccb9fac30>>
  * @codegenCommand yarn build tokens
  */
 
@@ -56,18 +56,6 @@ var themeImportsMap = {
       './themes/atlassian-dark-increased-contrast'));
     });
   },
-  'legacy-light': function legacyLight() {
-    return Promise.resolve().then(function () {
-      return _interopRequireWildcard(require( /* webpackChunkName: "@atlaskit-internal_atlassian-legacy-light" */
-      './themes/atlassian-legacy-light'));
-    });
-  },
-  'legacy-dark': function legacyDark() {
-    return Promise.resolve().then(function () {
-      return _interopRequireWildcard(require( /* webpackChunkName: "@atlaskit-internal_atlassian-legacy-dark" */
-      './themes/atlassian-legacy-dark'));
-    });
-  },
   'spacing': function spacing() {
     return Promise.resolve().then(function () {
       return _interopRequireWildcard(require( /* webpackChunkName: "@atlaskit-internal_atlassian-spacing" */
@@ -80,28 +68,10 @@ var themeImportsMap = {
       './themes/atlassian-typography'));
     });
   },
-  'typography-adg3': function typographyAdg3() {
-    return Promise.resolve().then(function () {
-      return _interopRequireWildcard(require( /* webpackChunkName: "@atlaskit-internal_atlassian-typography-adg3" */
-      './themes/atlassian-typography-adg3'));
-    });
-  },
   'shape': function shape() {
     return Promise.resolve().then(function () {
       return _interopRequireWildcard(require( /* webpackChunkName: "@atlaskit-internal_atlassian-shape" */
       './themes/atlassian-shape'));
-    });
-  },
-  'typography-modernized': function typographyModernized() {
-    return Promise.resolve().then(function () {
-      return _interopRequireWildcard(require( /* webpackChunkName: "@atlaskit-internal_atlassian-typography-modernized" */
-      './themes/atlassian-typography-modernized'));
-    });
-  },
-  'typography-refreshed': function typographyRefreshed() {
-    return Promise.resolve().then(function () {
-      return _interopRequireWildcard(require( /* webpackChunkName: "@atlaskit-internal_atlassian-typography-refreshed" */
-      './themes/atlassian-typography-refreshed'));
     });
   }
 };

@@ -1,5 +1,88 @@
 # @atlaskit/editor-plugin-annotation
 
+## 7.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.1
+
+### Patch Changes
+
+- [`1398a2c3501f1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1398a2c3501f1) -
+  fix flash of resolved comments issue
+- Updated dependencies
+
+## 7.1.0
+
+### Minor Changes
+
+- [`2e81b0a120444`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2e81b0a120444) -
+  Removing platform_editor_annotation_selected_annotation as a part of clean up
+
+## 7.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.3
+
+### Patch Changes
+
+- [`ee5135bafb31d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee5135bafb31d) -
+  [EDITOR-4495] clean up platform_editor_toolbar_aifc_patch_4
+- Updated dependencies
+
+## 7.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.0.1
 
 ### Patch Changes

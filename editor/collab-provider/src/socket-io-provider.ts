@@ -17,6 +17,7 @@ export function createSocketIOSocket(
 	isPresenceOnly?: boolean,
 	analyticsHelper?: AnalyticsHelper,
 	path?: string,
+	documentAri?: string,
 ): Socket {
 	const { pathname } = new URL(url);
 	let socketIOOptions = SOCKET_IO_OPTIONS;
@@ -24,8 +25,8 @@ export function createSocketIOSocket(
 	let transports = ['polling', 'websocket'];
 	let usePMR = false;
 
-	// Limit this change to Presence only
 	if (isPresenceOnly) {
+		// Presence-specific configuration
 		if (fg('platform-editor-presence-websocket-only')) {
 			// https://socket.io/docs/v4/client-options/#transports
 			// WebSocket first, if fails, try polling
@@ -33,6 +34,7 @@ export function createSocketIOSocket(
 		}
 		socketIOOptions = SOCKET_IO_OPTIONS_WITH_HIGH_JITTER;
 
+		// PMR routing for presence traffic
 		if (
 			(isIsolatedCloud() &&
 				expValEquals(
@@ -51,6 +53,29 @@ export function createSocketIOSocket(
 		) {
 			usePMR = true;
 		}
+	} else {
+		// PMR routing for edit traffic
+		if (
+			expValEquals('platform_editor_to_use_pmr_for_collab_edit_none_ic', 'isEnabled', true, false)
+		) {
+			usePMR = true;
+		}
+	}
+
+	const extraHeaders: Record<string, string> = {
+		'x-product': getProduct(productInfo),
+		'x-subproduct': getSubProduct(productInfo),
+	};
+
+	if (
+		expValEquals(
+			'platform_editor_send_client_platform_header',
+			'isEnabled',
+			true,
+			false,
+		)
+	) {
+		extraHeaders['x-client-platform'] = 'web';
 	}
 
 	const client = io(url, {
@@ -62,10 +87,10 @@ export function createSocketIOSocket(
 		transports,
 		path: usePMR && path ? `${path}/socket.io` : `/${pathname.split('/')[1]}/socket.io`,
 		auth,
-		extraHeaders: {
-			'x-product': getProduct(productInfo),
-			'x-subproduct': getSubProduct(productInfo),
-		},
+		extraHeaders,
+		query: {
+			sourceId: documentAri?.split('/')[1]
+		}
 	});
 
 	return client;

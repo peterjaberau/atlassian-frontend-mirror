@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-status",
-	"version": "8.1.0",
+	"version": "8.1.12",
 	"description": "Status plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -54,7 +54,7 @@
 		"react-intl-next": "*"
 	},
 	"devDependencies": {
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"raf-stub": "root:*"
 	},
 	"techstack": {
@@ -97,7 +97,7 @@
 		"platform-component-visual-refresh": {
 			"type": "boolean"
 		},
-		"editor_a11y_aria_label_removal_popup": {
+		"_editor_a11y_aria_label_removal_popup": {
 			"type": "boolean"
 		},
 		"platform-lozenge-custom-letterspacing": {

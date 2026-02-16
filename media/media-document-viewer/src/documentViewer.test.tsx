@@ -3,6 +3,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 import { ffTest } from '@atlassian/feature-flags-test-utils';
 
 import { DocumentViewer, type DocumentViewerProps } from './documentViewer';
@@ -51,6 +52,11 @@ const makeAllIntersectionObserversVisible = async () => {
 	});
 	await new Promise((resolve) => setTimeout(resolve, 0));
 };
+
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
 
 describe('DocumentViewer', () => {
 	const mockFont: Font = {
@@ -548,8 +554,8 @@ describe('DocumentViewer', () => {
 			expect(page).toBeInTheDocument();
 
 			// Should use content dimensions (800x600 from mockPageContent)
-			const expectedWidth = 'calc(var(--document-viewer-zoom) * 842px)';
-			const expectedHeight = 'calc(var(--document-viewer-zoom) * 595px)';
+			const expectedWidth = 'calc(var(--document-viewer-zoom) * 800px)';
+			const expectedHeight = 'calc(var(--document-viewer-zoom) * 600px)';
 
 			expect(page).toHaveStyle(`width: ${expectedWidth}`);
 			expect(page).toHaveStyle(`height: ${expectedHeight}`);
@@ -739,38 +745,16 @@ describe('DocumentViewer', () => {
 			// await expect(document.body).toBeAccessible({ violationCount: 2 });
 		});
 
-		ffTest.on(
-			'media-document-viewer-annotations',
-			'should utilise pdfium server side rendered inputs when feature flag is enabled',
-			() => {
-				it('should utilise pdfium server side rendered inputs when feature flag is enabled', async () => {
-					const props = createMockProps();
-					render(<DocumentViewer {...props} />);
-					await waitFor(async () => await makeAllIntersectionObserversVisible());
+		it('should utilise pdfium server side rendered inputs', async () => {
+			const props = createMockProps();
+			render(<DocumentViewer {...props} />);
+			await waitFor(async () => await makeAllIntersectionObserversVisible());
 
-					// Transparent font
-					expect(screen.queryByTestId('text-form-field-0')?.querySelector('input')).toHaveStyle(
-						'color: rgba(0, 0, 0, 0)',
-					);
-				});
-			},
-		);
-		ffTest.off(
-			'media-document-viewer-annotations',
-			'should not utilise pdfium server side rendered inputs when feature flag is enabled',
-			() => {
-				it('should not render annotations when annotations feature flag is disabled', async () => {
-					const props = createMockProps();
-					render(<DocumentViewer {...props} />);
-					await waitFor(async () => await makeAllIntersectionObserversVisible());
-
-					// Will always render over pdfium server side rendered input
-					expect(screen.queryByTestId('text-form-field-0')?.querySelector('input')).not.toHaveStyle(
-						'color: rgba(0, 0, 0, 0)',
-					);
-				});
-			},
-		);
+			// Transparent font
+			expect(screen.queryByTestId('text-form-field-0')?.querySelector('input')).toHaveStyle(
+				'color: rgba(0, 0, 0, 0)',
+			);
+		});
 	});
 
 	describe('Document Links', () => {

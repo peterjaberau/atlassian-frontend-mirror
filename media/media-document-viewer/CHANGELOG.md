@@ -1,5 +1,31 @@
 # @atlaskit/media-document-viewer
 
+## 0.6.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.6.6
+
+### Patch Changes
+
+- [`64f80db3e663a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64f80db3e663a) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+- Updated dependencies
+
+## 0.6.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 0.6.3
 
 ### Patch Changes

@@ -154,7 +154,7 @@ class MediaNodeView extends SelectionBasedNodeView<MediaNodeViewProps> {
 		return domRef;
 	}
 
-	viewShouldUpdate(nextNode: PMNode, decorations: Decoration[]) {
+	viewShouldUpdate(nextNode: PMNode, decorations: Decoration[]): boolean {
 		const hasMediaNodeSelectedDecoration = decorations.some(
 			(decoration) =>
 				isMediaDecorationSpec(decoration) &&
@@ -174,7 +174,7 @@ class MediaNodeView extends SelectionBasedNodeView<MediaNodeViewProps> {
 		return super.viewShouldUpdate(nextNode, decorations);
 	}
 
-	stopEvent(event: Event) {
+	stopEvent(event: Event): boolean {
 		// Don't trap right click events on media node
 		if (['mousedown', 'contextmenu'].indexOf(event.type) !== -1) {
 			const mouseEvent = event as MouseEvent;
@@ -245,6 +245,22 @@ class MediaNodeView extends SelectionBasedNodeView<MediaNodeViewProps> {
 		return flexibleDimensions;
 	};
 
+	getMediaProviderToUse = (mediaOptions: MediaOptions, mediaProvider?: Promise<MediaProvider>) => {
+		if (mediaProvider) {
+			return mediaProvider;
+		}
+
+		if (expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)) {
+			return mediaOptions.provider;
+		}
+
+		if (expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
+			return mediaOptions.syncProvider
+				? Promise.resolve(mediaOptions.syncProvider)
+				: mediaOptions.provider;
+		}
+	};
+
 	renderMediaNodeWithState = (contextIdentifierProvider?: Promise<ContextIdentifierProvider>) => {
 		return ({
 			mediaProvider,
@@ -281,13 +297,6 @@ class MediaNodeView extends SelectionBasedNodeView<MediaNodeViewProps> {
 			const isSelectedAndInteracted =
 				this.nodeInsideSelection() && interactionState !== 'hasNotHadInteraction';
 
-			let mediaProviderToUse = mediaProvider;
-			if (!mediaProviderToUse && expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
-				mediaProviderToUse = mediaOptions.syncProvider
-					? Promise.resolve(mediaOptions.syncProvider)
-					: mediaOptions.provider;
-			}
-
 			return (
 				<MediaNode
 					api={pluginInjectionApi}
@@ -298,7 +307,8 @@ class MediaNodeView extends SelectionBasedNodeView<MediaNodeViewProps> {
 					originalDimensions={originalDimensions}
 					maxDimensions={maxDimensions}
 					url={url}
-					mediaProvider={mediaProviderToUse}
+					mediaProvider={this.getMediaProviderToUse(mediaOptions, mediaProvider)}
+					syncProvider={mediaOptions.syncProvider}
 					contextIdentifierProvider={contextIdentifierProvider}
 					mediaOptions={mediaOptions}
 					onExternalImageLoaded={this.onExternalImageLoaded}

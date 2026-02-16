@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.products.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__media-svg/app",
@@ -31,9 +31,6 @@
 		},
 		{
 			"path": "../../media-client-react/afm-products/tsconfig.json"
-		},
-		{
-			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/spinner/afm-products/tsconfig.json"

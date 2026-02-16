@@ -1,6 +1,10 @@
 import type { DocNode } from '@atlaskit/adf-schema';
 import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
-import type { ExtensionHandlers } from '@atlaskit/editor-common/extensions';
+import type {
+	ExtensionHandlers,
+	ExtensionParams,
+	Parameters,
+} from '@atlaskit/editor-common/extensions';
 import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import type { AnnotationProviders } from '@atlaskit/editor-common/types';
 import type { EventHandlers } from '@atlaskit/editor-common/ui';
@@ -44,6 +48,7 @@ export interface RendererProps {
 	allowColumnSorting?: boolean;
 	allowCopyToClipboard?: boolean;
 	allowCustomPanels?: boolean;
+	allowFixedColumnWidthOption?: boolean;
 	allowHeadingAnchorLinks?: HeadingAnchorLinksProps;
 	allowPlaceholderText?: boolean;
 	allowRendererContainerStyles?: boolean;
@@ -66,6 +71,7 @@ export interface RendererProps {
 	- `chromeless` - is essentially the `comment` editor but without the editor chrome, like toolbar & save/cancel buttons
 	*/
 	appearance?: RendererAppearance;
+
 	// Note: this comment is replicated in packages/editor/editor-core/src/types/editor-props.ts
 	// any changes should be made in both locations
 	/**
@@ -80,7 +86,6 @@ export interface RendererProps {
 	 * @deprecated this attribute is not supported outside of Confluence Full Page editors
 	 */
 	contentMode?: RendererContentMode;
-
 	createAnalyticsEvent?: CreateUIAnalyticsEvent;
 	/**
 	 * Creates a new `Serializer` to transform the ADF `document` into `JSX.Element`.
@@ -160,6 +165,12 @@ export interface RendererProps {
 	portal?: HTMLElement;
 	rendererContext?: RendererContext;
 	schema?: Schema;
+	/**
+	 * Determines if the extension should be displayed as inline based on the extension parameters.
+	 * @param extensionParams - The extension parameters.
+	 * @returns True if the extension should be displayed as inline, false otherwise.
+	 */
+	shouldDisplayExtensionAsInline?: (extensionParams: ExtensionParams<Parameters>) => boolean;
 	shouldOpenMediaViewer?: boolean;
 	// Removes the empty space, lines, hard breaks above and below the comment content
 	shouldRemoveEmptySpaceAroundContent?: boolean;
@@ -167,7 +178,6 @@ export interface RendererProps {
 	stickyHeaders?: StickyHeaderProps;
 	textHighlighter?: TextHighlighter;
 	truncated?: boolean;
-
 	UNSTABLE_allowTableAlignment?: boolean;
 
 	UNSTABLE_allowTableResizing?: boolean;

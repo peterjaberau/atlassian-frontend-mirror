@@ -1,5 +1,192 @@
 # @atlaskit/editor-plugin-toolbar
 
+## 4.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.14
+
+### Patch Changes
+
+- [`7fc08532f3729`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fc08532f3729) -
+  Remove platform_editor_toolbar_aifc_undo_redo_confluence feature gate
+- Updated dependencies
+
+## 4.1.13
+
+### Patch Changes
+
+- [`b43aaf2b5d0ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b43aaf2b5d0ff) -
+  Remove platform_editor_toolbar_aifc_undo_redo_confluence feature gate
+- Updated dependencies
+
+## 4.1.12
+
+### Patch Changes
+
+- [`fb3129f46e923`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb3129f46e923) -
+  Update config options
+- Updated dependencies
+
+## 4.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.7
+
+### Patch Changes
+
+- [`38dee2c85c456`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38dee2c85c456) -
+  [ux] [EDITOR-4486] render tooltips for ToolbarDropdownMenu using new TooltipComponent prop behind
+  platform_editor_hide_toolbar_tooltips_fix
+- Updated dependencies
+
+## 4.1.6
+
+### Patch Changes
+
+- [`e504eea6e1d3f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e504eea6e1d3f) -
+  EDITOR-4665: Clean up platform_editor_toolbar_aifc_responsive_improve feature flag
+- Updated dependencies
+
+## 4.1.5
+
+### Patch Changes
+
+- [`653c0c803b286`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/653c0c803b286) -
+  EDITOR-4620 Clean up platform_editor_toolbar_aifc_patch_6
+- Updated dependencies
+
+## 4.1.4
+
+### Patch Changes
+
+- [`e00b363b9fa30`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e00b363b9fa30) -
+  [ux] EDITOR-4481 Clean up platform_editor_toolbar_aifc_user_intent_fix
+- Updated dependencies
+
+## 4.1.3
+
+### Patch Changes
+
+- [`81230b670d02c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/81230b670d02c) -
+  ED-29744 camel case experience attributes
+- Updated dependencies
+
+## 4.1.2
+
+### Patch Changes
+
+- [`3d0b3f8b4d802`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d0b3f8b4d802) -
+  Remove platform_editor_toolbar_aifc_responsive experiment
+- Updated dependencies
+
+## 4.1.1
+
+### Patch Changes
+
+- [`9041ec452a104`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9041ec452a104) -
+  [EDITOR-4515] clean up fg platform_editor_toolbar_aifc_patch_7
+- Updated dependencies
+
+## 4.1.0
+
+### Minor Changes
+
+- [`6e8029473620b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e8029473620b) -
+  [EDITOR-4496] clean up experiment platform_editor_toolbar_aifc_patch_3 and remove view-mode plugin
+  dependency from loom plugin
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.10
+
+### Patch Changes
+
+- [`8708f328d5db6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8708f328d5db6) -
+  Clean up platform_editor_toolbar_aifc_overflow_menu_update feature gate
+- Updated dependencies
+
+## 4.0.9
+
+### Patch Changes
+
+- [`ee5135bafb31d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee5135bafb31d) -
+  [EDITOR-4495] clean up platform_editor_toolbar_aifc_patch_4
+- Updated dependencies
+
+## 4.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.7
+
+### Patch Changes
+
+- [`e1361a964ccd9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e1361a964ccd9) -
+  Clean up platform_editor_toolbar_aifc_placement_config feature flag
+- Updated dependencies
+
+## 4.0.6
+
+### Patch Changes
+
+- [`c9c11b2544f4e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c9c11b2544f4e) -
+  Remove platform_editor_toolbar_aifc_template_editor feature flag
+- Updated dependencies
+
+## 4.0.5
+
+### Patch Changes
+
+- [`0caee373bff2d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0caee373bff2d) -
+  Exported additional types to fix typescript portable annotation errors
+- [`20d29306fb10e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/20d29306fb10e) -
+  [ED-29451] clean up platform_editor_toolbar_aifc_patch_5
+- Updated dependencies
+
+## 4.0.4
+
+### Patch Changes
+
+- [`ba05557f777bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ba05557f777bf) -
+  Add support to render selection toolbar in editors which have an ancestor elemenent which has
+  position fixed, most common use case is for the chromeless appearance when rendered inside modals,
+  popups etc.
+- Updated dependencies
+
 ## 4.0.3
 
 ### Patch Changes

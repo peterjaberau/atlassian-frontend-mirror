@@ -39,6 +39,8 @@ export type QuickInsertPlugin = NextEditorPlugin<
 		commands: {
 			addQuickInsertItem: (item: QuickInsertHandler) => EditorCommand;
 			openElementBrowserModal: EditorCommand;
+			removeQuickInsertItem: (key: string) => EditorCommand;
+			updateQuickInsertItem: (key: string, item: QuickInsertHandler) => EditorCommand;
 		};
 		dependencies: [
 			TypeAheadPlugin,

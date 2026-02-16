@@ -10,7 +10,7 @@ import { fg } from '@atlaskit/platform-feature-flags';
 import { extractVisitUrl } from '../extractors/common/primitives/extractVisitUrl';
 import { type DestinationProduct, type DestinationSubproduct } from '../utils/analytics/types';
 
-export const getByDefinitionId = (definitionId: string | undefined, store: CardStore) => {
+export const getByDefinitionId = (definitionId: string | undefined, store: CardStore): string[] => {
 	const urls = Object.keys(store);
 	return urls.filter((url) => {
 		const { details } = store[url];
@@ -121,9 +121,9 @@ export const getServices = (details?: JsonLd.Response) => (details && details.me
 export const hasResolved = (details?: JsonLd.Response) =>
 	details && isAccessible(details) && isVisible(details);
 
-export const isAccessible = ({ meta: { access } }: JsonLd.Response) => access === 'granted';
+export const isAccessible = ({ meta: { access } }: JsonLd.Response): boolean => access === 'granted';
 
-export const isVisible = ({ meta: { visibility } }: JsonLd.Response) =>
+export const isVisible = ({ meta: { visibility } }: JsonLd.Response): boolean =>
 	visibility === 'restricted' || visibility === 'public';
 
 export const getStatusDetails = (details?: JsonLd.Response): string | undefined => {
@@ -143,7 +143,7 @@ export const getCanBeDatasource = (details?: JsonLdDatasourceResponse): boolean 
 	return !!datasources && datasources.length > 0;
 };
 
-export const hasAuthScopeOverrides = (details?: JsonLd.Response) =>
+export const hasAuthScopeOverrides = (details?: JsonLd.Response): boolean =>
 	!!details?.meta.hasScopeOverrides;
 
 // Helper function to extract page ID from standard Confluence page URLs

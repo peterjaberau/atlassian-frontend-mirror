@@ -1,5 +1,5 @@
 import format from '@af/formatting/sync';
-import { typographyAdg3 as tokens } from '@atlaskit/tokens/tokens-raw';
+import { typography as tokens } from '@atlaskit/tokens/tokens-raw';
 
 import { capitalize, constructTokenFunctionCall, generateTypeDefs } from './utils';
 
@@ -9,7 +9,7 @@ type Token = {
 };
 
 const activeTokens: Token[] = tokens
-	.filter((t) => t.attributes.state === 'active')
+	.filter((t) => t.attributes.state !== 'deleted')
 	.map((t) => ({
 		name: t.name,
 		fallback: t.value,
@@ -62,7 +62,7 @@ const removeVerbosity = (name: string): string => {
 	return name;
 };
 
-export const createTextStylesFromTemplate = () => {
+export const createTextStylesFromTemplate: () => string = () => {
 	return textProperties
 		.map((textProperty) => {
 			const { filterFn, objectName } = textProperty;

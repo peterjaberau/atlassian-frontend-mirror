@@ -1,5 +1,25 @@
 # @atlaskit/menu
 
+## 8.4.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.16
+
+### Patch Changes
+
+- [`a48fdadce2137`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a48fdadce2137) -
+  Minor internal typography changes.
+- Updated dependencies
+
+## 8.4.15
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.4.14
 
 ### Patch Changes

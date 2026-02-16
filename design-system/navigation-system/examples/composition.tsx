@@ -23,7 +23,6 @@ import ShowMoreHorizontalCoreIcon from '@atlaskit/icon/core/show-more-horizontal
 import StarUnstarredIcon from '@atlaskit/icon/core/star-unstarred';
 import Link from '@atlaskit/link';
 import { JiraIcon } from '@atlaskit/logo';
-import { MenuList } from '@atlaskit/navigation-system';
 import { Aside } from '@atlaskit/navigation-system/layout/aside';
 import { Banner } from '@atlaskit/navigation-system/layout/banner';
 import { Main } from '@atlaskit/navigation-system/layout/main';
@@ -42,15 +41,6 @@ import {
 	TopNavMiddle,
 	TopNavStart,
 } from '@atlaskit/navigation-system/layout/top-nav';
-import { ButtonMenuItem } from '@atlaskit/navigation-system/side-nav-items/button-menu-item';
-import {
-	FlyoutMenuItem,
-	FlyoutMenuItemContent,
-	FlyoutMenuItemTrigger,
-} from '@atlaskit/navigation-system/side-nav-items/flyout-menu-item';
-import { LinkMenuItem } from '@atlaskit/navigation-system/side-nav-items/link-menu-item';
-import { MenuListItem } from '@atlaskit/navigation-system/side-nav-items/menu-list-item';
-import { Divider } from '@atlaskit/navigation-system/side-nav-items/menu-section';
 import {
 	AppLogo,
 	AppSwitcher,
@@ -63,6 +53,16 @@ import {
 } from '@atlaskit/navigation-system/top-nav-items';
 import Popup from '@atlaskit/popup';
 import { Inline, Stack, Text } from '@atlaskit/primitives/compiled';
+import { ButtonMenuItem } from '@atlaskit/side-nav-items/button-menu-item';
+import {
+	FlyoutMenuItem,
+	FlyoutMenuItemContent,
+	FlyoutMenuItemTrigger,
+} from '@atlaskit/side-nav-items/flyout-menu-item';
+import { LinkMenuItem } from '@atlaskit/side-nav-items/link-menu-item';
+import { MenuList } from '@atlaskit/side-nav-items/menu-list';
+import { MenuListItem } from '@atlaskit/side-nav-items/menu-list-item';
+import { Divider } from '@atlaskit/side-nav-items/menu-section';
 import { token } from '@atlaskit/tokens';
 
 import { WithResponsiveViewport } from './utils/example-utils';
@@ -146,7 +146,7 @@ function MockAppSwitcher(): JSX.Element {
 	);
 }
 
-export function UnscrollableVR() {
+export function UnscrollableVR(): JSX.Element {
 	return (
 		<Composition
 			defaultMenuIsOpen
@@ -158,7 +158,7 @@ export function UnscrollableVR() {
 	);
 }
 
-export function ScrollableVR() {
+export function ScrollableVR(): JSX.Element {
 	return (
 		<Composition
 			defaultMenuIsOpen
@@ -170,7 +170,7 @@ export function ScrollableVR() {
 	);
 }
 
-export function ScrollableScrolledVR() {
+export function ScrollableScrolledVR(): JSX.Element {
 	return (
 		<Composition
 			defaultMenuIsOpen
@@ -182,7 +182,7 @@ export function ScrollableScrolledVR() {
 	);
 }
 
-export function UnscrollableNoPanelVR() {
+export function UnscrollableNoPanelVR(): JSX.Element {
 	return (
 		<Composition
 			defaultMenuIsOpen
@@ -194,7 +194,7 @@ export function UnscrollableNoPanelVR() {
 	);
 }
 
-export function ScrollableNoPanelVR() {
+export function ScrollableNoPanelVR(): JSX.Element {
 	return (
 		<Composition
 			defaultMenuIsOpen
@@ -214,11 +214,11 @@ export function ScrollableNoPanelVR() {
  *
  * We don't want the really tall element on the page for VRs because it makes the snapshot very tall.
  */
-export function CompositionVR() {
+export function CompositionVR(): JSX.Element {
 	return <Composition isSlotsScrollable={false} isMockProductSearch />;
 }
 
-export function CompositionNoBannerVR() {
+export function CompositionNoBannerVR(): JSX.Element {
 	return <Composition isSlotsScrollable={false} isMockProductSearch isBannerVisible={false} />;
 }
 
@@ -244,7 +244,7 @@ export default function Composition({
 	 * We should update / remove our Search component in the future.
 	 */
 	isMockProductSearch?: boolean;
-}) {
+}): JSX.Element {
 	useLayoutEffect(() => {
 		if (!shouldTestScroll) {
 			return;
@@ -255,7 +255,7 @@ export default function Composition({
 
 	return (
 		<WithResponsiveViewport>
-			<Root testId="root">
+			<Root testId="root" isSideNavShortcutEnabled>
 				{isBannerVisible && <Banner xcss={bannerStyles.root}> </Banner>}
 				<TopNav>
 					<TopNavStart
@@ -392,7 +392,11 @@ export default function Composition({
 							</ButtonMenuItem>
 						</MenuList>
 					</SideNavContent>
-					<SideNavPanelSplitter label="Resize side nav" testId="side-nav-panel-splitter" />
+					<SideNavPanelSplitter
+						label="Resize side nav"
+						testId="side-nav-panel-splitter"
+						tooltipContent="Double click to collapse"
+					/>
 				</SideNav>
 				<Main id="main-container">
 					<Stack space="space.100" xcss={headingStyles.root}>

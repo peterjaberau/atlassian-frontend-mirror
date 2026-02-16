@@ -1,5 +1,30 @@
 # @atlaskit/share
 
+## 6.18.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.18.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.18.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.18.0
+
+### Minor Changes
+
+- [`491d62b4c0ef6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/491d62b4c0ef6) -
+  Cleaned up share header accessibility feature gate
+
 ## 6.17.0
 
 ### Minor Changes

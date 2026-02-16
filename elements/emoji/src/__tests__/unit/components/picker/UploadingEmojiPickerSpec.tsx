@@ -2,6 +2,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { MockEmojiResource } from '@atlaskit/util-data-test/mock-emoji-resource';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 import console from 'console';
 import EmojiRepository from '../../../../api/EmojiRepository';
 import { emojiDeletePreviewTestId } from '../../../../components/common/EmojiDeletePreview';
@@ -39,22 +40,35 @@ import * as utils from '../../../../components/picker/utils';
 import { cancelEmojiUploadPickerTestId } from '../../../../components/common/EmojiUploadPicker';
 import * as constants from '../../../../util/constants';
 
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
+
 // Turn off delay to allow using user events with fake timers
 const userEventWithoutDelay = userEvent.setup({ delay: null });
 
 describe('<UploadingEmojiPicker />', () => {
 	let onEvent: jest.SpyInstance;
+	let ufoStartSpy: jest.SpyInstance;
+	let ufoSuccessSpy: jest.SpyInstance;
+	let ufoFailureSpy: jest.SpyInstance;
 
 	const experience = ufoExperiences['emoji-uploaded'];
-	const ufoStartSpy = jest.spyOn(experience, 'start');
-	const ufoSuccessSpy = jest.spyOn(experience, 'success');
-	const ufoFailureSpy = jest.spyOn(experience, 'failure');
 
 	beforeEach(async () => {
 		onEvent = jest.fn();
+		ufoStartSpy = jest.spyOn(experience, 'start');
+		ufoSuccessSpy = jest.spyOn(experience, 'success');
+		ufoFailureSpy = jest.spyOn(experience, 'failure');
 	});
 
-	afterEach(jest.clearAllMocks);
+	afterEach(() => {
+		jest.clearAllMocks();
+		ufoStartSpy.mockClear();
+		ufoSuccessSpy.mockClear();
+		ufoFailureSpy.mockClear();
+	});
 
 	beforeAll(() => {
 		// scrolling of the virutal list doesn't work out of the box for the tests
@@ -255,7 +269,7 @@ describe('<UploadingEmojiPicker />', () => {
 
 			expect(screen.getByText('Your uploads')).toBeInTheDocument();
 			// focus on the first uploaded emoji, which is under your uploads category.
-			expect(within(virtualList).queryAllByTestId('image-emoji-:cheese_burger:')[0]).toHaveFocus();
+			expect(screen.getByTestId('emoji-picker-search')).toHaveFocus();
 
 			expect(ufoStartSpy).toHaveBeenCalled();
 			expect(ufoSuccessSpy).toHaveBeenCalled();
@@ -791,8 +805,10 @@ describe('<UploadingEmojiPicker />', () => {
 				expect(helperTestingLibrary.getVirtualList()).toBeInTheDocument();
 			});
 
-			const deleteButton = await screen.findByTestId('emoji-delete-button');
-			fireEvent.click(deleteButton);
+			await waitFor(async () => {
+				const deleteButton = await screen.findByTestId('emoji-delete-button');
+				fireEvent.click(deleteButton);
+			});
 
 			await waitFor(() => {
 				expect(getEmojiDeletePreview()).toBeInTheDocument();

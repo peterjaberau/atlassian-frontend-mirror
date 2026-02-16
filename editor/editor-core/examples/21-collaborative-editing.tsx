@@ -15,7 +15,7 @@ import ButtonGroup from '@atlaskit/button/button-group';
 import Button from '@atlaskit/button/new';
 import type { Provider } from '@atlaskit/collab-provider';
 import { createSocketIOCollabProvider } from '@atlaskit/collab-provider/socket-io-provider';
-import type { NextEditorPlugin } from '@atlaskit/editor-common/src/types';
+import type { NextEditorPlugin } from '@atlaskit/editor-common/types';
 import type { EditorProps, EditorActions } from '@atlaskit/editor-core';
 import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { useUniversalPreset } from '@atlaskit/editor-core/preset-universal';
@@ -90,7 +90,7 @@ export const collabCustomStepPlugin: NextEditorPlugin<'collab-malformed-plugin'>
 	};
 };
 
-export const getRandomUser = () => {
+export const getRandomUser = (): string => {
 	return Math.floor(Math.random() * 10000).toString();
 };
 
@@ -244,7 +244,20 @@ const FullPageComposableEditor = (props: EditorProps & { viewMode: 'view' | 'edi
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export default class Example extends React.Component<Props, State> {
-	state = {
+	state: {
+		__livePage: boolean;
+		__liveView: boolean;
+		collabUrl: any;
+		collabUrlInput: undefined;
+		documentId: any;
+		documentIdInput: undefined;
+		draftDoc: any;
+		editorView: undefined;
+		hasError: boolean;
+		isInviteToEditButtonSelected: boolean;
+		need404: any;
+		title: string;
+	} = {
 		isInviteToEditButtonSelected: false,
 		documentId: getQueryParam('documentId'),
 		collabUrl: getQueryParam('collabUrl') || defaultCollabUrl,

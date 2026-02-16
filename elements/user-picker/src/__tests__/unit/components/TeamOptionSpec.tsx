@@ -10,7 +10,6 @@ import { AvatarOrIcon } from '../../../components/AvatarOrIcon';
 import { TeamOption, type TeamOptionProps } from '../../../components/TeamOption/main';
 import { type Team } from '../../../types';
 import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
 
 jest.mock('../../../components/AvatarItemOption', () => ({
 	...(jest.requireActual('../../../components/AvatarItemOption') as any),
@@ -229,7 +228,7 @@ describe('Team Option', () => {
 
 		await expect(document.body).toBeAccessible();
 	});
-	it('should render the verified team icon if the team is verified', async () => {
+	it('should render basic Team byline when verified but no teamTypeName provided', async () => {
 		const component = shallowOption(
 			{ isSelected: true, includeTeamsUpdates: true },
 			buildTeam({
@@ -239,14 +238,67 @@ describe('Team Option', () => {
 		);
 		const avatarItemOption = component.find(AvatarItemOption);
 		const secondaryText = avatarItemOption.props().secondaryText as ReactElement;
+		// When no teamTypeName is provided, fall back to basic "Team" message regardless of verification
+		expect(secondaryText.props.children).toEqual(
+			<FormattedMessage
+				id="fabric.elements.user-picker.team.member.count"
+				defaultMessage="Team • {count} {count, plural, one {member} other {members}}"
+				description="Byline to show the number of members in the team when the current user is not a member of the team"
+				values={{ count: 2 }}
+			/>,
+		);
+
+		await expect(document.body).toBeAccessible();
+	});
+
+	it('should render teamTypeName without verified icon when team is not verified', async () => {
+		const component = shallowOption(
+			{ isSelected: true, includeTeamsUpdates: true },
+			buildTeam({
+				verified: false,
+				memberCount: 5,
+				teamTypeName: 'Custom team',
+			}),
+		);
+		const avatarItemOption = component.find(AvatarItemOption);
+		const secondaryText = avatarItemOption.props().secondaryText as ReactElement;
+		// teamTypeName should be shown, but verifiedIcon should be null since team is not verified
 		expect(secondaryText.props.children).toEqual(
 			<FormattedMessage
 				id="fabric.elements.user-picker.team.member.count.official"
-				defaultMessage="Official team {verifiedIcon} • {count} {count, plural, one {member} other {members}}"
+				defaultMessage="{teamTypeName} {verifiedIcon} • {count} {count, plural, one {member} other {members}}"
+				description="Byline to show the number of members in the team when the current user is not a member of the team"
+				values={{
+					verifiedIcon: null,
+					count: 5,
+					teamTypeName: 'Custom team',
+				}}
+			/>,
+		);
+
+		await expect(document.body).toBeAccessible();
+	});
+
+	it('should render the verified team with dynamic teamTypeName from server', async () => {
+		const component = shallowOption(
+			{ isSelected: true, includeTeamsUpdates: true },
+			buildTeam({
+				verified: true,
+				memberCount: 2,
+				teamTypeName: 'Managed team',
+			}),
+		);
+		const avatarItemOption = component.find(AvatarItemOption);
+		const secondaryText = avatarItemOption.props().secondaryText as ReactElement;
+		expect(secondaryText.props.children).toEqual(
+			<FormattedMessage
+				id="fabric.elements.user-picker.team.member.count.official"
+				defaultMessage="{teamTypeName} {verifiedIcon} • {count} {count, plural, one {member} other {members}}"
 				description="Byline to show the number of members in the team when the current user is not a member of the team"
 				values={{
 					verifiedIcon: <VerifiedTeamIcon label="" size="small" spacing="none" />,
 					count: 2,
+					teamTypeName: 'Managed team',
 				}}
 			/>,
 		);
@@ -276,62 +328,126 @@ describe('Team Option', () => {
 		await expect(document.body).toBeAccessible();
 	});
 
+	it('should render verified team with 50+ members and dynamic teamTypeName', async () => {
+		const component = shallowOption(
+			{ isSelected: true, includeTeamsUpdates: true },
+			buildTeam({
+				verified: true,
+				memberCount: 51,
+				teamTypeName: 'Enterprise team',
+			}),
+		);
+		const avatarItemOption = component.find(AvatarItemOption);
+		const secondaryText = avatarItemOption.props().secondaryText as ReactElement;
+		expect(secondaryText.props.children).toEqual(
+			<FormattedMessage
+				id="fabric.elements.user-picker.team.member.50plus.official"
+				defaultMessage="{teamTypeName} {verifiedIcon} • 50+ members"
+				description="Byline to show the number of members in the team when the number exceeds 50"
+				values={{
+					verifiedIcon: <VerifiedTeamIcon label="" size="small" spacing="none" />,
+					teamTypeName: 'Enterprise team',
+				}}
+			/>,
+		);
+
+		await expect(document.body).toBeAccessible();
+	});
+
+	it('should render verified team with includesYou and dynamic teamTypeName', async () => {
+		const component = shallowOption(
+			{ isSelected: true, includeTeamsUpdates: true },
+			buildTeam({
+				verified: true,
+				memberCount: 10,
+				includesYou: true,
+				teamTypeName: 'Project team',
+			}),
+		);
+		const avatarItemOption = component.find(AvatarItemOption);
+		const secondaryText = avatarItemOption.props().secondaryText as ReactElement;
+		expect(secondaryText.props.children).toEqual(
+			<FormattedMessage
+				id="fabric.elements.user-picker.team.member.count.official.including.you"
+				defaultMessage="{teamTypeName} {verifiedIcon} • {count} {count, plural, one {member} other {members}}, including you"
+				description="Byline to show the number of members in the team when the current user is also a member of the team"
+				values={{
+					verifiedIcon: <VerifiedTeamIcon label="" size="small" spacing="none" />,
+					count: 10,
+					teamTypeName: 'Project team',
+				}}
+			/>,
+		);
+
+		await expect(document.body).toBeAccessible();
+	});
+
+	it('should render verified team with 50+ members, includesYou, and dynamic teamTypeName', async () => {
+		const component = shallowOption(
+			{ isSelected: true, includeTeamsUpdates: true },
+			buildTeam({
+				verified: true,
+				memberCount: 100,
+				includesYou: true,
+				teamTypeName: 'Organization team',
+			}),
+		);
+		const avatarItemOption = component.find(AvatarItemOption);
+		const secondaryText = avatarItemOption.props().secondaryText as ReactElement;
+		expect(secondaryText.props.children).toEqual(
+			<FormattedMessage
+				id="fabric.elements.user-picker.team.member.50plus.official.including.you"
+				defaultMessage="{teamTypeName} {verifiedIcon} • 50+ members, including you"
+				description="Byline to show the number of members in the team when the number exceeds 50 and also includes the current user"
+				values={{
+					verifiedIcon: <VerifiedTeamIcon label="" size="small" spacing="none" />,
+					teamTypeName: 'Organization team',
+				}}
+			/>,
+		);
+
+		await expect(document.body).toBeAccessible();
+	});
+
 	describe('icon support', () => {
 		const mockIcon = <div data-testid="test-icon">Icon</div>;
 
-		ffTest.on('atlaskit_user_picker_support_icon', 'on', () => {
-			it('should render AvatarOrIcon when feature gate is enabled and icon is provided', () => {
-				const teamWithIcon = buildTeam({
-						icon: mockIcon,
-					});
-
-				const component = shallowOption({}, teamWithIcon);
-				const avatarItemOption = component.find(AvatarItemOption);
-				const avatar = avatarItemOption.props().avatar as ReactElement;
-
-				expect(avatar.type).toBe(AvatarOrIcon);
-				expect(avatar.props.icon).toEqual(mockIcon);
-				expect(avatar.props.src).toEqual(basicTeam.avatarUrl);
-			});
-
-			it('should render AvatarOrIcon with iconColor when both icon and iconColor are provided', () => {
-				const iconColor = '#FF0000';
-				const teamWithIconAndColor = buildTeam({
+		it('should render AvatarOrIcon when icon is provided', () => {
+			const teamWithIcon = buildTeam({
 					icon: mockIcon,
-					iconColor,
 				});
 
-				const component = shallowOption({}, teamWithIconAndColor);
-				const avatarItemOption = component.find(AvatarItemOption);
-				const avatar = avatarItemOption.props().avatar as ReactElement;
+			const component = shallowOption({}, teamWithIcon);
+			const avatarItemOption = component.find(AvatarItemOption);
+			const avatar = avatarItemOption.props().avatar as ReactElement;
 
-				expect(avatar.type).toBe(AvatarOrIcon);
-				expect(avatar.props.icon).toEqual(mockIcon);
-				expect(avatar.props.iconColor).toEqual(iconColor);
-			});
+			expect(avatar.type).toBe(AvatarOrIcon);
+			expect(avatar.props.icon).toEqual(mockIcon);
+			expect(avatar.props.src).toEqual(basicTeam.avatarUrl);
 		});
 
-		it('should render SizeableAvatar when feature gate is enabled but no icon is provided', () => {
+		it('should render AvatarOrIcon with iconColor when both icon and iconColor are provided', () => {
+			const iconColor = '#FF0000';
+			const teamWithIconAndColor = buildTeam({
+				icon: mockIcon,
+				iconColor,
+			});
+
+			const component = shallowOption({}, teamWithIconAndColor);
+			const avatarItemOption = component.find(AvatarItemOption);
+			const avatar = avatarItemOption.props().avatar as ReactElement;
+
+			expect(avatar.type).toBe(AvatarOrIcon);
+			expect(avatar.props.icon).toEqual(mockIcon);
+			expect(avatar.props.iconColor).toEqual(iconColor);
+		});
+
+		it('should render SizeableAvatar when no icon is provided', () => {
 			const component = shallowOption({}, basicTeam);
 			const avatarItemOption = component.find(AvatarItemOption);
 			const avatar = avatarItemOption.props().avatar as ReactElement;
 
 			expect(avatar.type).toBe(SizeableAvatar);
-		});
-
-		ffTest.off('atlaskit_user_picker_support_icon', 'off', () => {
-			it('should render SizeableAvatar when feature gate is disabled even if icon is provided', () => {
-				const teamWithIcon = buildTeam({
-					icon: mockIcon,
-				});
-
-				const component = shallowOption({}, teamWithIcon);
-				const avatarItemOption = component.find(AvatarItemOption);
-				const avatar = avatarItemOption.props().avatar as ReactElement;
-
-				expect(avatar.type).toBe(SizeableAvatar);
-				expect(avatar.props.src).toEqual(basicTeam.avatarUrl);
-			});
 		});
 	});
 });

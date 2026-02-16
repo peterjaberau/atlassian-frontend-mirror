@@ -1,13 +1,17 @@
 import type { Node, Schema } from '@atlaskit/editor-prosemirror/model';
 
 const isLayoutNode = (node: Node) => node.type.name === 'layoutSection';
+const isExpandNode = (node: Node) => node.type.name === 'expand';
 
 const hasBreakOutMark = (node: Node) => node.marks.some((m) => m.type.name === 'breakout');
 
-export const insideBreakoutLayout = (path: Node[]) =>
+export const insideBreakoutLayout = (path: Node[]): boolean =>
 	path.some((item) => isLayoutNode(item) && hasBreakOutMark(item));
 
-export const insideBlockNode = (path: Node[], schema: Schema) => {
+export const insideBreakoutExpand = (path: Node[]) =>
+	path.some((item) => isExpandNode(item) && hasBreakOutMark(item));
+
+export const insideBlockNode = (path: Node[], schema: Schema): boolean => {
 	const {
 		nodes: { expand, nestedExpand, layoutColumn },
 	} = schema;
@@ -18,14 +22,14 @@ export const insideBlockNode = (path: Node[], schema: Schema) => {
 	return path && path.some((n) => n.type && blockNodeNames.indexOf(n.type.name) > -1);
 };
 
-export const insideMultiBodiedExtension = (path: Node[], schema: Schema) => {
+export const insideMultiBodiedExtension = (path: Node[], schema: Schema): boolean => {
 	const {
 		nodes: { multiBodiedExtension },
 	} = schema;
 	return path.some((n) => n.type === multiBodiedExtension);
 };
 
-export const insideTable = (path: Node[], schema: Schema) => {
+export const insideTable = (path: Node[], schema: Schema): boolean => {
 	const {
 		nodes: { table },
 	} = schema;

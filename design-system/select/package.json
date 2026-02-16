@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/select",
-	"version": "21.6.4",
+	"version": "21.7.4",
 	"description": "Select allows users to make a single selection or multiple selections from a list of options.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -43,6 +43,7 @@
 		"@atlaskit/analytics-next": "workspace:^",
 		"@atlaskit/ds-lib": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
+		"@atlaskit/layering": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/react-select": "workspace:^",
@@ -75,8 +76,9 @@
 		"@atlaskit/modal-dialog": "workspace:^",
 		"@atlaskit/radio": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"ast-types": "root:*",
 		"jest-in-case": "root:*",
@@ -103,9 +105,6 @@
 			"type": "boolean"
 		},
 		"platform-visual-refresh-icons": {
-			"type": "boolean"
-		},
-		"platform_dst_nav4_layering_in_main_slot_fixes": {
 			"type": "boolean"
 		},
 		"platform-dst-shape-theme-default": {

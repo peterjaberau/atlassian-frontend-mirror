@@ -6,11 +6,13 @@ import { forwardRef, memo } from 'react';
 
 import { jsx } from '@compiled/react';
 
+import Lozenge from '@atlaskit/lozenge';
 import { fg } from '@atlaskit/platform-feature-flags';
 
 import TagNew, { colorMapping } from '../../../tag-new';
 import BaseTag from '../shared/base';
 import Before from '../shared/before';
+import { getLozengeAppearance } from '../shared/color-to-lozenge-appearance';
 import Content from '../shared/content';
 import { type SimpleTagProps } from '../shared/types';
 
@@ -26,9 +28,22 @@ const SimpleTagComponent: React.ForwardRefExoticComponent<
 			testId,
 			text = '',
 			linkComponent,
+			migration_fallback,
+			maxWidth,
+			...rest
 		}: SimpleTagProps,
 		ref: React.Ref<any>,
 	) => {
+		// Handle migration_fallback: render Lozenge when flag is off and migration_fallback is 'lozenge'
+		if (migration_fallback === 'lozenge' && !fg('platform-dst-lozenge-tag-badge-visual-uplifts')) {
+			const lozengeAppearance = getLozengeAppearance(color);
+			return (
+				<Lozenge appearance={lozengeAppearance} isBold={false} testId={testId} {...rest}>
+					{text}
+				</Lozenge>
+			);
+		}
+
 		// Use new TagNew component behind feature flag
 		if (fg('platform-dst-lozenge-tag-badge-visual-uplifts')) {
 			const newColor = colorMapping[color || 'standard'];
@@ -42,6 +57,7 @@ const SimpleTagComponent: React.ForwardRefExoticComponent<
 					href={href}
 					testId={testId}
 					isRemovable={false}
+					maxWidth={maxWidth}
 				/>
 			);
 		}
@@ -84,6 +100,6 @@ const SimpleTagComponent: React.ForwardRefExoticComponent<
  * - [Code](https://atlassian.design/components/tag/code)
  * - [Usage](https://atlassian.design/components/tag/usage)
  */
-const SimpleTag = memo(SimpleTagComponent);
+const SimpleTag: import("react").MemoExoticComponent<import("react").ForwardRefExoticComponent<SimpleTagProps & import("react").RefAttributes<any>>> = memo(SimpleTagComponent);
 
 export default SimpleTag;

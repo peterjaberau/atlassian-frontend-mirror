@@ -1,4 +1,7 @@
-export const RANDOM_USERS = [
+export const RANDOM_USERS: {
+    email: string;
+    name: string;
+}[] = [
 	{ email: 'chaki@me.com', name: 'Chaki Caronni' },
 	{ email: 'nanop@outlook.com', name: 'Nanop Rgiersig' },
 	{ email: 'dowdy@outlook.com', name: 'Dowdy Metzzo' },
@@ -21,8 +24,8 @@ export const RANDOM_USERS = [
 	{ email: 'caronni@optonline.net', name: 'Caronni Chaki' },
 ];
 
-// See https://randomuser.me/copyright — all images were supplied by people who gave their consent for them to be used on live websites (not just mockups)
-export const getFreeToUseAvatarImage = (number: number) =>
-	`https://randomuser.me/api/portraits/${number % 2 === 0 ? 'men' : 'women'}/${number}.jpg`;
-
-export const appearances = ['circle', 'square', 'hexagon'] as const;
+export const appearances: readonly [
+    "circle",
+    "square",
+    "hexagon"
+] = ['circle', 'square', 'hexagon'] as const;

@@ -1,5 +1,65 @@
 # @atlaskit/editor-plugin-loom
 
+## 9.3.1
+
+### Patch Changes
+
+- [`1afb6245bcc95`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1afb6245bcc95) -
+  Bump loom SDK to 4.9.0, this removes the camera off experiment and integrates into
+  https://console.statsig.com/LqivKg6ADZZaGczRfBKfX/experiments/twcg-1211_reducing_friction_at_sdk_launch/setup
+
+## 9.3.0
+
+### Minor Changes
+
+- [`39df87fc857cb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/39df87fc857cb) -
+  Clean up flag to roll out accessibility improvement to dropdown menus.
+
+## 9.2.0
+
+### Minor Changes
+
+- [`83fbd93f6a060`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83fbd93f6a060) -
+  Bump @loomhq/record-sdk to 4.8.0 and @loomhq/lens to 12.13.0
+
+## 9.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`6e8029473620b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e8029473620b) -
+  [EDITOR-4496] clean up experiment platform_editor_toolbar_aifc_patch_3 and remove view-mode plugin
+  dependency from loom plugin
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.4
+
+### Patch Changes
+
+- [`8708f328d5db6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8708f328d5db6) -
+  Clean up platform_editor_toolbar_aifc_overflow_menu_update feature gate
+- Updated dependencies
+
+## 9.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 9.0.2
 
 ### Patch Changes

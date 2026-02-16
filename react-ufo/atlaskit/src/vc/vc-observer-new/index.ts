@@ -12,6 +12,7 @@ import VCCalculator_FY25_03 from './metric-calculator/fy25_03';
 import VCCalculator_FY26_04 from './metric-calculator/fy26_04';
 import getViewportHeight from './metric-calculator/utils/get-viewport-height';
 import getViewportWidth from './metric-calculator/utils/get-viewport-width';
+import VCCalculator_Next from './metric-calculator/vc-next';
 import RawDataHandler from './raw-data-handler';
 import type { VCObserverGetVCResultParam, VCObserverLabelStacks, ViewportEntryData } from './types';
 import ViewportObserver from './viewport-observer';
@@ -49,6 +50,12 @@ const DEFAULT_SELECTOR_CONFIG = {
 	className: false,
 	dataVC: true,
 };
+
+let hasAbortingEventDuringSSR = false;
+
+export function getHasAbortingEventDuringSSR() {
+	return hasAbortingEventDuringSSR;
+}
 
 export default class VCObserverNew {
 	private selectorConfig: SelectorConfig;
@@ -103,10 +110,7 @@ export default class VCObserverNew {
 					newValue: mutationData?.newValue,
 				};
 
-				if (
-					element &&
-					(this.isPostInteraction || fg('platform_ufo_add_segment_names_to_dom_offenders'))
-				) {
+				if (element) {
 					const labelStacks = getLabelStacks(element);
 					if (labelStacks) {
 						Object.assign(data, { labelStacks });
@@ -156,27 +160,56 @@ export default class VCObserverNew {
 
 		this.viewportObserver?.start();
 
-		if (window?.__SSR_ABORT_LISTENERS__) {
-			const abortListeners = window.__SSR_ABORT_LISTENERS__;
+		if (fg('ufo_fix_aborting_interaction_detection_during_ssr')) {
+			this.entriesTimeline.clear();
 
-			const aborts = abortListeners.aborts;
-			if (aborts && typeof aborts === 'object') {
-				Object.entries(aborts).forEach(([key, time]) => {
-					if (typeof time === 'number') {
-						this.entriesTimeline.push({
-							time,
-							data: {
-								type: 'window:event',
-								eventType: key as 'wheel' | 'keydown' | 'resize',
-							},
-						});
-					}
-				});
+			if (window?.__SSR_ABORT_LISTENERS__) {
+				const abortListeners = window.__SSR_ABORT_LISTENERS__;
+
+				const aborts = abortListeners.aborts;
+				if (aborts && typeof aborts === 'object') {
+					Object.entries(aborts).forEach(([key, time]) => {
+						if (typeof time === 'number') {
+							this.entriesTimeline.push({
+								time,
+								data: {
+									type: 'window:event',
+									eventType: key as 'wheel' | 'keydown' | 'resize',
+								},
+							});
+						}
+					});
+				}
 			}
-		}
 
-		this.windowEventObserver?.start();
-		this.entriesTimeline.clear();
+			this.windowEventObserver?.start();
+		} else {
+			if (window?.__SSR_ABORT_LISTENERS__) {
+				const abortListeners = window.__SSR_ABORT_LISTENERS__;
+
+				const aborts = abortListeners.aborts;
+				if (aborts && typeof aborts === 'object') {
+					Object.entries(aborts).forEach(([key, time]) => {
+						if (typeof time === 'number') {
+							this.entriesTimeline.push({
+								time,
+								data: {
+									type: 'window:event',
+									eventType: key as 'wheel' | 'keydown' | 'resize',
+								},
+							});
+
+							if (fg('ufo_detect_aborting_interaction_during_ssr')) {
+								hasAbortingEventDuringSSR = true;
+							}
+						}
+					});
+				}
+			}
+
+			this.windowEventObserver?.start();
+			this.entriesTimeline.clear();
+		}
 	}
 
 	stop(): void {
@@ -265,106 +298,59 @@ export default class VCObserverNew {
 
 		const orderedEntries = this.entriesTimeline.getOrderedEntries({ start, stop });
 
-		if (fg('platform_ufo_vcnext_to_fy26_04_revision_update')) {
-			const fy25_03 = isVCRevisionEnabled('fy25.03')
-				? await calculator_fy25_03.calculate({
-						orderedEntries,
-						startTime: start,
-						stopTime: stop,
-						interactionId,
-						interactionType,
-						isPostInteraction: this.isPostInteraction,
-						include3p,
-						excludeSmartAnswersInSearch,
-						includeSSRRatio,
-						isPageVisible,
-						interactionAbortReason,
-					})
-				: null;
+		const fy25_03 = isVCRevisionEnabled('fy25.03')
+			? await calculator_fy25_03.calculate({
+					orderedEntries,
+					startTime: start,
+					stopTime: stop,
+					interactionId,
+					interactionType,
+					isPostInteraction: this.isPostInteraction,
+					include3p,
+					excludeSmartAnswersInSearch,
+					includeSSRRatio,
+					isPageVisible,
+					interactionAbortReason,
+				})
+			: null;
 
-			if (fy25_03) {
-				results.push(fy25_03);
-			}
+		if (fy25_03) {
+			results.push(fy25_03);
+		}
 
-			// From TTVC v4 onwards, ensuring that SSR entry is always auto-added, whenever it is configured.
-			// From the next major version release (where TTVC v4 becomes the default TTVC version), the config for `includeSSRInV3` will be deprecated
-			if (param.ssr && !param.includeSSRInV3 && fg('platform_ufo_auto_add_ssr_entry_in_ttvc_v4')) {
-				this.addSSR(param.ssr);
-			}
+		// From TTVC v4 onwards, ensuring that SSR entry is always auto-added, whenever it is configured.
+		if (param.ssr) {
+			this.addSSR(param.ssr);
+		}
 
-			const calculator_fy26_04 = new VCCalculator_FY26_04();
+		const calculator_fy26_04 = new VCCalculator_FY26_04();
+		const calculator_next = new VCCalculator_Next();
 
-			const fy26_04 =
-				isVCRevisionEnabled('fy26.04') || isVCRevisionEnabled('next')
-					? await calculator_fy26_04.calculate({
-							orderedEntries,
-							startTime: start,
-							stopTime: stop,
-							interactionId,
-							interactionType,
-							isPostInteraction: this.isPostInteraction,
-							include3p,
-							excludeSmartAnswersInSearch,
-							includeSSRRatio,
-							isPageVisible,
-							interactionAbortReason,
-						})
-					: null;
+		const calculatorParams = {
+			orderedEntries,
+			startTime: start,
+			stopTime: stop,
+			interactionId,
+			interactionType,
+			isPostInteraction: this.isPostInteraction,
+			include3p,
+			excludeSmartAnswersInSearch,
+			includeSSRRatio,
+			isPageVisible,
+			interactionAbortReason,
+		};
 
-			if (fy26_04) {
-				const vcNext: RevisionPayloadEntry = {
-					revision: 'next',
-					'metric:vc90': fy26_04['metric:vc90'],
-					clean: fy26_04['clean'],
-				};
+		const [fy26_04, vcNext] = await Promise.all([
+			isVCRevisionEnabled('fy26.04') ? calculator_fy26_04.calculate(calculatorParams) : null,
+			isVCRevisionEnabled('next') ? calculator_next.calculate(calculatorParams) : null,
+		]);
 
-				results.push(fy26_04);
-				results.push(vcNext);
-			}
-		} else {
-			const fy25_03 = await calculator_fy25_03.calculate({
-				orderedEntries,
-				startTime: start,
-				stopTime: stop,
-				interactionId,
-				interactionType,
-				isPostInteraction: this.isPostInteraction,
-				include3p,
-				excludeSmartAnswersInSearch,
-				includeSSRRatio,
-				isPageVisible,
-				interactionAbortReason,
-			});
+		if (fy26_04) {
+			results.push(fy26_04);
+		}
 
-			if (fy25_03) {
-				results.push(fy25_03);
-			}
-
-			// From TTVC v4 onwards, ensuring that SSR entry is always auto-added, whenever it is configured.
-			// From the next major version release (where TTVC v4 becomes the default TTVC version), the config for `includeSSRInV3` will be deprecated
-			if (param.ssr && !param.includeSSRInV3 && fg('platform_ufo_auto_add_ssr_entry_in_ttvc_v4')) {
-				this.addSSR(param.ssr);
-			}
-
-			const calculator_next = new VCCalculator_FY26_04();
-
-			const vcNext = await calculator_next.calculate({
-				orderedEntries,
-				startTime: start,
-				stopTime: stop,
-				interactionId,
-				interactionType,
-				isPostInteraction: this.isPostInteraction,
-				include3p,
-				includeSSRRatio,
-				isPageVisible,
-				interactionAbortReason,
-			});
-
-			if (vcNext) {
-				vcNext.revision = 'next';
-				results.push(vcNext);
-			}
+		if (vcNext) {
+			results.push(vcNext);
 		}
 
 		const feVCCalculationEndTime = performance.now();

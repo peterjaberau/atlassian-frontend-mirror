@@ -2,11 +2,10 @@ import { type Binding, type NodePath, type Scope } from '@babel/traverse';
 import * as t from '@babel/types';
 
 import tokenNames from '../artifacts/token-names';
-import legacyLight from '../artifacts/tokens-raw/atlassian-legacy-light';
 import light from '../artifacts/tokens-raw/atlassian-light';
 import shape from '../artifacts/tokens-raw/atlassian-shape';
 import spacing from '../artifacts/tokens-raw/atlassian-spacing';
-import typography from '../artifacts/tokens-raw/atlassian-typography-adg3';
+import typography from '../artifacts/tokens-raw/atlassian-typography';
 
 interface TokenMeta {
 	value:
@@ -86,9 +85,33 @@ const getThemeValues = (theme: TokenMeta[]): { [x: string]: string } => {
 	}, {});
 };
 
-type DefaultColorTheme = 'light' | 'legacy-light';
+type DefaultColorTheme = 'light';
 
-export default function plugin() {
+export default function plugin(): {
+    visitor: {
+        Program?: undefined;
+    };
+} | {
+    visitor: {
+        Program: {
+            enter(path: NodePath<t.Program>, state: {
+                opts: {
+                    /**
+                     * @default true
+                     */
+                    shouldUseAutoFallback?: boolean;
+                    /**
+                     * @default true
+                     */
+                    shouldForceAutoFallback?: boolean;
+                    forceAutoFallbackExemptions?: string[];
+                    defaultTheme?: DefaultColorTheme;
+                };
+            }): void;
+            exit(path: NodePath<t.Program>): void;
+        };
+    };
+} {
 	// If the `TOKENS_SKIP_BABEL` environment variable is set, skip this
 	// plugin entirely. This will be enabled when the native Tokens transformer is enabled.
 	// This allows us to control this based on rollout gates.
@@ -151,10 +174,7 @@ export default function plugin() {
 							if (path.node.arguments.length < 2) {
 								if (state.opts.shouldUseAutoFallback !== false) {
 									replacementNode = t.stringLiteral(
-										`var(${cssTokenValue}, ${getDefaultFallback(
-											tokenName,
-											state.opts.defaultTheme,
-										)})`,
+										`var(${cssTokenValue}, ${getDefaultFallback(tokenName)})`,
 									);
 								} else {
 									replacementNode = t.stringLiteral(`var(${cssTokenValue})`);
@@ -172,7 +192,7 @@ export default function plugin() {
 							const fallback =
 								state.opts.shouldForceAutoFallback !== false &&
 								!isExempted(tokenName, forceAutoFallbackExemptions)
-									? t.stringLiteral(getDefaultFallback(tokenName, state.opts.defaultTheme))
+									? t.stringLiteral(getDefaultFallback(tokenName))
 									: path.node.arguments[1];
 
 							if (t.isStringLiteral(fallback)) {
@@ -244,15 +264,11 @@ export default function plugin() {
 }
 
 const lightValues = getThemeValues(light);
-const legacyLightValues = getThemeValues(legacyLight);
 const shapeValues = getThemeValues(shape);
 const spacingValues = getThemeValues(spacing);
 const typographyValues = getThemeValues(typography);
 
-function getDefaultFallback(
-	tokenName: keyof typeof lightValues,
-	theme: DefaultColorTheme = 'light',
-): string {
+function getDefaultFallback(tokenName: keyof typeof lightValues): string {
 	if (shapeValues[tokenName]) {
 		return shapeValues[tokenName];
 	}
@@ -265,9 +281,7 @@ function getDefaultFallback(
 		return typographyValues[tokenName];
 	}
 
-	const colorValues = theme === 'legacy-light' ? legacyLightValues : lightValues;
-
-	return colorValues[tokenName];
+	return lightValues[tokenName];
 }
 
 function getNonAliasedImportName(node: t.ImportSpecifier): string {

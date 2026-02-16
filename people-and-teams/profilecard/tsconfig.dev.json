@@ -65,9 +65,6 @@
 			"path": "../../design-system/inline-edit/tsconfig.app.json"
 		},
 		{
-			"path": "../people-teams-ui-public/tsconfig.app.json"
-		},
-		{
 			"path": "../../platform/feature-flags/tsconfig.app.json"
 		},
 		{
@@ -93,6 +90,9 @@
 		},
 		{
 			"path": "../../design-system/tokens/tsconfig.app.json"
+		},
+		{
+			"path": "../../accessibility/axe-integration/a11y-jest-testing/tsconfig.app.json"
 		},
 		{
 			"path": "../../platform/feature-flags-test-utils/tsconfig.app.json"

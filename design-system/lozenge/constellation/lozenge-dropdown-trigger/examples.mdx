@@ -9,9 +9,12 @@ import LozengeDropdownTriggerBasic from '../../examples/constellation/lozenge-dr
 import LozengeDropdownTriggerWithIcon from '../../examples/constellation/lozenge-dropdown-trigger-with-icon';
 import LozengeDropdownTriggerWithDropdown from '../../examples/constellation/lozenge-dropdown-trigger-with-dropdown';
 import LozengeDropdownTriggerSelected from '../../examples/constellation/lozenge-dropdown-trigger-selected';
+import LozengeDropdownTriggerLoading from '../../examples/constellation/lozenge-dropdown-trigger-loading';
 import LozengeDropdownTriggerSemantic from '../../examples/constellation/lozenge-dropdown-trigger-semantic';
 import LozengeDropdownTriggerAccent from '../../examples/constellation/lozenge-dropdown-trigger-accent';
 import LozengeDropdownTriggerMaxWidth from '../../examples/constellation/lozenge-dropdown-trigger-max-width';
+import LozengeDropdownTriggerSpacing from '../../examples/constellation/lozenge-dropdown-trigger-spacing';
+import LozengeDropdownTriggerMetric from '../../examples/constellation/lozenge-dropdown-trigger-metric';
 
 ## Basic
 
@@ -35,6 +38,13 @@ about the component's state.
 
 <Example Component={LozengeDropdownTriggerSelected} packageName="@atlaskit/lozenge" />
 
+## Loading
+
+Use `isLoading` to indicate an in-progress state (for example, while saving a change triggered from
+within the dropdown menu).
+
+<Example Component={LozengeDropdownTriggerLoading} packageName="@atlaskit/lozenge" />
+
 ## With icon
 
 Add an icon before the text using the `iconBefore` prop to provide additional visual context.
@@ -54,12 +64,23 @@ labeling and visual organization.
 
 <Example Component={LozengeDropdownTriggerAccent} packageName="@atlaskit/lozenge" />
 
-new-lozenge-dropdown-trigger-max-width.tsx
+## Trailing metric
+
+Use `trailingMetric` to display a numeric score as a badge inside the lozenge.
+
+
+<Example Component={LozengeDropdownTriggerMetric} packageName="@atlaskit/lozenge" />
+
+## Spacing
+
+Use `spacing="spacious"` to increase padding and trigger height (32px).
+
+<Example Component={LozengeDropdownTriggerSpacing} packageName="@atlaskit/lozenge" />
 
 ## Max width
 
 When the text in the lozenge exceeds the maximum width, it will be truncated with an ellipsis. By
-default, the maximum width of a lozenge is 200px. You can use the maxWidth prop to customize the
+default, the maximum width of a lozenge is `200px`. You can use the `maxWidth` prop to customize the
 width of the lozenge.
 
 Avoid truncation wherever possible by using shorter text in lozenges. The truncated text is not

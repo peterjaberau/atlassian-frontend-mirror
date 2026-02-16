@@ -49,15 +49,14 @@ import {
 	blocktypeStyles_fg_platform_editor_nested_dnd_styles_changes,
 	blocktypeStyles_fg_platform_editor_typography_ugc,
 	blocktypeStyles_without_fg_platform_editor_typography_ugc,
+	listDangerStyles,
 	listSelectedNodeStyles,
+	textDangerStyles,
 	textSelectedNodeStyles,
 } from './styles/blockTypeStyles';
-import { codeBidiWarningStyles } from './styles/codeBidiWarningStyles';
 import {
-	codeBgColorStyles,
 	codeBlockStyles,
 	codeBlockStylesWithEmUnits,
-	codeBlockStylesWithNeutralBackground,
 	firstCodeBlockWithNoMargin,
 	firstCodeBlockWithNoMarginOld,
 } from './styles/codeBlockStyles';
@@ -99,6 +98,7 @@ import { InlineNodeViewSharedStyles } from './styles/inlineNodeViewSharedStyles'
 import {
 	layoutBaseStyles,
 	layoutBaseStylesAdvanced,
+	layoutBaseStylesWithTableExcerptsFix,
 	layoutBaseStylesFixesUnderNestedDnDFG,
 	layoutColumnMartinTopFixesNew,
 	layoutColumnMartinTopFixesOld,
@@ -114,6 +114,8 @@ import {
 	layoutSelectedStylesForViewNotAdvanced,
 	layoutSelectedStylesNotAdvanced,
 	layoutStylesForView,
+	layoutSelectedStylesAdvancedFix,
+	layoutBaseStylesFixesUnderNestedDnDFGExcludingBodiedSync,
 } from './styles/layout';
 import { hyperLinkFloatingToolbarStyles, linkStyles } from './styles/link';
 import {
@@ -159,6 +161,8 @@ import {
 } from './styles/placeholderStyles';
 import {
 	pragmaticResizerStyles,
+	pragmaticResizerStylesCodeBlockLegacy,
+	pragmaticResizerStylesCodeBlockSyncedBlockPatch,
 	pragmaticResizerStylesForTooltip,
 	pragmaticResizerStylesSyncedBlock,
 	pragmaticResizerStylesWithReducedEditorGutter,
@@ -178,6 +182,7 @@ import {
 	editorControlsSmartCardStyles,
 	linkingVisualRefreshV1Styles,
 	showDiffDeletedNodeStyles,
+	showDiffDeletedNodeStylesNew,
 	smartCardDiffStyles,
 	smartCardStyles,
 	smartCardStylesWithSearchMatch,
@@ -193,7 +198,7 @@ import {
 	statusStylesMixin_without_fg_platform_component_visual_refresh,
 	statusStylesMixin_without_fg_platform_component_visual_refresh_with_search_match,
 } from './styles/statusStyles';
-import { syncBlockStyles } from './styles/syncBlockStyles';
+import { syncBlockStyles, syncBlockOverflowStyles } from './styles/syncBlockStyles';
 import {
 	tableCommentEditorStyles,
 	tableContainerOverflowY,
@@ -361,8 +366,6 @@ const EditorContentContainer = React.forwardRef<HTMLDivElement, EditorContentCon
 						placeholderWrapStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					codeBlockStyles,
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-					editorExperiment('platform_synced_block', true) && codeBlockStylesWithNeutralBackground,
 					contentMode === 'compact' &&
 						(expValEquals('confluence_compact_text_format', 'isEnabled', true) ||
 							// eslint-disable-next-line @atlaskit/platform/no-preconditioning
@@ -371,7 +374,6 @@ const EditorContentContainer = React.forwardRef<HTMLDivElement, EditorContentCon
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 						codeBlockStylesWithEmUnits,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-					!fg('platform_editor_fix_code_block_bg_color_in_macro_2') && codeBgColorStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					!fg('platform_editor_typography_ugc') && editorUGCTokensDefault,
 					fg('platform_editor_typography_ugc') &&
@@ -407,13 +409,12 @@ const EditorContentContainer = React.forwardRef<HTMLDivElement, EditorContentCon
 					textColorStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					backgroundColorStyles,
-					expValEquals('platform_editor_text_highlight_padding', 'isEnabled', true) &&
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-						textHighlightPaddingStyles,
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+					textHighlightPaddingStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					listsStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-					fg('platform_editor_ai_generic_prep_for_aifc') && diffListStyles,
+					diffListStyles,
 					// Condense vertical spacing between list items when content mode dense is active
 					contentMode === 'compact' &&
 						(expValEquals('confluence_compact_text_format', 'isEnabled', true) ||
@@ -429,9 +430,12 @@ const EditorContentContainer = React.forwardRef<HTMLDivElement, EditorContentCon
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					ruleStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-					fg('platform_editor_ai_generic_prep_for_aifc') && smartCardDiffStyles,
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-					fg('platform_editor_ai_generic_prep_for_aifc_2') && showDiffDeletedNodeStyles,
+					smartCardDiffStyles,
+					expValEquals('platform_editor_enghealth_a11y_jan_fixes', 'isEnabled', true)
+						? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+							showDiffDeletedNodeStylesNew
+						: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+							showDiffDeletedNodeStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					mediaStyles,
 					contentMode === 'compact' &&
@@ -480,7 +484,7 @@ const EditorContentContainer = React.forwardRef<HTMLDivElement, EditorContentCon
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					getExtensionStyles(contentMode),
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-					fg('platform_editor_ai_generic_prep_for_aifc') && extensionDiffStyles,
+					extensionDiffStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					expandStyles,
 					contentMode === 'compact' &&
@@ -584,11 +588,17 @@ const EditorContentContainer = React.forwardRef<HTMLDivElement, EditorContentCon
 					resizerStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					layoutBaseStyles,
+					expValEquals('platform_editor_table_excerpts_fix', 'isEnabled', true) &&
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+						layoutBaseStylesWithTableExcerptsFix,
 					// merge alignMultipleWrappedImageInLayoutStyles with layoutBaseStyles when clean up platform_editor_fix_media_in_renderer
 					fg('platform_editor_fix_media_in_renderer') && alignMultipleWrappedImageInLayoutStyles,
 					editorExperiment('platform_synced_block', true) &&
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 						syncBlockStyles,
+					editorExperiment('platform_synced_block', true) &&
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+						syncBlockOverflowStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					editorExperiment('advanced_layouts', true) && layoutBaseStylesAdvanced,
 					editorExperiment('advanced_layouts', true)
@@ -607,13 +617,20 @@ const EditorContentContainer = React.forwardRef<HTMLDivElement, EditorContentCon
 							layoutSelectedStylesAdvanced
 						: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 							layoutSelectedStylesNotAdvanced,
+					editorExperiment('platform_synced_block', true) &&
+						fg('platform_synced_block_patch_2') &&
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+						layoutSelectedStylesAdvancedFix,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					editorExperiment('advanced_layouts', true) && layoutColumnResponsiveStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					editorExperiment('advanced_layouts', true) && layoutResponsiveBaseStyles,
 					fg('platform_editor_nested_dnd_styles_changes') &&
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-						layoutBaseStylesFixesUnderNestedDnDFG,
+						(editorExperiment('platform_synced_block', true) && fg('platform_synced_block_patch_2')
+							? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+								layoutBaseStylesFixesUnderNestedDnDFGExcludingBodiedSync
+							: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+								layoutBaseStylesFixesUnderNestedDnDFG),
 					fg('platform_editor_nested_dnd_styles_changes')
 						? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 							layoutColumnMartinTopFixesNew
@@ -656,6 +673,13 @@ const EditorContentContainer = React.forwardRef<HTMLDivElement, EditorContentCon
 					expValEqualsNoExposure('platform_editor_breakout_resizing', 'isEnabled', true)
 						? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 							pragmaticResizerStyles
+						: undefined,
+					expValEqualsNoExposure('platform_editor_breakout_resizing', 'isEnabled', true)
+						? fg('platform_synced_block_patch_1')
+							? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+								pragmaticResizerStylesCodeBlockSyncedBlockPatch
+							: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+								pragmaticResizerStylesCodeBlockLegacy
 						: undefined,
 					editorExperiment('advanced_layouts', true) &&
 						expValEqualsNoExposure('platform_editor_breakout_resizing', 'isEnabled', true) &&
@@ -752,13 +776,15 @@ const EditorContentContainer = React.forwardRef<HTMLDivElement, EditorContentCon
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					hyperLinkFloatingToolbarStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-					fg('confluence_floating_toolbar_animation') && selectionToolbarAnimationStyles,
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-					fg('platform_editor_vanilla_codebidi_warning') && codeBidiWarningStyles,
+					selectionToolbarAnimationStyles,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 					expValNoExposure('platform_editor_block_menu', 'isEnabled', false) && [
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 						blockquoteDangerStyles,
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+						textDangerStyles,
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+						listDangerStyles,
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 						dangerDateStyles,
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values

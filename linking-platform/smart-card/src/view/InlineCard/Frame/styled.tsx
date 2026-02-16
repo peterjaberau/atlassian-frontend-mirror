@@ -6,9 +6,11 @@ import React, { forwardRef } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
+import { fg } from '@atlaskit/platform-feature-flags';
 import { B100, B200, B400, B50, N40 } from '@atlaskit/theme/colors';
-import { expVal } from '@atlaskit/tmp-editor-statsig/expVal';
 import { token } from '@atlaskit/tokens';
+
+import type { ViewType } from './index';
 
 export interface WrapperProps extends React.ComponentProps<any> {
 	href?: string;
@@ -16,7 +18,7 @@ export interface WrapperProps extends React.ComponentProps<any> {
 	isInteractive?: boolean;
 	isSelected?: boolean;
 	truncateInline?: boolean;
-	viewType?: 'default' | 'unauthorised';
+	viewType?: ViewType;
 	withoutBackground?: boolean;
 }
 
@@ -26,24 +28,19 @@ export const WrapperSpan = forwardRef<HTMLSpanElement, WrapperProps>(
 			truncateInline,
 			withoutBackground,
 			isHovered,
-			isInteractive,
+			isInteractive: _isInteractive,
 			isSelected,
-			href,
 			viewType,
 			...props
 		},
 		ref,
 	) => {
-		const experimentValue =
-			viewType === 'unauthorised'
-				? expVal('platform_inline_smartcard_connect_button_exp', 'cohort', 'control')
-				: 'control';
 		return (
 			<span
 				css={[
 					baseWrapperStyles,
 					truncateInline && truncateStyles,
-					truncateInline && experimentValue !== 'control' && unauthorisedTruncateStyles,
+					truncateInline && viewType === 'unauthorised' && unauthorisedTruncateStyles,
 					withoutBackground ? withoutBackgroundStyles : withBackgroundStyles,
 					isHovered && hoveredStyles,
 					isHovered && !withoutBackground && hoveredWithBackgroundStyles,
@@ -72,11 +69,6 @@ export const WrapperAnchor = forwardRef<HTMLAnchorElement, WrapperProps>(
 		},
 		ref,
 	) => {
-		const experimentValue =
-			viewType === 'unauthorised'
-				? expVal('platform_inline_smartcard_connect_button_exp', 'cohort', 'control')
-				: 'control';
-
 		return (
 			// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
 			// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
@@ -85,12 +77,13 @@ export const WrapperAnchor = forwardRef<HTMLAnchorElement, WrapperProps>(
 				css={[
 					baseWrapperStyles,
 					truncateInline && truncateStyles,
-					truncateInline && experimentValue !== 'control' && unauthorisedTruncateStyles,
+					truncateInline && viewType === 'unauthorised' && unauthorisedTruncateStyles,
 					withoutBackground ? withoutBackgroundStyles : withBackgroundStyles,
 					isHovered && hoveredStyles,
 					isHovered && !withoutBackground && hoveredWithBackgroundStyles,
 					isSelected ? selectedStyles : notSelectedStyle,
 					isInteractive && interactiveStyles,
+					viewType === 'errored' && fg('navx-2565-inline-card-error-state-underline') && errorViewTypeStyles,
 				]}
 				ref={ref}
 				{...props}
@@ -132,6 +125,11 @@ const hoveredStyles = css({
 });
 
 const hoveredWithBackgroundStyles = css({ textDecoration: 'none' });
+
+const errorViewTypeStyles = css({
+	textDecoration: 'underline',
+	'&:hover': { textDecoration: 'none' },
+});
 
 const withoutBackgroundStyles = css({
 	paddingLeft: 0,

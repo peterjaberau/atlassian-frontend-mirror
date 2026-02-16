@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/link-test-helpers",
-	"version": "9.0.0",
+	"version": "9.0.2",
 	"description": "Collection of test helpers used in linking platform examples and specs",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -35,6 +35,9 @@
 		"./images": "./src/images/index.ts",
 		".": "./src/index.ts"
 	},
+	"scripts": {
+		"ak-postbuild": "ls -d dist/* | xargs -n 1 copyfiles -u 1 -V src/**/*.{svg,png}"
+	},
 	"dependencies": {
 		"@atlaskit/json-ld-types": "workspace:^",
 		"@atlaskit/link-provider": "workspace:^",
@@ -43,7 +46,7 @@
 		"@atlaskit/react-ufo": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@jest/globals": "root:*",
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"fetch-mock": "root:*",
 		"jest-diff": "root:*",
 		"lodash": "root:*",

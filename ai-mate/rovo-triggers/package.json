@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/rovo-triggers",
-	"version": "5.3.1",
+	"version": "5.13.0",
 	"description": "Provides various trigger events to drive Rovo Chat functionality, such as a publish-subscribe and URL parameter hooks",
 	"author": "Atlassian Pty Ltd",
 	"publishConfig": {
@@ -29,10 +29,20 @@
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./chat-context/types": "./src/common/utils/chat-context/types.tsx",
+		"./chat-context": "./src/common/utils/chat-context/index.tsx",
+		"./jsm-journey-builder-types": "./src/common/types/jsm-journey-builder/index.ts",
+		"./main": "./src/main.tsx",
+		"./params": "./src/common/utils/params/index.ts",
+		"./params-types": "./src/common/utils/params/types.ts",
+		"./post-message-to-pubsub": "./src/common/utils/post-message-to-pubsub/index.tsx",
+		"./solution-architect-types": "./src/common/types/solution-architect/index.ts",
+		"./types": "./src/types.ts"
 	},
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
+		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@babel/runtime": "root:*",
 		"bind-event-listener": "root:*"
 	},
@@ -45,8 +55,9 @@
 		"@atlaskit/css": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"react-dom": "root:*",
 		"wait-for-expect": "root:*"
 	},
@@ -86,6 +97,11 @@
 			"imports": [
 				"import-no-extraneous-disable-for-examples-and-docs"
 			]
+		}
+	},
+	"platform-feature-flags": {
+		"ai-mate-pub-sub-post-message-origin-fix": {
+			"type": "boolean"
 		}
 	}
 }

@@ -23,6 +23,7 @@ import {
 	TRANSFORM_SUGGESTED_MENU_SECTION_RANK,
 	TRANSFORM_SUGGESTED_MENU_ITEM,
 } from '@atlaskit/editor-common/block-menu';
+import { blockMenuMessages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { ToolbarDropdownItemSection } from '@atlaskit/editor-toolbar';
 
@@ -32,18 +33,48 @@ import type {
 	RegisterBlockMenuComponent,
 } from '../blockMenuPluginType';
 
+import {
+	buildChildrenMap,
+	getChildrenMapKey,
+	willComponentRender,
+} from './block-menu-renderer/utils';
 import { CopyLinkDropdownItem } from './copy-link';
 import { CopySection } from './copy-section';
 import { DeleteDropdownItem } from './delete-button';
 import { DeleteSection } from './delete-section';
 import { FormatMenuComponent } from './format-menu-nested';
 import { FormatMenuSection } from './format-menu-section';
+import { MenuSection } from './MenuSection';
 import { MoveDownDropdownItem } from './move-down';
 import { MoveUpDropdownItem } from './move-up';
 import { SuggestedItemsMenuSection } from './suggested-items-menu-section';
 import { SuggestedMenuItems } from './suggested-menu-items';
 import { createMenuItemsMap } from './utils/createMenuItemsMap';
 import { getSuggestedItemsFromSelection } from './utils/getSuggestedItemsFromSelection';
+
+const MIN_NUMBER_OF_AVAILABLE_NATIVE_TRANSFORMS = 7;
+
+const getTotalNumberOfAvailableNativeTransforms = (
+	blockMenuComponents: RegisterBlockMenuComponent[] | undefined,
+) => {
+	if (!blockMenuComponents) {
+		return 0;
+	}
+
+	const childrenMap = buildChildrenMap(blockMenuComponents);
+	const headingsKey = getChildrenMapKey(TRANSFORM_HEADINGS_MENU_SECTION.key, 'block-menu-section');
+	const structureKey = getChildrenMapKey(
+		TRANSFORM_STRUCTURE_MENU_SECTION.key,
+		'block-menu-section',
+	);
+
+	const headingsChildren = childrenMap.get(headingsKey) || [];
+	const structureChildren = childrenMap.get(structureKey) || [];
+
+	return [...headingsChildren, ...structureChildren].filter((c) =>
+		willComponentRender(c, childrenMap),
+	).length;
+};
 
 const getMoveUpMoveDownMenuComponents = (
 	api: ExtractInjectionAPI<BlockMenuPlugin> | undefined,
@@ -111,6 +142,13 @@ const getTurnIntoMenuComponents = (
 			component: () => <SuggestedMenuItems api={api} />,
 			isHidden: () => {
 				const blockMenuComponents = api?.blockMenu?.actions.getBlockMenuComponents();
+				if (
+					getTotalNumberOfAvailableNativeTransforms(blockMenuComponents) <
+					MIN_NUMBER_OF_AVAILABLE_NATIVE_TRANSFORMS
+				) {
+					return true;
+				}
+
 				const menuItemsMap = createMenuItemsMap(blockMenuComponents);
 				const selection = api?.selection?.sharedState.currentState()?.selection;
 				const preservedSelection =
@@ -129,7 +167,7 @@ const getTurnIntoMenuComponents = (
 				rank: TRANSFORM_MENU_ITEM_RANK[TRANSFORM_CREATE_MENU_SECTION.key],
 			},
 			component: ({ children }: { children: React.ReactNode } = { children: null }) => {
-				return <ToolbarDropdownItemSection title="Create">{children}</ToolbarDropdownItemSection>;
+				return <MenuSection title={blockMenuMessages.create}>{children}</MenuSection>;
 			},
 		},
 		{
@@ -141,9 +179,7 @@ const getTurnIntoMenuComponents = (
 				rank: TRANSFORM_MENU_ITEM_RANK[TRANSFORM_STRUCTURE_MENU_SECTION.key],
 			},
 			component: ({ children }: { children: React.ReactNode } = { children: null }) => {
-				return (
-					<ToolbarDropdownItemSection title="Structure">{children}</ToolbarDropdownItemSection>
-				);
+				return <MenuSection title={blockMenuMessages.structure}>{children}</MenuSection>;
 			},
 		},
 		{
@@ -156,9 +192,9 @@ const getTurnIntoMenuComponents = (
 			},
 			component: ({ children }: { children: React.ReactNode } = { children: null }) => {
 				return (
-					<ToolbarDropdownItemSection title="Headings" hasSeparator>
+					<MenuSection title={blockMenuMessages.headings} hasSeparator>
 						{children}
-					</ToolbarDropdownItemSection>
+					</MenuSection>
 				);
 			},
 		},

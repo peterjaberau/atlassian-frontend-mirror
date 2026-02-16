@@ -1,5 +1,30 @@
 # @atlaskit/media-avatar-picker
 
+## 26.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.4.3
+
+### Patch Changes
+
+- [`bb6505fd63e90`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bb6505fd63e90) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+
+## 26.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 26.4.0
 
 ### Minor Changes

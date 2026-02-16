@@ -3,7 +3,7 @@
  *
  * Generates Typescript types for analytics events from analytics.spec.yaml
  *
- * @codegen <<SignedSource::eb2aa4be20622862a1a866d4af0eeefc>>
+ * @codegen <<SignedSource::75e27d84529f4d2b7d1f40c1944f5f61>>
  * @codegenCommand yarn workspace @atlassian/analytics-tooling run analytics:codegen teams-app-internal-analytics
  */
 export type PackageMetaDataType = {
@@ -643,6 +643,22 @@ export type RecommendedProductsTaskFailAttributesType = {
 	isStandalone: boolean;
 	hasBrowsUsersPermission: boolean;
 };
+export type ProjectsAndGoalsTaskStartAttributesType = {
+	sloSatisifed: boolean;
+	taskDuration: number;
+	latencySlo: number;
+	isStandalone: boolean;
+	hasBrowsUsersPermission: boolean;
+	tab: string | null;
+};
+export type ProjectsAndGoalsTaskSuccessAttributesType = {
+	sloSatisifed: boolean;
+	taskDuration: number;
+	latencySlo: number;
+	isStandalone: boolean;
+	hasBrowsUsersPermission: boolean;
+	tab: string | null;
+};
 export type TeamsPermissionsRequestFailedAttributesType = {
 	message: string;
 	status: string;
@@ -1031,12 +1047,18 @@ export type ProfileProjectsAndGoalsViewedAttributesType = {
 	hasProjects: boolean;
 	product: string;
 	workspaceUuid: string | null;
+	isNewUserProfile: boolean | null;
+	tab: string | null;
 };
 export type ProfileProjectsLinkClickedAttributesType = {
 	entryIndex: number;
+	isNewUserProfile: boolean | null;
+	tab: string | null;
 };
 export type ProfileGoalsLinkClickedAttributesType = {
 	entryIndex: number;
+	isNewUserProfile: boolean | null;
+	tab: string | null;
 };
 export type ButtonClickedFollowTeamProjectsGoalsButtonAttributesType = undefined;
 export type ButtonClickedUnfollowTeamProjectsGoalsButtonAttributesType = undefined;
@@ -1047,6 +1069,8 @@ export type ErrorBoundaryTriggeredAttributesType = {
 };
 export type ProfileKudosViewedAttributesType = {
 	isEmpty: boolean;
+	isNewUserProfile: boolean | null;
+	tab: string | null;
 };
 export type ProfileKudosTabClickedAttributesType = {
 	tabName: 'given' | 'received';
@@ -1066,6 +1090,8 @@ export type ReportingLinesChartExpandedAttributesType = {
 export type ReportingLinesChartViewedAttributesType = {
 	product: string;
 	workspaceUuid: string | null;
+	isNewUserProfile: boolean | null;
+	tab: string | null;
 };
 export type UiViewedAttributesType = {
 	product: string;
@@ -1114,7 +1140,9 @@ export type HeaderImageSucceededTeamHeaderImageAttributesType = {
 	orgAdminTriggered: boolean;
 	isVerified: boolean | null;
 };
-export type ButtonClickedProfileHeaderMediaPickerUploadAttributesType = undefined;
+export type ButtonClickedProfileHeaderMediaPickerUploadAttributesType = {
+	isNewUserProfile: boolean | null;
+};
 export type ButtonClickedProfileHeaderRemoveAttributesType = undefined;
 export type SendFeedbackClickedAttributesType = undefined;
 export type ButtonClickedRemoveAvatarAttributesType = undefined;
@@ -1126,8 +1154,12 @@ export type AvatarPickerClosedAttributesType = {
 export type AvatarPickerOpenedAttributesType = {
 	hasUploadedAvatar: boolean;
 };
-export type ButtonClickedChangeProfilePhotoAttributesType = undefined;
-export type ButtonClickedCreateInitialsAvatarAttributesType = undefined;
+export type ButtonClickedChangeProfilePhotoAttributesType = {
+	isNewUserProfile: boolean | null;
+};
+export type ButtonClickedCreateInitialsAvatarAttributesType = {
+	isNewUserProfile: boolean | null;
+};
 export type AvatarInitialsPickerOpenedAttributesType = {
 	hasUploadedAvatar: boolean;
 };
@@ -1155,37 +1187,51 @@ export type ProfileAboutItemEditedAttributesType = {
 };
 export type UserProfileScreenAboutPanelViewedAttributesType = {
 	nonEmptyFields: string;
+	isNewUserProfile: boolean | null;
 };
 export type PrivacyPolicyLinkClickedAttributesType = undefined;
 export type TeamProfileItemClickedAttributesType = {
 	position: number;
 	isPoweredByTWG: boolean | null;
+	isNewUserProfile: boolean | null;
 };
 export type ShowMoreClickedAttributesType = {
 	selectedUser: boolean | null;
 	withSearchQuery: boolean | null;
+	isNewUserProfile: boolean | null;
 };
 export type TeamCreateDialogTriggerButtonClickedAttributesType = {
 	trigger: string;
+	isNewUserProfile: boolean | null;
 };
-export type ButtonClickedManageAccountButtonAttributesType = undefined;
+export type ButtonClickedManageAccountButtonAttributesType = {
+	isNewUserProfile: boolean | null;
+};
 export type ButtonClickedManageAccessButtonAttributesType = undefined;
-export type UserProfileScreenLoadFailedAttributesType = undefined;
+export type UserProfileScreenLoadFailedAttributesType = {
+	isNewUserProfile: boolean | null;
+};
 export type UserProfileScreenViewedAttributesType = {
 	isCurrentUser: boolean;
+	isNewUserProfile: boolean | null;
+	tab: string | null;
 };
 export type ViewAllWorkClickedAttributesType = {
 	location: string;
+	isNewUserProfile: boolean | null;
 };
 export type MoreWorkClickedAttributesType = {
 	numItemsDisplayed: number;
+	isNewUserProfile: boolean | null;
 };
 export type ActivityEntryClickedAttributesType = {
 	provider: string;
 	entryIndex: number;
+	isNewUserProfile: boolean | null;
 };
 export type PlacesLinkClickedAttributesType = {
 	type: string;
+	isNewUserProfile: boolean | null;
 };
 export type ViewedTeamProfileFromRequestToJoinNotificationViewedAttributesType = {
 	status: number | null;
@@ -1385,6 +1431,7 @@ export type AgentProfileAboutTeamsViewedAttributesType = {
 };
 export type UserProfileAboutTeamsViewedAttributesType = {
 	teamsCount: number;
+	isNewUserProfile: boolean | null;
 };
 export type TeamAgentsPanelViewedAttributesType = {
 	activeAgentsCount: number;
@@ -1436,6 +1483,15 @@ export type FeatureExposedAttributesType = {
 };
 export type InvitePromptShowContainerAddedFlagFailedAttributesType = {
 	error: string;
+};
+export type RequestedContainersTryAgainAttributesType = {
+	containers: unknown[];
+	teamId: string;
+};
+export type RequestedContainersFailedAttributesType = {
+	containers: unknown[];
+	teamId: string;
+	tryAgainCount: number | null;
 };
 
 export type AnalyticsEventAttributes = {
@@ -1851,6 +1907,10 @@ export type AnalyticsEventAttributes = {
 	'operational.recommendedProducts.taskSuccess': RecommendedProductsTaskSuccessAttributesType;
 	/** */
 	'operational.recommendedProducts.taskFail': RecommendedProductsTaskFailAttributesType;
+	/** */
+	'operational.projectsAndGoals.taskStart': ProjectsAndGoalsTaskStartAttributesType;
+	/** */
+	'operational.projectsAndGoals.taskSuccess': ProjectsAndGoalsTaskSuccessAttributesType;
 	/** */
 	'operational.teamsPermissionsRequest.failed': TeamsPermissionsRequestFailedAttributesType;
 	/** */
@@ -2455,6 +2515,12 @@ export type AnalyticsEventAttributes = {
 	/**
 	 * Fired when something fails horribly inside of showContainerAddedFlagFailed */
 	'operational.invitePrompt.showContainerAddedFlagFailed': InvitePromptShowContainerAddedFlagFailedAttributesType;
+	/**
+	 * Fired when the user tries to add requested containers again */
+	'track.requestedContainers.tryAgain': RequestedContainersTryAgainAttributesType;
+	/**
+	 * Fired when the user fails to add requested containers */
+	'track.requestedContainers.failed': RequestedContainersFailedAttributesType;
 };
 
 export type EventKey = keyof AnalyticsEventAttributes;

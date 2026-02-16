@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/color-picker",
-	"version": "5.3.0",
+	"version": "5.3.3",
 	"description": "Jira Color Picker Component",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -22,7 +22,7 @@
 	},
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
-		"team": "AAIS: Chronos",
+		"team": "Jira Chronos",
 		"website": {
 			"name": "Color Picker"
 		}

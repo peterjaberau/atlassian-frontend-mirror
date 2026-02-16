@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { bind } from 'bind-event-listener';
 
+import { fg } from '@atlaskit/platform-feature-flags';
+
 import { usePublish } from '../../../main';
 import { type Payload } from '../../../types';
 
@@ -23,7 +25,7 @@ type PostMessageAckEventType = {
 const allowedSubdomains = ['.jira-dev.com', '.atlassian.com', '.atlassian.net', '.atl-paas.net'];
 const allowedOrigins = ['bitbucket.org', 'trello.com'];
 
-export const isAllowedOrigin = (origin: string | undefined) => {
+export const isAllowedOrigin = (origin: string | undefined): boolean => {
 	if (!origin) {
 		return false;
 	}
@@ -56,7 +58,9 @@ export const RovoPostMessagePubsubListener = () => {
 						eventType: ROVO_POST_MESSAGE_ACK_EVENT_TYPE,
 						payloadId: eventData.payloadId,
 					};
-					event.source?.postMessage(ackPayload);
+					event.source?.postMessage(ackPayload, fg('ai-mate-pub-sub-post-message-origin-fix') ? {
+						targetOrigin: '*',
+					} : undefined);
 					publish(event.data.payload);
 				}
 			},

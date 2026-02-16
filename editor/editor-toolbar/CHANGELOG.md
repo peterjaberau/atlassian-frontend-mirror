@@ -1,5 +1,178 @@
 # @atlaskit/editor-toolbar
 
+## 0.19.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.22
+
+### Patch Changes
+
+- [`d2ad12b4bee01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2ad12b4bee01) -
+  [ux] [EDITOR-5117] revert ToolbarButtonGroup padding changes for A11Y compliance
+- Updated dependencies
+
+## 0.19.21
+
+### Patch Changes
+
+- [`7fc08532f3729`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fc08532f3729) -
+  Remove platform_editor_toolbar_aifc_undo_redo_confluence feature gate
+
+## 0.19.20
+
+### Patch Changes
+
+- [`b43aaf2b5d0ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b43aaf2b5d0ff) -
+  Remove platform_editor_toolbar_aifc_undo_redo_confluence feature gate
+
+## 0.19.19
+
+### Patch Changes
+
+- [`2126e50c0c9e4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2126e50c0c9e4) -
+  [ux] [EDITOR-4926] update ToolbarButtonGroup UI and remove unwanted tooltip from AI dropdown
+- Updated dependencies
+
+## 0.19.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.16
+
+### Patch Changes
+
+- [`2d81bc503e714`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2d81bc503e714) -
+  [ux] [EDITOR-4500] export AppIcon, add optional title prop to ToolbarDropdownItem and create the
+  CustomDropdownMenuItemAnchor component for DropdownMenuItems that render anchor elements
+- [`3b3aa281c8524`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b3aa281c8524) -
+  Editor 4149 Fix keyboard navigation inside turn into
+- [`d4b2e174e207c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d4b2e174e207c) -
+  [EDITOR-4500] apply a11y fix to new custom ToolbarDropdownItem component
+- Updated dependencies
+
+## 0.19.15
+
+### Patch Changes
+
+- [`9b8e6a65567af`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9b8e6a65567af) -
+  ENGHEALTH-48871: Fix aria-required-children a11y issue with Editor toolbar.
+- Updated dependencies
+
+## 0.19.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.13
+
+### Patch Changes
+
+- [`38dee2c85c456`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38dee2c85c456) -
+  [ux] [EDITOR-4486] render tooltips for ToolbarDropdownMenu using new TooltipComponent prop behind
+  platform_editor_hide_toolbar_tooltips_fix
+- Updated dependencies
+
+## 0.19.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.11
+
+### Patch Changes
+
+- [`e504eea6e1d3f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e504eea6e1d3f) -
+  EDITOR-4665: Clean up platform_editor_toolbar_aifc_responsive_improve feature flag
+- Updated dependencies
+
+## 0.19.10
+
+### Patch Changes
+
+- [`e170ad8b5a383`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e170ad8b5a383) -
+  [EDTIOR-4501] add optional id prop to ToolbarDropdownMenu
+- Updated dependencies
+
+## 0.19.9
+
+### Patch Changes
+
+- [`653c0c803b286`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/653c0c803b286) -
+  EDITOR-4620 Clean up platform_editor_toolbar_aifc_patch_6
+- Updated dependencies
+
+## 0.19.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.7
+
+### Patch Changes
+
+- [`3d0b3f8b4d802`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d0b3f8b4d802) -
+  Remove platform_editor_toolbar_aifc_responsive experiment
+- Updated dependencies
+
+## 0.19.6
+
+### Patch Changes
+
+- [`9041ec452a104`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9041ec452a104) -
+  [EDITOR-4515] clean up fg platform_editor_toolbar_aifc_patch_7
+- Updated dependencies
+
+## 0.19.5
+
+### Patch Changes
+
+- [`aeb74c52331de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aeb74c52331de) -
+  [EDITOR-4634] remove duplicated toolbar role from toolbar elements behind
+  platform_editor_aifc_remove_duplicate_role
+- Updated dependencies
+
+## 0.19.4
+
+### Patch Changes
+
+- [`d29ff5aa0dcec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d29ff5aa0dcec) -
+  [NO-ISSUE] cleans up experiment platform_editor_reduce_toolbar_vc_impact
+- Updated dependencies
+
+## 0.19.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.2
+
+### Patch Changes
+
+- [`20d29306fb10e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/20d29306fb10e) -
+  [ED-29451] clean up platform_editor_toolbar_aifc_patch_5
+- Updated dependencies
+
 ## 0.19.1
 
 ### Patch Changes

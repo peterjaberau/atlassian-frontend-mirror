@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-text-color",
-	"version": "7.2.0",
+	"version": "7.2.16",
 	"description": "Text color plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -62,7 +62,7 @@
 		"react-intl-next": "*"
 	},
 	"devDependencies": {
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"wait-for-expect": "root:*"
 	},
 	"techstack": {
@@ -108,10 +108,10 @@
 		"platform-visual-refresh-icons": {
 			"type": "boolean"
 		},
-		"platform_editor_toolbar_aifc_patch_7": {
+		"platform_editor_toolbar_aifc_text_color_config": {
 			"type": "boolean"
 		},
-		"platform_editor_toolbar_aifc_text_color_config": {
+		"platform_editor_toolbar_aifc_text_color_config_jsm": {
 			"type": "boolean"
 		}
 	}

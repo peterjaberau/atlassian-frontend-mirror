@@ -146,7 +146,20 @@ export const ClearFormatMenuItem = ({
 export const MoreFormattingMenu = ({ children }: { children?: ReactNode }): React.JSX.Element => {
 	const { formatMessage } = useIntl();
 	const content = formatMessage(toolbarMessages.moreFormatting);
-	return expValEquals('platform_editor_toolbar_aifc_patch_6', 'isEnabled', true) ? (
+
+	if (expValEquals('platform_editor_hide_toolbar_tooltips_fix', 'isEnabled', true)) {
+		return (
+			<ToolbarDropdownMenu
+				iconBefore={<MoreItemsIcon label="" testId="more-formatting" />}
+				label={content}
+				tooltipComponent={<ToolbarTooltip content={formatMessage(toolbarMessages.textFormat)}/>}
+			>
+				{children}
+			</ToolbarDropdownMenu>
+		);
+	}
+
+	return (
 		<ToolbarTooltip content={formatMessage(toolbarMessages.textFormat)}>
 			<ToolbarDropdownMenu
 				iconBefore={<MoreItemsIcon label="" testId="more-formatting" />}
@@ -155,13 +168,6 @@ export const MoreFormattingMenu = ({ children }: { children?: ReactNode }): Reac
 				{children}
 			</ToolbarDropdownMenu>
 		</ToolbarTooltip>
-	) : (
-		<ToolbarDropdownMenu
-			iconBefore={<MoreItemsIcon label="" testId="more-formatting" />}
-			label={content}
-		>
-			{children}
-		</ToolbarDropdownMenu>
 	);
 };
 

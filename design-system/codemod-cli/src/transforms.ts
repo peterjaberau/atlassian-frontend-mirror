@@ -15,7 +15,7 @@ const basePath = (packages?: ParsedPkg[]) => {
 	return path.join(process.cwd(), 'node_modules', ...packageDirectory, 'codemods');
 };
 
-export const hasTransform = (transformPath: string) => globSync(transformPath).length > 0;
+export const hasTransform = (transformPath: string): boolean => globSync(transformPath).length > 0;
 
 /**
  * Retrieves transforms for `packages` if provided, otherwise all transforms including presets
@@ -38,7 +38,7 @@ export const getTransforms = (packages?: ParsedPkg[]): ParsedPath[] => {
 		.sort();
 };
 
-export const parseTransformPath = (transformPath: string) => path.parse(transformPath);
+export const parseTransformPath = (transformPath: string): path.ParsedPath => path.parse(transformPath);
 
 export const getTransformPath = ({ dir, base }: ParsedPath) => `${dir}/${base}`;
 

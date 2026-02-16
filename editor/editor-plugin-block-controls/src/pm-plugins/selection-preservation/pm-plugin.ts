@@ -1,16 +1,20 @@
-import { logException } from '@atlaskit/editor-common/monitoring';
+import { bind } from 'bind-event-listener';
+
+import { getDocument } from '@atlaskit/browser-apis';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { DRAG_HANDLE_SELECTOR } from '@atlaskit/editor-common/styles';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import type {
-	EditorState,
-	ReadonlyTransaction,
-	Transaction,
+import {
+	type EditorState,
+	type ReadonlyTransaction,
+	type Transaction,
 } from '@atlaskit/editor-prosemirror/state';
 import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import { fg } from '@atlaskit/platform-feature-flags';
 
 import type { BlockControlsPlugin } from '../../blockControlsPluginType';
-import { mapPreservedSelection } from '../utils/selection';
+import { key } from '../main';
+import { createPreservedSelection, mapPreservedSelection } from '../utils/selection';
 
 import { stopPreservingSelection } from './editor-commands';
 import { selectionPreservationPluginKey } from './plugin-key';
@@ -19,8 +23,6 @@ import {
 	compareSelections,
 	getSelectionPreservationMeta,
 	hasUserSelectionChange,
-	isPreservedSelectionChanged,
-	isSelectionWithinCodeBlock,
 	syncDOMSelection,
 } from './utils';
 
@@ -71,17 +73,18 @@ export const createSelectionPreservationPlugin =
 					const newState = { ...pluginState };
 
 					if (meta?.type === 'startPreserving') {
-						newState.preservedSelection = mapPreservedSelection(tr.selection, tr);
+						newState.preservedSelection = createPreservedSelection(
+							tr.doc.resolve(tr.selection.from),
+							tr.doc.resolve(tr.selection.to),
+						);
 					} else if (meta?.type === 'stopPreserving') {
 						newState.preservedSelection = undefined;
-					}
-
-					if (newState.preservedSelection && tr.docChanged) {
+					} else if (newState.preservedSelection && tr.docChanged) {
 						newState.preservedSelection = mapPreservedSelection(newState.preservedSelection, tr);
 					}
 
 					if (!compareSelections(newState.preservedSelection, pluginState.preservedSelection)) {
-						if (newState?.preservedSelection) {
+						if (newState.preservedSelection) {
 							api?.core.actions.execute(
 								api?.selection?.commands?.setBlockSelection(newState.preservedSelection),
 							);
@@ -107,8 +110,8 @@ export const createSelectionPreservationPlugin =
 					return null;
 				}
 
-				// Auto-stop if user explicitly changes selection or selection is set within a code block
-				if (hasUserSelectionChange(transactions) || isSelectionWithinCodeBlock(stateSel)) {
+				// Auto-stop if user explicitly changes selection
+				if (hasUserSelectionChange(transactions)) {
 					return stopPreservingSelection({ tr: newState.tr });
 				}
 
@@ -121,52 +124,133 @@ export const createSelectionPreservationPlugin =
 					return null;
 				}
 
-				try {
-					return newState.tr.setSelection(preservedSel);
-				} catch (error) {
-					logException(error as Error, {
-						location: 'editor-plugin-block-controls/SelectionPreservationPlugin',
-					});
+				const newSelection = createPreservedSelection(
+					newState.doc.resolve(preservedSel.from),
+					newState.doc.resolve(preservedSel.to),
+				);
+
+				// If selection becomes invalid, stop preserving
+				if (!newSelection) {
+					return stopPreservingSelection({ tr: newState.tr });
 				}
 
-				return null;
+				return newState.tr.setSelection(newSelection);
 			},
 
-			view() {
-				return {
-					update(view: EditorView, prevState: EditorState) {
-						if (isPreservedSelectionChanged(view.state, prevState)) {
-							syncDOMSelection(view.state.selection);
+			view(initialView: EditorView) {
+				let view: EditorView = initialView;
+				const doc = getDocument();
+
+				if (!doc) {
+					return {
+						update() {},
+						destroy() {},
+					};
+				}
+
+				const unbindDocumentMouseDown = bind(doc, {
+					type: 'mousedown',
+					listener: (e) => {
+						if (!(e.target instanceof HTMLElement)) {
+							return;
 						}
+
+						const { preservedSelection } =
+							selectionPreservationPluginKey.getState(view.state) || {};
+
+						// If there is no current preserved selection or the editor is not focused, do nothing
+						if (!preservedSelection) {
+							return;
+						}
+
+						const clickedDragHandle = !!e.target.closest(DRAG_HANDLE_SELECTOR);
+
+						// When mouse down on a drag handle we continue preserving the selection
+						if (clickedDragHandle) {
+							return;
+						}
+
+						const clickedOutsideEditor = !e.target.closest('.ProseMirror');
+
+						// When mouse down outside the editor continue to preserve the selection
+						if (clickedOutsideEditor) {
+							return;
+						}
+
+						// Otherwise mouse down anywhere else in the editor stops preserving the selection
+						const tr = view.state.tr;
+						stopPreservingSelection({ tr });
+						view.dispatch(tr);
+					},
+					// Use capture phase to stop preservation before appendTransaction runs,
+					// preventing unwanted selection restoration when the user clicks into the editor.
+					options: { capture: true },
+				});
+
+				return {
+					update(updateView: EditorView, prevState: EditorState) {
+						view = updateView;
+
+						// [FEATURE FLAG: platform_editor_selection_sync_fix]
+						// When enabled, syncs DOM selection even when editor doesn't have focus.
+						// This prevents ghost highlighting after moving nodes when block menu is open.
+						// To clean up: remove the if-else block and keep only the flag-on behavior.
+						if (fg('platform_editor_selection_sync_fix')) {
+							const prevPreservedSelection =
+								selectionPreservationPluginKey.getState(prevState)?.preservedSelection;
+							const currPreservedSelection = selectionPreservationPluginKey.getState(
+								view.state,
+							)?.preservedSelection;
+							const prevActiveNode = key.getState(prevState)?.activeNode;
+							const currActiveNode = key.getState(view.state)?.activeNode;
+
+							// Sync DOM selection when the preserved selection or active node changes
+							// AND the document has changed (e.g., nodes moved)
+							// This prevents stealing focus during menu navigation while still fixing ghost highlighting
+							const hasPreservedSelection = !!currPreservedSelection;
+							const preservedSelectionChanged = !compareSelections(
+								prevPreservedSelection,
+								currPreservedSelection,
+							);
+							const activeNodeChanged = prevActiveNode !== currActiveNode;
+							const docChanged = prevState.doc !== view.state.doc;
+							const shouldSyncDOMSelection =
+								hasPreservedSelection &&
+								(preservedSelectionChanged || activeNodeChanged) &&
+								docChanged;
+
+							if (shouldSyncDOMSelection) {
+								syncDOMSelection(view.state.selection, view);
+							}
+						} else {
+							// OLD BEHAVIOR (to be removed when flag is cleaned up)
+							// Only synced when editor had focus, causing ghost highlighting issues
+							const prevPreservedSelection =
+								selectionPreservationPluginKey.getState(prevState)?.preservedSelection;
+							const currPreservedSelection = selectionPreservationPluginKey.getState(
+								view.state,
+							)?.preservedSelection;
+							const prevActiveNode = key.getState(prevState)?.activeNode;
+							const currActiveNode = key.getState(view.state)?.activeNode;
+
+							if (
+								currPreservedSelection &&
+								view.hasFocus() &&
+								(!compareSelections(prevPreservedSelection, currPreservedSelection) ||
+									prevActiveNode !== currActiveNode)
+							) {
+								// Old syncDOMSelection signature (to be removed)
+								syncDOMSelection(view.state.selection);
+							}
+						}
+					},
+					destroy() {
+						unbindDocumentMouseDown();
 					},
 				};
 			},
 
 			props: {
-				handleClick: (view: EditorView, pos: number, event: MouseEvent) => {
-					const { preservedSelection } = selectionPreservationPluginKey.getState(view.state) || {};
-
-					// If there is no current preserved selection, do nothing
-					if (!preservedSelection) {
-						return false;
-					}
-
-					const clickedDragHandle =
-						event.target instanceof HTMLElement && event.target.closest(DRAG_HANDLE_SELECTOR);
-
-					// When clicking a drag handle we continue preserving the selection
-					if (!clickedDragHandle) {
-						return false;
-					}
-
-					// Otherwise clicking anywhere else in the editor stops preserving the selection
-					const tr = view.state.tr;
-					stopPreservingSelection({ tr });
-					view.dispatch(tr);
-
-					return false;
-				},
-
 				handleKeyDown: (view: EditorView, event: KeyboardEvent) => {
 					const { preservedSelection } = selectionPreservationPluginKey.getState(view.state) || {};
 

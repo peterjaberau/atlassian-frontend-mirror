@@ -1,5 +1,5 @@
 import format from '@af/formatting/sync';
-import { legacyLightTokens as legacyTokens, light as tokens } from '@atlaskit/tokens/tokens-raw';
+import { light as tokens } from '@atlaskit/tokens/tokens-raw';
 
 import {
 	capitalize,
@@ -24,13 +24,13 @@ const tokenStyles = {
 		objectName: 'textColor',
 		prefix: 'color.text.',
 		cssProperty: 'color',
-		filterFn: <T extends Token>(t: T) => t.token.startsWith(tokenStyles.text.prefix),
+		filterFn: <T extends Token>(t: T): boolean => t.token.startsWith(tokenStyles.text.prefix),
 	},
 	background: {
 		objectName: 'backgroundColor',
 		prefix: 'color.background.',
 		cssProperty: 'backgroundColor',
-		filterFn: <T extends Token>(t: T) =>
+		filterFn: <T extends Token>(t: T): boolean =>
 			t.token.startsWith(tokenStyles.background.prefix) ||
 			t.token.startsWith('elevation.surface') ||
 			t.token.startsWith('color.blanket'),
@@ -39,24 +39,22 @@ const tokenStyles = {
 		objectName: 'borderColor',
 		prefix: 'color.border.',
 		cssProperty: 'borderColor',
-		filterFn: <T extends Token>(t: T) => t.token.startsWith(tokenStyles.border.prefix),
+		filterFn: <T extends Token>(t: T): boolean => t.token.startsWith(tokenStyles.border.prefix),
 	},
 	shadow: {
 		objectName: 'shadow',
 		prefix: 'elevation.shadow.',
 		cssProperty: 'boxShadow',
-		filterFn: <T extends Token>(t: T) => t.token.startsWith(tokenStyles.shadow.prefix),
+		filterFn: <T extends Token>(t: T): boolean => t.token.startsWith(tokenStyles.shadow.prefix),
 	},
 } as const;
 
-const bothTokens = tokens.map((t, i) => [t, legacyTokens[i]]);
-
-const activeTokens = bothTokens
-	.filter(([t]) => t.attributes.state !== 'deleted' && t.attributes.state !== 'deprecated')
+const activeTokens = tokens
+	.filter((t) => t.attributes.state !== 'deleted' && t.attributes.state !== 'deprecated')
 	.map(
-		([t, legacy]): Token => ({
+		(t): Token => ({
 			token: t.name,
-			fallback: legacy.value as string | ShadowDefintion,
+			fallback: t.value as string | ShadowDefintion,
 		}),
 	)
 	.filter(compose(pick('token'), not(isAccent)))

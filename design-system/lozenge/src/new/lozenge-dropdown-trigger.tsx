@@ -8,7 +8,7 @@ import { jsx } from '@atlaskit/css';
 import __noop from '@atlaskit/ds-lib/noop';
 
 import LozengeBase from './lozenge-base';
-import { type LozengeDropdownTriggerProps } from './types';
+import { type LozengeBaseProps, type LozengeDropdownTriggerProps } from './types';
 
 /**
  * __Lozenge Dropdown Trigger__
@@ -22,15 +22,19 @@ import { type LozengeDropdownTriggerProps } from './types';
  * - Built for dropdown menu interactions
  * - Supports analytics events and UFO press interactions
  */
-const LozengeDropdownTrigger = memo(
+const LozengeDropdownTrigger: import("react").MemoExoticComponent<import("react").ForwardRefExoticComponent<LozengeDropdownTriggerProps & import("react").RefAttributes<HTMLElement>>> = memo(
 	forwardRef<HTMLElement, LozengeDropdownTriggerProps>(
 		(
 			{
 				children,
 				testId,
 				appearance = 'neutral',
+				spacing = 'default',
 				iconBefore,
+				trailingMetric,
+				trailingMetricAppearance,
 				isSelected = false,
+				isLoading = false,
 				maxWidth = 200,
 				onClick = __noop,
 				style,
@@ -39,20 +43,24 @@ const LozengeDropdownTrigger = memo(
 			},
 			ref,
 		) => {
+			const baseProps: LozengeBaseProps = {
+				appearance,
+				spacing,
+				iconBefore,
+				trailingMetric,
+				trailingMetricAppearance,
+				isSelected,
+				isLoading,
+				maxWidth,
+				style,
+				testId,
+				onClick,
+				analyticsContext,
+				interactionName,
+				children,
+			};
 			return (
-				<LozengeBase
-					ref={ref}
-					appearance={appearance}
-					iconBefore={iconBefore}
-					isSelected={isSelected}
-					maxWidth={maxWidth}
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-					style={style}
-					testId={testId}
-					onClick={onClick}
-					analyticsContext={analyticsContext}
-					interactionName={interactionName}
-				>
+				<LozengeBase ref={ref} {...baseProps}>
 					{children}
 				</LozengeBase>
 			);

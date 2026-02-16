@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/mobile-header",
-	"version": "7.0.25",
+	"version": "7.0.28",
 	"description": "A React component rendering a mobile header",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -44,7 +44,8 @@
 		"react": "^18.2.0"
 	},
 	"devDependencies": {
-		"@testing-library/react": "^16.3.0",
+		"@atlassian/a11y-jest-testing": "workspace:^",
+		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"react-dom": "root:*",
 		"react-test-renderer": "root:*"

@@ -715,7 +715,11 @@ const generateMediaSingleFloatingToolbar = (
 			) {
 				const selectedMediaSingleNode = getSelectedMediaSingle(state);
 				const mediaNode = selectedMediaSingleNode?.node.content.firstChild;
-				if (!isVideo(mediaNode?.attrs?.__fileMimeType)) {
+				// Disable image editing for external media, as we cannot save changes to external images per CORS policy
+				const isExternal = mediaNode?.attrs?.type === 'external';
+				// Disable image editing for gifs as CropperJS does not support gif editing
+				const isGif = mediaNode?.attrs?.__fileMimeType === 'image/gif';
+				if (!isVideo(mediaNode?.attrs?.__fileMimeType) && !isExternal && !isGif) {
 					toolbarButtons.push({
 						id: 'editor.media.edit',
 						testId: 'image-edit-toolbar-button',
@@ -865,6 +869,42 @@ const generateMediaSingleFloatingToolbar = (
 			}
 		}
 
+		if (
+			allowAdvancedToolBarOptions &&
+			allowImageEditing && expValEquals('platform_editor_add_image_editing', 'isEnabled', true)
+		) {
+			const selectedMediaSingleNode = getSelectedMediaSingle(state);
+			const mediaNode = selectedMediaSingleNode?.node.content.firstChild;
+			// Disable image editing for external media, as we cannot save changes to external images per CORS policy
+			const isExternal = mediaNode?.attrs?.type === 'external';
+			// Disable image editing for gifs as CropperJS does not support gif editing
+			const isGif = mediaNode?.attrs?.__fileMimeType === 'image/gif';
+			if (!isVideo(mediaNode?.attrs?.__fileMimeType) && !isExternal && !isGif) {
+				toolbarButtons.push(
+					{
+						id: 'editor.media.edit',
+						testId: 'image-edit-toolbar-button',
+						type: 'button',
+						icon: ImageCropIcon,
+						title: intl.formatMessage(commonMessages.imageEdit),
+						onClick: () => {
+							return (
+								handleShowImageEditor({
+									api: pluginInjectionApi,
+									mediaPluginState: pluginState,
+								}) ?? false
+							);
+						},
+						supportsViewMode: false,
+					},
+					{
+						type: 'separator',
+						supportsViewMode: false,
+					},
+				);
+			}
+		}
+
 		// open link
 		if (
 			allowLinking &&
@@ -900,39 +940,6 @@ const generateMediaSingleFloatingToolbar = (
 		if (allowAdvancedToolBarOptions && allowCommentsOnMedia) {
 			updateToFullHeightSeparator(toolbarButtons);
 			toolbarButtons.push(commentButton(intl, state, pluginInjectionApi, onCommentButtonMount));
-		}
-
-		if (
-			allowAdvancedToolBarOptions &&
-			allowImageEditing &&
-			expValEquals('platform_editor_add_image_editing', 'isEnabled', true)
-		) {
-			const selectedMediaSingleNode = getSelectedMediaSingle(state);
-			const mediaNode = selectedMediaSingleNode?.node.content.firstChild;
-			if (!isVideo(mediaNode?.attrs?.__fileMimeType)) {
-				toolbarButtons.push(
-					{
-						id: 'editor.media.edit',
-						testId: 'image-edit-toolbar-button',
-						type: 'button',
-						icon: ImageCropIcon,
-						title: intl.formatMessage(commonMessages.imageEdit),
-						onClick: () => {
-							return (
-								handleShowImageEditor({
-									api: pluginInjectionApi,
-									mediaPluginState: pluginState,
-								}) ?? false
-							);
-						},
-						supportsViewMode: false,
-					},
-					{
-						type: 'separator',
-						supportsViewMode: false,
-					},
-				);
-			}
 		}
 
 		return toolbarButtons;

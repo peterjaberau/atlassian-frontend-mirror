@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.products.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-connectivity/app",
@@ -25,9 +25,6 @@
 	"references": [
 		{
 			"path": "../../editor-prosemirror/afm-products/tsconfig.json"
-		},
-		{
-			"path": "../../tmp-editor-statsig/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-common/afm-products/tsconfig.json"

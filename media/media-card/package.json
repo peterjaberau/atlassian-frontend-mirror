@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/media-card",
-	"version": "79.13.1",
+	"version": "79.15.2",
 	"description": "Includes all media card related components, CardView, CardViewSmall, Card...",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -87,11 +87,11 @@
 		"@atlaskit/range": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
 		"@atlaskit/toggle": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/ufo": "workspace:^",
 		"@testing-library/dom": "root:*",
 		"@testing-library/react": "root:*",
-		"@testing-library/react-hooks": "root:*",
 		"@testing-library/user-event": "root:*",
 		"@types/classnames": "root:*",
 		"@types/react-loadable": "root:*",
@@ -104,6 +104,9 @@
 		"wait-for-expect": "root:*"
 	},
 	"platform-feature-flags": {
+		"enable_sampling_mediacardrender_succeeded": {
+			"type": "boolean"
+		},
 		"platform_media_auth_provider_analytics": {
 			"type": "boolean"
 		},
@@ -128,9 +131,6 @@
 		"platform_media_card_image_render": {
 			"type": "boolean"
 		},
-		"dst-a11y__replace-anchor-with-link__media-exif": {
-			"type": "boolean"
-		},
 		"platform_media_video_captions": {
 			"type": "boolean"
 		},
@@ -150,6 +150,12 @@
 			"type": "boolean"
 		},
 		"jfp-magma-fix-attachments-hydration-error": {
+			"type": "boolean"
+		},
+		"media_card_failed_messaging_ui_revamp": {
+			"type": "boolean"
+		},
+		"dfo_attachments_late_render_fix": {
 			"type": "boolean"
 		}
 	},

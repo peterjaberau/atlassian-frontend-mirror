@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.products.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-highlight/app",
@@ -25,9 +25,6 @@
 	"references": [
 		{
 			"path": "../../adf-schema/afm-products/tsconfig.json"
-		},
-		{
-			"path": "../../../design-system/button/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/css/afm-products/tsconfig.json"

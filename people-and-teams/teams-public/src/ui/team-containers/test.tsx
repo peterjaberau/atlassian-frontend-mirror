@@ -5,10 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { IntlProvider } from 'react-intl-next';
 
 import { fg } from '@atlaskit/platform-feature-flags';
-import {
-	mockRunItLaterSynchronously,
-	renderWithAnalyticsListener as render,
-} from '@atlassian/ptc-test-utils';
+import { renderWithAnalyticsListener as render } from '@atlassian/ptc-test-utils';
 
 import { messages } from '../../common/utils/get-container-properties';
 import { useProductPermissions } from '../../controllers/hooks/use-product-permission';
@@ -42,8 +39,6 @@ const renderWithIntl = (node: React.ReactNode) => {
 };
 
 const mockOnAddAContainerClick = jest.fn();
-
-mockRunItLaterSynchronously();
 
 describe('TeamContainers', () => {
 	const teamId = 'teamId';
@@ -130,7 +125,7 @@ describe('TeamContainers', () => {
 
 		renderTeamContainers(teamId);
 
-		expect(screen.getByText(messages.addJiraProjectTitle.defaultMessage)).toBeInTheDocument();
+		expect(screen.getByText(messages.addJiraProject.defaultMessage)).toBeInTheDocument();
 		expect(
 			screen.getByText(messages.addConfluenceContainerTitle.defaultMessage),
 		).toBeInTheDocument();
@@ -180,7 +175,7 @@ describe('TeamContainers', () => {
 		});
 		renderTeamContainers(teamId);
 
-		expect(screen.queryByText(messages.addJiraProjectTitle.defaultMessage)).toBeNull();
+		expect(screen.queryByText(messages.addJiraProject.defaultMessage)).toBeNull();
 		expect(screen.queryByText(messages.addConfluenceContainerTitle.defaultMessage)).toBeNull();
 		expect(screen.getByText(JiraProject.name)).toBeInTheDocument();
 		expect(screen.getByText(ConfluenceSpace.name)).toBeInTheDocument();
@@ -194,7 +189,7 @@ describe('TeamContainers', () => {
 		const isDisplayedOnProfileCard = true;
 		renderTeamContainers(teamId, mockFilterContainerId, isDisplayedOnProfileCard);
 
-		expect(screen.queryByText(messages.addJiraProjectTitle.defaultMessage)).toBeNull();
+		expect(screen.queryByText(messages.addJiraProject.defaultMessage)).toBeNull();
 		expect(screen.queryByText(messages.addConfluenceContainerTitle.defaultMessage)).toBeNull();
 		expect(screen.getByText(JiraProject.name)).toBeInTheDocument();
 		expect(screen.getByText(ConfluenceSpace.name)).toBeInTheDocument();
@@ -206,7 +201,7 @@ describe('TeamContainers', () => {
 		});
 		renderTeamContainers(teamId);
 
-		expect(screen.getByText(messages.addJiraProjectTitle.defaultMessage)).toBeInTheDocument();
+		expect(screen.getByText(messages.addJiraProject.defaultMessage)).toBeInTheDocument();
 		expect(screen.queryByText(messages.addConfluenceContainerTitle.defaultMessage)).toBeNull();
 		expect(screen.getByText(ConfluenceSpace.name)).toBeInTheDocument();
 	});
@@ -220,7 +215,7 @@ describe('TeamContainers', () => {
 		expect(
 			screen.getByText(messages.addConfluenceContainerTitle.defaultMessage),
 		).toBeInTheDocument();
-		expect(screen.queryByText(messages.addJiraProjectTitle.defaultMessage)).toBeNull();
+		expect(screen.queryByText(messages.addJiraProject.defaultMessage)).toBeNull();
 		expect(screen.getByText(JiraProject.name)).toBeInTheDocument();
 	});
 
@@ -252,6 +247,7 @@ describe('TeamContainers', () => {
 	});
 
 	it('should only render three containers if maxNumberOfContainersToShow is 3', () => {
+		mockFg.mockImplementation((flag: string) => flag === 'fix_team_link_card_a11y' ? true : false);
 		const teamContainers = Array.from({ length: 5 }, (_, index) => ({
 			id: index.toString(),
 			type: 'ConfluenceSpace',
@@ -263,8 +259,8 @@ describe('TeamContainers', () => {
 			teamLinks: teamContainers,
 		});
 		renderTeamContainers(teamId, '', true, undefined, 3);
-
-		expect(screen.getAllByRole('link')).toHaveLength(3);
+		// changing to 6 (double of main 3 rendered links) since we link tags are duplicated due to wrapper Link tag for A11Y
+		expect(screen.getAllByRole('link')).toHaveLength(6);
 		expect(screen.getByText('Show more')).toBeInTheDocument();
 	});
 
@@ -362,144 +358,65 @@ describe('TeamContainers', () => {
 		expect(await screen.findByTestId('team-containers-disconnect-dialog')).toBeInTheDocument();
 	});
 
-	// ffTest is not working in this test file due to the mocking of fg().
-	describe('analytics refactor off', () => {
-		beforeEach(() => {
-			mockFg.mockImplementation(() => {
-				return false;
-			});
+	it('should open disconnect dialog when disconnect button is clicked', async () => {
+		(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
+			teamLinks: [JiraProject],
 		});
-		it('should open disconnect dialog when disconnect button is clicked', async () => {
-			(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
-				teamLinks: [JiraProject],
-			});
-			const { expectEventToBeFired } = renderTeamContainers(teamId);
+		const { expectEventToBeFired } = renderTeamContainers(teamId);
 
-			await userEvent.hover(screen.getByText(JiraProject.name));
-			const crossIconButton = screen.getByRole('button', {
-				name: `disconnect the container ${JiraProject.name}`,
-			});
-			await userEvent.click(crossIconButton);
-			expect(await screen.findByTestId('team-containers-disconnect-dialog')).toBeInTheDocument();
-			expectEventToBeFired('track', openUnlinkContainerDialogEvent);
+		await userEvent.hover(screen.getByText(JiraProject.name));
+		const crossIconButton = screen.getByRole('button', {
+			name: `disconnect the container ${JiraProject.name}`,
 		});
-
-		it('should close disconnect dialog and fire analytics event when confirmation dialog proceed', async () => {
-			(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
-				teamLinks: [JiraProject],
-				removeTeamLink: jest.fn(),
-			});
-			(useTeamContainers as jest.Mock).mockReturnValue({
-				unlinkError: null,
-			});
-
-			const { expectEventToBeFired } = renderTeamContainers(teamId);
-
-			await userEvent.hover(screen.getByText(JiraProject.name));
-			const crossIconButton = screen.getByRole('button', {
-				name: 'disconnect the container Jira Project Name',
-			});
-			await userEvent.click(crossIconButton);
-
-			const disconnectButton = screen.getByRole('button', { name: 'Remove' });
-			await userEvent.click(disconnectButton);
-
-			expectEventToBeFired('track', teamContainerUnlinkedSucceededEvent);
-		});
-
-		it('should fire failed analytics event when unlink fails', async () => {
-			(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
-				teamLinks: [JiraProject],
-				removeTeamLink: jest.fn(),
-			});
-			(useTeamContainers as jest.Mock).mockReturnValue({
-				unlinkError: 'error',
-			});
-
-			const { expectEventToBeFired } = renderTeamContainers(teamId);
-
-			await userEvent.hover(screen.getByText(JiraProject.name));
-			const crossIconButton = screen.getByRole('button', {
-				name: 'disconnect the container Jira Project Name',
-			});
-			await userEvent.click(crossIconButton);
-
-			const disconnectButton = screen.getByRole('button', { name: 'Remove' });
-			await userEvent.click(disconnectButton);
-
-			expectEventToBeFired('track', teamContainerUnlinkedFailedEvent);
-		});
+		await userEvent.click(crossIconButton);
+		expect(await screen.findByTestId('team-containers-disconnect-dialog')).toBeInTheDocument();
+		expectEventToBeFired('track', openUnlinkContainerDialogEvent);
 	});
 
-	describe('analytics refactor on', () => {
-		beforeEach(() => {
-			mockFg.mockImplementation((flag) => {
-				if (flag === 'ptc-enable-teams-public-analytics-refactor') {
-					return true;
-				}
-				return false;
-			});
+	it('should close disconnect dialog and fire analytics event when confirmation dialog proceed', async () => {
+		(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
+			teamLinks: [JiraProject],
+			removeTeamLink: jest.fn(),
 		});
-		it('should open disconnect dialog when disconnect button is clicked', async () => {
-			(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
-				teamLinks: [JiraProject],
-			});
-			const { expectEventToBeFired } = renderTeamContainers(teamId);
-
-			await userEvent.hover(screen.getByText(JiraProject.name));
-			const crossIconButton = screen.getByRole('button', {
-				name: `disconnect the container ${JiraProject.name}`,
-			});
-			await userEvent.click(crossIconButton);
-			expect(await screen.findByTestId('team-containers-disconnect-dialog')).toBeInTheDocument();
-			expectEventToBeFired('track', openUnlinkContainerDialogEvent);
+		(useTeamContainers as jest.Mock).mockReturnValue({
+			unlinkError: null,
 		});
 
-		it('should close disconnect dialog and fire analytics event when confirmation dialog proceed', async () => {
-			(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
-				teamLinks: [JiraProject],
-				removeTeamLink: jest.fn(),
-			});
-			(useTeamContainers as jest.Mock).mockReturnValue({
-				unlinkError: null,
-			});
+		const { expectEventToBeFired } = renderTeamContainers(teamId);
 
-			const { expectEventToBeFired } = renderTeamContainers(teamId);
+		await userEvent.hover(screen.getByText(JiraProject.name));
+		const crossIconButton = screen.getByRole('button', {
+			name: 'disconnect the container Jira Project Name',
+		});
+		await userEvent.click(crossIconButton);
 
-			await userEvent.hover(screen.getByText(JiraProject.name));
-			const crossIconButton = screen.getByRole('button', {
-				name: 'disconnect the container Jira Project Name',
-			});
-			await userEvent.click(crossIconButton);
+		const disconnectButton = screen.getByRole('button', { name: 'Remove' });
+		await userEvent.click(disconnectButton);
 
-			const disconnectButton = screen.getByRole('button', { name: 'Remove' });
-			await userEvent.click(disconnectButton);
+		expectEventToBeFired('track', teamContainerUnlinkedSucceededEvent);
+	});
 
-			expectEventToBeFired('track', teamContainerUnlinkedSucceededEvent);
+	it('should fire failed analytics event when unlink fails', async () => {
+		(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
+			teamLinks: [JiraProject],
+			removeTeamLink: jest.fn(),
+		});
+		(useTeamContainers as jest.Mock).mockReturnValue({
+			unlinkError: 'error',
 		});
 
-		it('should fire failed analytics event when unlink fails', async () => {
-			(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
-				teamLinks: [JiraProject],
-				removeTeamLink: jest.fn(),
-			});
-			(useTeamContainers as jest.Mock).mockReturnValue({
-				unlinkError: 'error',
-			});
+		const { expectEventToBeFired } = renderTeamContainers(teamId);
 
-			const { expectEventToBeFired } = renderTeamContainers(teamId);
-
-			await userEvent.hover(screen.getByText(JiraProject.name));
-			const crossIconButton = screen.getByRole('button', {
-				name: 'disconnect the container Jira Project Name',
-			});
-			await userEvent.click(crossIconButton);
-
-			const disconnectButton = screen.getByRole('button', { name: 'Remove' });
-			await userEvent.click(disconnectButton);
-
-			expectEventToBeFired('track', teamContainerUnlinkedFailedEvent);
+		await userEvent.hover(screen.getByText(JiraProject.name));
+		const crossIconButton = screen.getByRole('button', {
+			name: 'disconnect the container Jira Project Name',
 		});
+		await userEvent.click(crossIconButton);
+
+		const disconnectButton = screen.getByRole('button', { name: 'Remove' });
+		await userEvent.click(disconnectButton);
+
+		expectEventToBeFired('track', teamContainerUnlinkedFailedEvent);
 	});
 
 	it('should have no accessibility violations', async () => {
@@ -596,7 +513,7 @@ describe('TeamLinks', () => {
 		});
 		renderTeamContainers(teamId);
 
-		expect(screen.getByText(messages.addJiraProjectTitle.defaultMessage)).toBeInTheDocument();
+		expect(screen.getByText(messages.addJiraProject.defaultMessage)).toBeInTheDocument();
 		expect(
 			screen.getByText(messages.addConfluenceContainerTitle.defaultMessage),
 		).toBeInTheDocument();
@@ -611,7 +528,7 @@ describe('TeamLinks', () => {
 		});
 		renderTeamContainers(teamId);
 
-		expect(screen.getByText(messages.addJiraProjectTitle.defaultMessage)).toBeInTheDocument();
+		expect(screen.getByText(messages.addJiraProject.defaultMessage)).toBeInTheDocument();
 		expect(screen.queryByText(messages.addConfluenceContainerTitle.defaultMessage)).toBeNull();
 		expect(screen.getByText(ConfluenceSpace.name)).toBeInTheDocument();
 		expect(
@@ -628,7 +545,7 @@ describe('TeamLinks', () => {
 		expect(
 			screen.getByText(messages.addConfluenceContainerTitle.defaultMessage),
 		).toBeInTheDocument();
-		expect(screen.queryByText(messages.addJiraProjectTitle.defaultMessage)).toBeNull();
+		expect(screen.queryByText(messages.addJiraProject.defaultMessage)).toBeNull();
 		expect(screen.getByText(JiraProject.name)).toBeInTheDocument();
 		expect(
 			screen.getByText(messages.emptyLinkContainerDescription.defaultMessage),
@@ -641,7 +558,7 @@ describe('TeamLinks', () => {
 		});
 		renderTeamContainers(teamId);
 
-		expect(screen.queryByText(messages.addJiraProjectTitle.defaultMessage)).toBeNull();
+		expect(screen.queryByText(messages.addJiraProject.defaultMessage)).toBeNull();
 		expect(screen.queryByText(messages.addConfluenceContainerTitle.defaultMessage)).toBeNull();
 		expect(screen.queryByText(messages.emptyLinkContainerDescription.defaultMessage)).toBeNull();
 		expect(screen.getByText(JiraProject.name)).toBeInTheDocument();

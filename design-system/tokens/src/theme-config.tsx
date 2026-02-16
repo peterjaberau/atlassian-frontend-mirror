@@ -16,14 +16,9 @@ export type Themes =
 	| 'atlassian-dark'
 	| 'atlassian-dark-future'
 	| 'atlassian-dark-increased-contrast'
-	| 'atlassian-legacy-light'
-	| 'atlassian-legacy-dark'
 	| 'atlassian-shape'
 	| 'atlassian-spacing'
 	| 'atlassian-typography'
-	| 'atlassian-typography-refreshed'
-	| 'atlassian-typography-modernized'
-	| 'atlassian-typography-adg3';
 export type ThemeFileNames = Themes;
 
 /**
@@ -71,14 +66,9 @@ export const themeIds = [
 	'dark',
 	'dark-future',
 	'dark-increased-contrast',
-	'legacy-light',
-	'legacy-dark',
 	'spacing',
 	'shape',
-	'typography',
-	'typography-adg3',
-	'typography-modernized',
-	'typography-refreshed',
+	'typography'
 ] as const;
 
 export type ThemeIds = (typeof themeIds)[number];
@@ -91,7 +81,7 @@ const themeOverrideIds = [] as const;
 
 export type ThemeOverrideIds = (typeof themeOverrideIds)[number];
 
-export const themeIdsWithOverrides = [...themeIds, ...themeOverrideIds] as const;
+export const themeIdsWithOverrides: readonly ["light-increased-contrast", "light", "light-future", "dark", "dark-future", "dark-increased-contrast", "spacing", "shape", "typography"] = [...themeIds, ...themeOverrideIds] as const;
 
 export type ThemeIdsWithOverrides = (typeof themeIdsWithOverrides)[number];
 
@@ -107,12 +97,7 @@ type ExtensionThemeId = ThemeIds;
  * For example: legacy light & dark themes use the "legacyPalette" containing colors from our
  * previous color set.
  */
-export type Palettes =
-	| 'defaultPalette'
-	| 'legacyPalette'
-	| 'spacingScale'
-	| 'shapePalette'
-	| 'typographyPalette';
+export type Palettes = 'defaultPalette' | 'spacingScale' | 'shapePalette' | 'typographyPalette';
 
 /**
  * ThemeConfig: the source of truth for all theme meta-data.
@@ -220,24 +205,6 @@ const themeConfig: Record<Themes | ThemeOverrides, ThemeConfig> = {
 		extends: 'dark',
 		increasesContrastFor: 'dark',
 	},
-	'atlassian-legacy-light': {
-		id: 'legacy-light',
-		displayName: 'Light Theme (legacy)',
-		palette: 'legacyPalette',
-		attributes: {
-			type: 'color',
-			mode: 'light',
-		},
-	},
-	'atlassian-legacy-dark': {
-		id: 'legacy-dark',
-		displayName: 'Dark Theme (legacy)',
-		palette: 'legacyPalette',
-		attributes: {
-			type: 'color',
-			mode: 'dark',
-		},
-	},
 	'atlassian-spacing': {
 		id: 'spacing',
 		displayName: 'Atlassian Spacing',
@@ -254,36 +221,12 @@ const themeConfig: Record<Themes | ThemeOverrides, ThemeConfig> = {
 			type: 'typography',
 		},
 	},
-	'atlassian-typography-adg3': {
-		id: 'typography-adg3',
-		displayName: 'ADG3 Typography',
-		palette: 'typographyPalette',
-		attributes: {
-			type: 'typography',
-		},
-	},
 	'atlassian-shape': {
 		id: 'shape',
 		displayName: 'Shape',
 		palette: 'shapePalette',
 		attributes: {
 			type: 'shape',
-		},
-	},
-	'atlassian-typography-modernized': {
-		id: 'typography-modernized',
-		displayName: 'Atlassian Typography (Modernized)',
-		palette: 'typographyPalette',
-		attributes: {
-			type: 'typography',
-		},
-	},
-	'atlassian-typography-refreshed': {
-		id: 'typography-refreshed',
-		displayName: 'Atlassian Typography (Refreshed)',
-		palette: 'typographyPalette',
-		attributes: {
-			type: 'typography',
 		},
 	},
 };
@@ -308,8 +251,6 @@ export interface ThemeState {
 		| 'light-future'
 		| 'dark'
 		| 'dark-future'
-		| 'legacy-dark'
-		| 'legacy-light'
 		| 'light-increased-contrast'
 		| 'dark-increased-contrast'
 	>;
@@ -319,8 +260,6 @@ export interface ThemeState {
 		| 'light-future'
 		| 'dark'
 		| 'dark-future'
-		| 'legacy-dark'
-		| 'legacy-light'
 		| 'light-increased-contrast'
 		| 'dark-increased-contrast'
 	>;
@@ -328,15 +267,7 @@ export interface ThemeState {
 	contrastMode: ThemeContrastModes;
 	shape?: Extract<ThemeIds, 'shape'>;
 	spacing: Extract<ThemeIds, 'spacing'>;
-	/**
-	 * @deprecated 'typography-adg3' is deprecated, use 'typography' instead
-	 * @deprecated 'typography-modernized' is deprecated, use 'typography' instead
-	 * @deprecated 'typography-refreshed' is deprecated, use 'typography' instead
-	 */
-	typography?: Extract<
-		ThemeIds,
-		'typography' | 'typography-adg3' | 'typography-modernized' | 'typography-refreshed'
-	>;
+	typography: Extract<ThemeIds, 'typography'>;
 	UNSAFE_themeOptions?: ThemeOptionsSchema;
 }
 
@@ -344,8 +275,7 @@ export interface ThemeState {
  * Can't evaluate typography feature flags at the module level,
  * it will always resolve to false when server side rendered or when flags are loaded async.
  */
-interface ThemeStateDefaults extends Omit<ThemeState, 'typography' | 'shape'> {
-	typography: () => ThemeState['typography'];
+interface ThemeStateDefaults extends Omit<ThemeState, 'shape'> {
 	shape: () => ThemeState['shape'];
 }
 
@@ -364,12 +294,7 @@ export const themeStateDefaults: ThemeStateDefaults = {
 		return undefined;
 	},
 	spacing: 'spacing',
-	typography: () => {
-		if (fg('platform-disable-default-typography')) {
-			return undefined;
-		}
-		return 'typography';
-	},
+	typography: 'typography',
 	UNSAFE_themeOptions: undefined,
 };
 

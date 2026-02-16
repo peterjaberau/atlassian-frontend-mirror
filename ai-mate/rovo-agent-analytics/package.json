@@ -25,8 +25,9 @@
 	"atlaskit:src": "src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
+		"./actions": "./src/actions/index.tsx",
 		"./create": "./src/create/index.tsx",
-		"./actions": "./src/actions/index.tsx"
+		"./debug": "./src/debug/index.tsx"
 	},
 	"dependencies": {
 		"@atlaskit/analytics-listeners": "workspace:^",
@@ -41,7 +42,7 @@
 		"@af/integration-testing": "workspace:^",
 		"@af/visual-regression": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"react-dom": "root:*"
 	},
 	"techstack": {
@@ -88,7 +89,7 @@
 		]
 	},
 	"name": "@atlaskit/rovo-agent-analytics",
-	"version": "0.8.0",
+	"version": "0.12.1",
 	"description": "Rovo Agents analytics",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",

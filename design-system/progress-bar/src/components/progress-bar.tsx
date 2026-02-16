@@ -8,7 +8,7 @@ import React from 'react';
 import { css, cssMap, jsx, keyframes } from '@compiled/react';
 
 import { fg } from '@atlaskit/platform-feature-flags';
-import { G300, N40A, N500 } from '@atlaskit/theme/colors';
+import { N40A, } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import { type DefaultProgressBarProps } from '../types';
@@ -36,20 +36,20 @@ const containerStyles = css({
 });
 
 const containerStylesT26Shape = css({
-	borderRadius: 0,
+	borderRadius: token('radius.full'),
 });
 
 const containerAppearance = cssMap({
-	default: { backgroundColor: token('color.background.neutral', N40A) },
-	success: { backgroundColor: token('color.background.neutral', N40A) },
+	default: { backgroundColor: token('color.background.neutral') },
+	success: { backgroundColor: token('color.background.neutral') },
 	inverse: {
-		backgroundColor: token('color.background.inverse.subtle', 'rgba(255, 255, 255, 0.5)'),
+		backgroundColor: token('color.background.inverse.subtle'),
 	},
 });
 
 const barAppearance = cssMap({
-	default: { backgroundColor: token('color.background.neutral.bold', N500) },
-	success: { backgroundColor: token('color.background.success.bold', G300) },
+	default: { backgroundColor: token('color.background.neutral.bold') },
+	success: { backgroundColor: token('color.background.success.bold') },
 	inverse: { backgroundColor: token('elevation.surface', 'white') },
 });
 
@@ -61,7 +61,7 @@ const barStyles = css({
 });
 
 const barStylesT26Shape = css({
-	borderRadius: 0,
+	borderRadius: token('radius.full'),
 });
 
 const determinateBarStyles = css({
@@ -90,7 +90,7 @@ const decreasingBarStyles = css({
  * - [Code](https://atlassian.design/components/progress-bar/code)
  * - [Usage](https://atlassian.design/components/progress-bar/usage)
  */
-const ProgressBar = ({
+const ProgressBar: ({ appearance, ariaLabel, isIndeterminate, testId, value, }: DefaultProgressBarProps) => JSX.Element = ({
 	appearance = 'default',
 	ariaLabel,
 	isIndeterminate = false,

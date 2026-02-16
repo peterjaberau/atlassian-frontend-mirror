@@ -1,4 +1,4 @@
-/* eslint-disable @atlaskit/ui-styling-standard/no-important-styles */
+/* eslint-disable @atlaskit/ui-styling-standard/no-important-styles, @atlaskit/ui-styling-standard/no-unsafe-selectors */
 /* eslint-disable @atlaskit/ui-styling-standard/no-imported-style-values */
 /* eslint-disable @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values */
 /**
@@ -113,13 +113,20 @@ const isBackgroundClipBrowserFixNeeded = () => {
 	return browser.isGecko || browser.isIE || (browser.isMac && browser.isChrome);
 };
 
+const baseFontStyle = css({
+	font: editorUGCToken('editor.font.body'),
+});
+
+const originalBaseFontLineHeight = css({
+	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+	lineHeight: '1.5rem',
+});
+
 // styles are copied from ./style.tsx
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/design-system/no-css-tagged-template-expression, @atlaskit/design-system/consistent-css-prop-usage
 const baseStyles = css({
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	fontSize: 'var(--ak-renderer-base-font-size)',
-	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-	lineHeight: '1.5rem',
 	color: token('color.text', N800),
 
 	'--ak-editor--full-width-layout-width': `${akEditorFullWidthLayoutWidth}px`,
@@ -198,10 +205,28 @@ const baseStyles = css({
 		},
 	},
 
+	[`& span.akActionMark`]: {
+		color: token('color.link', B400),
+		textDecoration: 'none',
+		cursor: 'pointer',
+		'&:hover': {
+			color: token('color.link', B300),
+			textDecoration: 'underline',
+		},
+		'&:active': {
+			color: token('color.link.pressed', B500),
+		},
+	},
+
+	'& span[data-placeholder]': {
+		color: token('color.text.subtlest', N200),
+	},
+});
+
+const headingAnchorStylesDuplicateAnchor = css({
 	'& h1, & h2, & h3, & h4, & h5, & h6': {
 		[`.${HeadingAnchorWrapperClassName}`]: {
 			position: 'absolute',
-
 			marginLeft: token('space.075', '6px'),
 
 			button: {
@@ -214,29 +239,27 @@ const baseStyles = css({
 			 */
 			'button:focus': {
 				opacity: 1,
-
 				transform: 'none !important',
 			},
 		},
+
 		[`@media (hover: hover) and (pointer: fine)`]: {
 			[`.${HeadingAnchorWrapperClassName}`]: {
 				'> button': {
 					opacity: 0,
-					transform: `translate(-8px, 0px)`,
-					transition: `opacity 0.2s ease 0s, transform 0.2s ease 0s`,
+					transform: 'translate(-8px, 0px)',
+					transition: 'opacity 0.2s ease 0s, transform 0.2s ease 0s',
 				},
 			},
 
 			'&:hover': {
 				[`.${HeadingAnchorWrapperClassName} > button`]: {
 					opacity: 1,
-
 					transform: 'none !important',
 				},
 			},
 		},
 	},
-
 	'& h1': {
 		[`.${HeadingAnchorWrapperClassName}`]: {
 			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
@@ -273,22 +296,82 @@ const baseStyles = css({
 			lineHeight: `${16 / 11}em`,
 		},
 	},
+});
 
-	[`& span.akActionMark`]: {
-		color: token('color.link', B400),
-		textDecoration: 'none',
-		cursor: 'pointer',
-		'&:hover': {
-			color: token('color.link', B300),
-			textDecoration: 'underline',
+const headingAnchorStyles = css({
+	'& .renderer-heading-wrapper': {
+		[`.${HeadingAnchorWrapperClassName}`]: {
+			marginLeft: token('space.075', '6px'),
+
+			button: {
+				paddingLeft: 0,
+				paddingRight: 0,
+			},
+
+			/**
+			 * Adds the visibility of the button when in focus through keyboard navigation.
+			 */
+			'button:focus': {
+				opacity: 1,
+
+				transform: 'none !important',
+			},
 		},
-		'&:active': {
-			color: token('color.link.pressed', B500),
+		[`@media (hover: hover) and (pointer: fine)`]: {
+			[`.${HeadingAnchorWrapperClassName}`]: {
+				'> button': {
+					opacity: 0,
+					transform: `translate(-8px, 0px)`,
+					transition: `opacity 0.2s ease 0s, transform 0.2s ease 0s`,
+				},
+			},
+
+			'&:hover': {
+				[`.${HeadingAnchorWrapperClassName} > button`]: {
+					opacity: 1,
+
+					transform: 'none !important',
+				},
+			},
 		},
 	},
 
-	'& span[data-placeholder]': {
-		color: token('color.text.subtlest', N200),
+	// Line-height for heading anchor based on heading level (via data-level attribute on .renderer-heading-wrapper)
+	'& .renderer-heading-wrapper[data-level="1"]': {
+		[`.${HeadingAnchorWrapperClassName}`]: {
+			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+			lineHeight: `${28 / 24}em`,
+		},
+	},
+	'& .renderer-heading-wrapper[data-level="2"]': {
+		[`.${HeadingAnchorWrapperClassName}`]: {
+			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+			lineHeight: `${24 / 20}em`,
+		},
+	},
+	'& .renderer-heading-wrapper[data-level="3"]': {
+		[`.${HeadingAnchorWrapperClassName}`]: {
+			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+			lineHeight: `${20 / 16}em`,
+		},
+	},
+	'& .renderer-heading-wrapper[data-level="4"]': {
+		[`.${HeadingAnchorWrapperClassName}`]: {
+			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+			lineHeight: `${16 / 14}em`,
+		},
+	},
+	'& .renderer-heading-wrapper[data-level="5"]': {
+		[`.${HeadingAnchorWrapperClassName}`]: {
+			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+			lineHeight: `${16 / 12}em`,
+		},
+	},
+	'& .renderer-heading-wrapper[data-level="6"]': {
+		[`.${HeadingAnchorWrapperClassName}`]: {
+			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+			lineHeight: `${16 / 11}em`,
+		},
 	},
 });
 
@@ -321,7 +404,6 @@ const responsiveBreakoutWidthWithReducedPadding = css({
 
 	// Corresponds to the legacyContentStyles from `@atlaskit/editor-core` meant to introduce responsive breakout width.
 	'--ak-editor--breakout-wide-layout-width': `${akEditorCalculatedWideLayoutWidthSmallViewport}px`,
-
 	[`@media (min-width: ${akEditorBreakpointForSmallDevice})`]: {
 		'--ak-editor--breakout-wide-layout-width': `${akEditorCalculatedWideLayoutWidth}px`,
 	},
@@ -331,8 +413,30 @@ const responsiveBreakoutWidthWithReducedPadding = css({
 	},
 });
 
-const hideHeadingCopyLinkWrapperStyles = css({
+const hideHeadingCopyLinkWrapperStylesDuplicateAnchor = css({
 	'& h1, & h2, & h3, & h4, & h5, & h6': {
+		[`.${HeadingAnchorWrapperClassName}`]: {
+			'&:focus-within': {
+				opacity: 1,
+			},
+		},
+		[`@media (hover: hover) and (pointer: fine)`]: {
+			[`.${HeadingAnchorWrapperClassName}`]: {
+				opacity: 0,
+				transition: `opacity 0.2s ease 0s`,
+			},
+
+			'&:hover': {
+				[`.${HeadingAnchorWrapperClassName}`]: {
+					opacity: 1,
+				},
+			},
+		},
+	},
+});
+
+const hideHeadingCopyLinkWrapperStyles = css({
+	'& .renderer-heading-wrapper': {
 		[`.${HeadingAnchorWrapperClassName}`]: {
 			'&:focus-within': {
 				opacity: 1,
@@ -400,40 +504,6 @@ const rendererFullWidthStylesForTableResizing = css({
 	},
 });
 
-// eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression
-const telepointerStyles = css({
-	[`#${TELEPOINTER_ID}`]: {
-		display: 'inline-block',
-		position: 'relative',
-		width: '1.5px',
-		height: '25px',
-		backgroundColor: token('color.background.brand.bold'),
-		marginLeft: token('space.025', '2px'),
-
-		'&::after': {
-			content: '"AI"',
-			position: 'absolute',
-			display: 'block',
-			top: 0,
-			left: 0,
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			fontSize: '10px',
-			fontWeight: token('font.weight.bold'),
-			width: '12.5px',
-			height: '13px',
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-			paddingTop: '1px',
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-			paddingLeft: '1.5px',
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			lineHeight: 'initial',
-			borderRadius: `0px ${token('radius.xsmall')} ${token('radius.xsmall')} 0px`,
-			color: token('color.text.inverse', 'white'),
-			backgroundColor: token('color.background.brand.bold'),
-		},
-	},
-});
-
 const rovoTelepointerStyles = css({
 	[`#${TELEPOINTER_ID}`]: {
 		display: 'inline-block',
@@ -463,7 +533,7 @@ const rovoTelepointerStyles = css({
 			fontFamily: token('font.family.body'),
 			fontWeight: token('font.weight.semibold'),
 			color: token('color.text.inverse', 'white'),
-			background: token('color.text'),
+			backgroundColor: token('color.text'),
 			top: 1,
 			left: 1,
 			borderRadius: `0px ${token('space.050')} ${token('space.050')} 0px`,
@@ -492,7 +562,10 @@ const blockquoteSharedStyles = css({
 		display: 'inline-block',
 		paddingLeft: token('space.200', '16px'),
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-		borderLeft: `${token('border.width.selected')} solid ${token('color.border', akEditorBlockquoteBorderColor)}`,
+		borderLeft: `${token('border.width.selected')} solid ${token(
+			'color.border',
+			akEditorBlockquoteBorderColor,
+		)}`,
 		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview, @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 		margin: `${blockNodesVerticalMargin} 0 0 0`,
 		marginRight: 0,
@@ -535,87 +608,6 @@ const blockquoteSharedStyles = css({
 });
 
 const headingsSharedStyles = css({
-	'& h1': {
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		fontSize: `${24 / 14}em`,
-		fontStyle: 'inherit',
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		lineHeight: 28 / 24,
-		color: token('color.text'),
-		fontWeight: token('font.weight.medium'),
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		letterSpacing: `-0.01em`,
-		marginBottom: 0,
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-		marginTop: '1.667em',
-	},
-	'& h2': {
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		fontSize: `${20 / 14}em`,
-		fontStyle: 'inherit',
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		lineHeight: 24 / 20,
-		color: token('color.text'),
-		fontWeight: token('font.weight.medium'),
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		letterSpacing: `-0.008em`,
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-		marginTop: '1.8em',
-		marginBottom: 0,
-	},
-	'& h3': {
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		fontSize: `${16 / 14}em`,
-		fontStyle: 'inherit',
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		lineHeight: 20 / 16,
-		color: token('color.text'),
-		fontWeight: token('font.weight.semibold'),
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		letterSpacing: `-0.006em`,
-		marginTop: token('space.400', '2em'),
-		marginBottom: 0,
-	},
-	'& h4': {
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		fontSize: `${14 / 14}em`,
-		fontStyle: 'inherit',
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		lineHeight: 16 / 14,
-		color: token('color.text'),
-		fontWeight: token('font.weight.semibold'),
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		letterSpacing: `-0.003em`,
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-		marginTop: '1.357em',
-	},
-	'& h5': {
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		fontSize: `${12 / 14}em`,
-		fontStyle: 'inherit',
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		lineHeight: 16 / 12,
-		color: token('color.text'),
-		fontWeight: token('font.weight.semibold'),
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-		marginTop: '1.667em',
-		textTransform: 'none',
-	},
-	'& h6': {
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		fontSize: `${11 / 14}em`,
-		fontStyle: 'inherit',
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		lineHeight: 16 / 11,
-		color: token('color.text.subtlest'),
-		fontWeight: token('font.weight.bold'),
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-		marginTop: '1.455em',
-		textTransform: 'none',
-	},
-});
-
-const headingsSharedStylesWithEditorUGC = css({
 	'& h1': {
 		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 		font: `var(--ak-renderer-editor-font-heading-h1)`,
@@ -683,7 +675,54 @@ const headingsSharedStylesWithEditorUGC = css({
 	},
 });
 
-const headingWithAlignmentStyles = css({
+/**
+ * When the copy-link a11y fix is enabled, the heading copy-link button is a sibling of the heading
+ * text within `.renderer-heading-wrapper`. To ensure the button sits immediately after the last
+ * rendered character (including when the heading wraps), the heading itself needs to participate in
+ * inline layout.
+ *
+ * Since inline elements don't support vertical margins in normal flow, we migrate the UGC heading
+ * `marginTop` values (from `headingsSharedStyles`) onto the wrapper.
+ */
+const headingWrapperInlineFlowStyles = css({
+	// Ensure heading and copy-link button participate in inline flow so the button sits after the final wrapped line of text.
+	'& .renderer-heading-wrapper > h1, & .renderer-heading-wrapper > h2, & .renderer-heading-wrapper > h3, & .renderer-heading-wrapper > h4, & .renderer-heading-wrapper > h5, & .renderer-heading-wrapper > h6':
+		{
+			display: 'inline',
+		},
+
+	[`& .renderer-heading-wrapper > .${HeadingAnchorWrapperClassName}`]: {
+		display: 'inline',
+		verticalAlign: 'baseline',
+	},
+
+	'& .renderer-heading-wrapper[data-level="1"]': {
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+		marginTop: '1.45833em',
+	},
+	'& .renderer-heading-wrapper[data-level="2"]': {
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+		marginTop: '1.4em',
+	},
+	'& .renderer-heading-wrapper[data-level="3"]': {
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+		marginTop: '1.31249em',
+	},
+	'& .renderer-heading-wrapper[data-level="4"]': {
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+		marginTop: '1.25em',
+	},
+	'& .renderer-heading-wrapper[data-level="5"]': {
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+		marginTop: '1.45833em',
+	},
+	'& .renderer-heading-wrapper[data-level="6"]': {
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+		marginTop: '1.59091em',
+	},
+});
+
+const headingWithAlignmentStylesDuplicateAnchor = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'.fabric-editor-block-mark.fabric-editor-alignment:not(:first-child)': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
@@ -724,6 +763,28 @@ const headingWithAlignmentStyles = css({
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 			'> :is(h1, h2, h3, h4, h5, h6):first-child': {
 				marginTop: '0',
+			},
+		},
+});
+
+const headingWithAlignmentStyles = css({
+	// Center alignment for heading wrapper - flex container needs justify-content instead of text-align
+	'.fabric-editor-block-mark[data-align="center"] > .renderer-heading-wrapper': {
+		justifyContent: 'center',
+	},
+	// Right/end alignment for heading wrapper - flex container needs justify-content instead of text-align
+	'.fabric-editor-block-mark[data-align="end"] > .renderer-heading-wrapper': {
+		justifyContent: 'flex-end',
+	},
+
+	// Set marginTop: 0 if alignment block is next to a gap cursor or widget that is first child
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'.ProseMirror-gapcursor:first-child + .fabric-editor-block-mark.fabric-editor-alignment, .ProseMirror-widget:first-child + .fabric-editor-block-mark.fabric-editor-alignment, .ProseMirror-widget:first-child + .ProseMirror-widget:nth-child(2) + .fabric-editor-block-mark.fabric-editor-alignment':
+		{
+			// With inline headings, apply marginTop to the wrapper (not the h1-h6).
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+			'> .renderer-heading-wrapper:first-child': {
+				marginTop: 0,
 			},
 		},
 });
@@ -796,19 +857,19 @@ const listsSharedStyles = css({
 
 	[`${orderedListSelector}, ${bulletListSelector}`]: {
 		/*
-	  Ensures list item content adheres to the list's margin instead
-	  of filling the entire block row. This is important to allow
-	  clicking interactive elements which are floated next to a list.
+		Ensures list item content adheres to the list's margin instead
+		of filling the entire block row. This is important to allow
+		clicking interactive elements which are floated next to a list.
 
-	  For some history and context on this block, see PRs related to tickets.:
-	  @see ED-6551 - original issue.
-	  @see ED-7015 - follow up issue.
-	  @see ED-7447 - flow-root change.
+		For some history and context on this block, see PRs related to tickets.:
+		@see ED-6551 - original issue.
+		@see ED-7015 - follow up issue.
+		@see ED-7447 - flow-root change.
 
-	  used to have display: 'table' in tag template style but not supported in object styles
-	  removed display: 'table' as 'flow-root' is supported in latest browsers
+		used to have display: 'table' in tag template style but not supported in object styles
+		removed display: 'table' as 'flow-root' is supported in latest browsers
 
-	  @see https://css-tricks.com/display-flow-root/
+		@see https://css-tricks.com/display-flow-root/
 	*/
 		display: 'flow-root',
 	},
@@ -930,7 +991,7 @@ const indentationSharedStylesWithMarginFix = css({
 	},
 });
 
-const blockMarksSharedStyles = css({
+const blockMarksSharedStylesDuplicateAnchor = css({
 	/**
 	 * We need to remove margin-top from first item
 	 * inside doc, tableCell, tableHeader, blockquote, etc.
@@ -946,6 +1007,35 @@ const blockMarksSharedStyles = css({
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 			':first-child:not(style), style:first-child + *': {
 				marginTop: 0,
+			},
+		},
+	},
+});
+
+const blockMarksSharedStyles = css({
+	/**
+	 * We need to remove margin-top from first item
+	 * inside doc, tableCell, tableHeader, blockquote, etc.
+	 */
+	[`*:not(.fabric-editor-block-mark) >,
+  	*:not(.fabric-editor-block-mark) >
+    div.fabric-editor-block-mark:first-of-type
+	:not(.fabric-editor-indentation-mark)
+	:not(.fabric-editor-alignment),
+  	.fabric-editor-alignment:first-of-type:first-child,
+  	.ProseMirror .fabric-editor-indentation-mark:first-of-type:first-child`]: {
+		'p, .heading-wrapper': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+			':first-child:not(style), style:first-child + *': {
+				marginTop: 0,
+			},
+		},
+		'.renderer-heading-wrapper': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+			':first-child:not(style), style:first-child + *': {
+				'h1, h2, h3, h4, h5, h6': {
+					marginTop: 0,
+				},
 			},
 		},
 	},
@@ -986,6 +1076,37 @@ const extensionStyle = css({
 			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 			fontSize: 'var(--ak-renderer-base-font-size)',
 		},
+});
+
+const extensionAsInlineStyle = css({
+	[`.${RendererCssClassName.DOCUMENT} [data-as-inline="on"]`]: {
+		display: 'inline-block',
+	},
+	[`.${RendererCssClassName.DOCUMENT} .${RendererCssClassName.EXTENSION_AS_INLINE}`]: {
+		display: 'inline-block',
+		// use !important here because the current width has !important applied to it and it's not working when used in React style prop
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+		width: 'auto !important',
+		marginTop: 0,
+	},
+	[`.${RendererCssClassName.EXTENSION_AS_INLINE} .${RendererCssClassName.EXTENSION_OVERFLOW_CONTAINER}`]:
+		{
+			display: 'inline-block',
+			overflowX: 'visible',
+			containerType: 'normal',
+		},
+	[`.${RendererCssClassName.EXTENSION_AS_INLINE} div, .${RendererCssClassName.EXTENSION_AS_INLINE} p`]:
+		{
+			display: 'inline-block',
+		},
+});
+
+// Removes the blockNodesVerticalMargin styling for inline extensions, i.e. borderless excerpt-include
+const inlineExtensionRendererMarginFix = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ak-renderer-document .inline-extension-renderer .ak-renderer-extension': {
+		marginTop: 0,
+	},
 });
 
 const shadowSharedStyle = css({
@@ -1133,7 +1254,10 @@ const tasksAndDecisionsStyles = css({
 	},
 
 	'div[data-task-list-local-id]': {
-		margin: `${token('space.150', '12px')} 0 0 0`,
+		marginTop: token('space.150', '12px'),
+		marginRight: 0,
+		marginBottom: 0,
+		marginLeft: 0,
 		// If task item is not first in the list then set margin top to 4px.
 		'div + div': {
 			marginTop: token('space.050', '4px'),
@@ -1202,7 +1326,7 @@ const headerSmartCardStyles = css({
 	},
 });
 
-const baseOtherStyles = css({
+const baseOtherStylesDuplicateAnchor = css({
 	'& .UnknownBlock': {
 		fontFamily: token('font.family.body'),
 		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
@@ -1212,21 +1336,27 @@ const baseOtherStyles = css({
 		wordWrap: 'break-word',
 	},
 	'& span.date-node': {
-		background: token('color.background.neutral', N30A),
+		backgroundColor: token('color.background.neutral', N30A),
 		borderRadius: token('radius.small', '3px'),
 		color: token('color.text', N800),
-		padding: `${token('space.025', '2px')} ${token('space.050', '4px')}`,
+		paddingTop: token('space.025', '2px'),
+		paddingRight: token('space.050', '4px'),
+		paddingBottom: token('space.025', '2px'),
+		paddingLeft: token('space.050', '4px'),
 		margin: `0 1px`,
 		transition: `background 0.3s`,
 	},
 	'& span.date-node-highlighted': {
-		background: token('color.background.danger', R50),
+		backgroundColor: token('color.background.danger', R50),
 		color: token('color.text.danger', R500),
 	},
 	'& .renderer-image': {
 		maxWidth: '100%',
 		display: 'block',
-		margin: `${token('space.300', '24px')} 0`,
+		marginTop: token('space.300', '24px'),
+		marginRight: 0,
+		marginBottom: token('space.300', '24px'),
+		marginLeft: 0,
 	},
 
 	[`.${richMediaClassName}.rich-media-wrapped + .${richMediaClassName}:not(.rich-media-wrapped)`]: {
@@ -1246,8 +1376,10 @@ const baseOtherStyles = css({
 	},
 
 	'& .rich-media-wrapped': {
-		'& + h1, & + h2, & + h3, & + h4, & + h5, & + h6': {
-			marginTop: token('space.100', '8px'),
+		'& + .renderer-heading-wrapper': {
+			'h1, h2, h3, h4, h5, h6': {
+				marginTop: token('space.100', '8px'),
+			},
 		},
 	},
 
@@ -1303,7 +1435,116 @@ const baseOtherStyles = css({
 	},
 });
 
-const alignedHeadingAnchorStyle = css({
+const baseOtherStyles = css({
+	'& .UnknownBlock': {
+		fontFamily: token('font.family.body'),
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+		fontSize: `${14 / 16}rem`,
+		fontWeight: token('font.weight.regular'),
+		whiteSpace: 'pre-wrap',
+		wordWrap: 'break-word',
+	},
+	'& span.date-node': {
+		backgroundColor: token('color.background.neutral', N30A),
+		borderRadius: token('radius.small', '3px'),
+		color: token('color.text', N800),
+		paddingTop: token('space.025', '2px'),
+		paddingRight: token('space.050', '4px'),
+		paddingBottom: token('space.025', '2px'),
+		paddingLeft: token('space.050', '4px'),
+		margin: `0 1px`,
+		transition: `background 0.3s`,
+	},
+	'& span.date-node-highlighted': {
+		backgroundColor: token('color.background.danger', R50),
+		color: token('color.text.danger', R500),
+	},
+	'& .renderer-image': {
+		maxWidth: '100%',
+		display: 'block',
+		marginTop: token('space.300', '24px'),
+		marginRight: 0,
+		marginBottom: token('space.300', '24px'),
+		marginLeft: 0,
+	},
+
+	[`.${richMediaClassName}.rich-media-wrapped + .${richMediaClassName}:not(.rich-media-wrapped)`]: {
+		clear: 'both',
+	},
+
+	[`& .code-block,
+	& blockquote,
+	& hr,
+	& > div > div:not(.rich-media-wrapped),
+	.${richMediaClassName}.rich-media-wrapped + .rich-media-wrapped + *:not(.rich-media-wrapped),
+	.${richMediaClassName}.rich-media-wrapped + div:not(.rich-media-wrapped),
+	.${richMediaClassName}.image-align-start,
+		.${richMediaClassName}.image-center,
+		.${richMediaClassName}.image-align-end`]: {
+		clear: 'both',
+	},
+
+	'& .rich-media-wrapped': {
+		'& + .renderer-heading-wrapper': {
+			'h1, h2, h3, h4, h5, h6': {
+				marginTop: token('space.100', '8px'),
+			},
+		},
+	},
+
+	// originally copied the block after mediaSharedStyle
+	'div[class^="image-wrap-"] + div[class^="image-wrap-"]': {
+		marginLeft: 0,
+		marginRight: 0,
+	},
+
+	/* Breakout for tables and extensions */
+	[`.${RendererCssClassName.DOCUMENT} >`]: {
+		[`*:not([data-mark-type='fragment']) .${TableSharedCssClassName.TABLE_CONTAINER}`]: {
+			// Temporarily ignoring the below the owning team can add the ticket number for the TODO.  Context: https://atlassian.slack.com/archives/CPUEVD9MY/p1741565387326829
+			// eslint-disable-next-line @atlaskit/editor/enforce-todo-comment-format
+			// TODO - improve inline style logic on table container so important styles aren't required here
+			width: '100% !important',
+			left: '0 !important',
+		},
+		[`[data-mark-type='fragment'] * .${TableSharedCssClassName.TABLE_CONTAINER}`]: {
+			// Temporarily ignoring the below the owning team can add the ticket number for the TODO.  Context: https://atlassian.slack.com/archives/CPUEVD9MY/p1741565387326829
+			// eslint-disable-next-line @atlaskit/editor/enforce-todo-comment-format
+			// TODO - improve inline style logic on table container so important styles aren't required here
+			width: '100% !important',
+			left: '0 !important',
+		},
+		[`* .${RendererCssClassName.EXTENSION_OVERFLOW_CONTAINER}`]: {
+			overflowX: 'auto',
+		},
+		[`& .${RendererCssClassName.EXTENSION}:first-child`]: {
+			marginTop: 0,
+		},
+	},
+
+	[`.${RendererCssClassName.DOCUMENT}`]: {
+		[`.${RendererCssClassName.EXTENSION}`]: {
+			marginTop: `${blockNodesVerticalMargin}`,
+		},
+
+		[`.${RendererCssClassName.EXTENSION_CENTER_ALIGN}`]: {
+			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+			marginLeft: '50%',
+			transform: 'translateX(-50%)',
+		},
+
+		[`.${TableSharedCssClassName.TABLE_NODE_WRAPPER}`]: {
+			overflowX: 'auto',
+		},
+
+		[`.${shadowObserverClassNames.SHADOW_CONTAINER} .${TableSharedCssClassName.TABLE_NODE_WRAPPER}`]:
+			{
+				display: 'flex',
+			},
+	},
+});
+
+const alignedHeadingAnchorStyleDuplicateAnchor = css({
 	// Temporarily ignoring the below the owning team can add the ticket number for the TODO.  Context: https://atlassian.slack.com/archives/CPUEVD9MY/p1741565387326829
 	// eslint-disable-next-line @atlaskit/editor/enforce-todo-comment-format
 	// TODO Delete this comment after verifying space token -> previous value `margin: 6px`
@@ -1315,7 +1556,50 @@ const alignedHeadingAnchorStyle = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'.fabric-editor-block-mark:not([data-align="center"])[data-align]': {
 		[`.${HeadingAnchorWrapperClassName}`]: {
-			margin: `0 ${token('space.075', '6px')} 0 0`,
+			marginTop: 0,
+			marginRight: token('space.075', '6px'),
+			marginBottom: 0,
+			marginLeft: 0,
+			// If the anchor is right aligned then the left side of the heading
+			// is aligned with the left side of the anchor.
+			// In order to align as expected we transform it the width of the element (plus our expected 6px)
+			// to the left
+			transform: `translateX(calc(-100% - ${token('space.075', '6px')}))`,
+		},
+		'@media (hover: hover) and (pointer: fine)': {
+			[`.${HeadingAnchorWrapperClassName} > button`]: {
+				transform: `translate(8px, 0px)`,
+			},
+		},
+	},
+});
+
+const alignedHeadingAnchorStyle = css({
+	// Temporarily ignoring the below the owning team can add the ticket number for the TODO.  Context: https://atlassian.slack.com/archives/CPUEVD9MY/p1741565387326829
+	// eslint-disable-next-line @atlaskit/editor/enforce-todo-comment-format
+	// TODO Delete this comment after verifying space token -> previous value `margin: 6px`
+	'.fabric-editor-block-mark[data-align] >': {
+		'.renderer-heading-wrapper': {
+			'h1, h2, h3, h4, h5, h6': {
+				position: 'relative',
+			},
+		},
+	},
+	// Center alignment for heading wrapper - flex container needs justify-content instead of text-align
+	'.fabric-editor-block-mark[data-align="center"] > .renderer-heading-wrapper': {
+		justifyContent: 'center',
+	},
+	// Right/end alignment for heading wrapper - flex container needs justify-content instead of text-align
+	'.fabric-editor-block-mark[data-align="end"] > .renderer-heading-wrapper': {
+		justifyContent: 'flex-end',
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'.fabric-editor-block-mark:not([data-align="center"])[data-align]': {
+		[`.${HeadingAnchorWrapperClassName}`]: {
+			marginTop: 0,
+			marginRight: token('space.075', '6px'),
+			marginBottom: 0,
+			marginLeft: 0,
 			// If the anchor is right aligned then the left side of the heading
 			// is aligned with the left side of the anchor.
 			// In order to align as expected we transform it the width of the element (plus our expected 6px)
@@ -1399,7 +1683,10 @@ const mediaSingleSharedStyle = css({
 			{
 				float: 'none',
 				overflow: 'auto',
-				margin: `${token('space.150', '12px')} 0`,
+				marginTop: token('space.150', '12px'),
+				marginRight: 0,
+				marginBottom: token('space.150', '12px'),
+				marginLeft: 0,
 			},
 	},
 });
@@ -1494,7 +1781,10 @@ const tableSharedStyle = css({
 
 	[`.${TableSharedCssClassName.TABLE_CONTAINER}`]: {
 		position: 'relative',
-		margin: `0 auto ${token('space.200', '16px')}`,
+		marginTop: 0,
+		marginRight: 'auto',
+		marginBottom: token('space.200', '16px'),
+		marginLeft: 'auto',
 		boxSizing: 'border-box',
 		/**
 		 * Fix block top alignment inside table cells.
@@ -1518,12 +1808,18 @@ const tableSharedStyle = css({
 	},
 
 	[`.${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table`]: {
-		margin: `${token('space.300', '24px')} 0 0 0`,
+		marginTop: token('space.300', '24px'),
+		marginRight: 0,
+		marginBottom: 0,
+		marginLeft: 0,
 	},
 
 	[`.${TableSharedCssClassName.TABLE_CONTAINER} > table,
 	.${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]: {
-		margin: `${token('space.300', '24px')} ${token('space.100', '8px')} 0 0`,
+		marginTop: token('space.300', '24px'),
+		marginRight: token('space.100', '8px'),
+		marginBottom: 0,
+		marginLeft: 0,
 	},
 
 	/* avoid applying styles to nested tables (possible via extensions) */
@@ -1531,7 +1827,10 @@ const tableSharedStyle = css({
 	.${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table,
 	.${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]: {
 		borderCollapse: 'collapse',
-		border: `${tableCellBorderWidth}px solid ${token('color.background.accent.gray.subtler', akEditorTableBorder)}`,
+		border: `${tableCellBorderWidth}px solid ${token(
+			'color.background.accent.gray.subtler',
+			akEditorTableBorder,
+		)}`,
 		tableLayout: 'fixed',
 		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 		fontSize: '1em',
@@ -1672,10 +1971,16 @@ const tableRendererHeaderStylesForTableCellOnly = css({
 			minWidth: `${tableCellMinWidth}px`,
 			fontWeight: token('font.weight.regular'),
 			verticalAlign: 'top',
-			border: `${token('border.width')} solid ${token('color.background.accent.gray.subtler', akEditorTableBorder)}`,
+			border: `${token('border.width')} solid ${token(
+				'color.background.accent.gray.subtler',
+				akEditorTableBorder,
+			)}`,
 			borderRightWidth: 0,
 			borderBottomWidth: 0,
-			padding: token('space.100', '8px'),
+			paddingTop: token('space.100', '8px'),
+			paddingRight: token('space.100', '8px'),
+			paddingBottom: token('space.100', '8px'),
+			paddingLeft: token('space.100', '8px'),
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 			'th p:not(:first-of-type), td p:not(:first-of-type)': {
 				marginTop: token('space.150', '12px'),
@@ -1936,7 +2241,7 @@ const rendererTableColumnStyles = css({
 	},
 });
 
-const rendererTableHeaderEqualHeightStylesAllowNestedHeaderLinks = css({
+const rendererTableHeaderEqualHeightStylesAllowNestedHeaderLinksDuplicateAnchor = css({
 	[`.${RendererCssClassName.DOCUMENT} .${TableSharedCssClassName.TABLE_CONTAINER}`]: {
 		[`.${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table, .${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]:
 			{
@@ -1957,6 +2262,28 @@ const rendererTableHeaderEqualHeightStylesAllowNestedHeaderLinks = css({
 	},
 });
 
+const rendererTableHeaderEqualHeightStylesAllowNestedHeaderLinks = css({
+	[`.${RendererCssClassName.DOCUMENT} .${TableSharedCssClassName.TABLE_CONTAINER}`]: {
+		[`.${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table, .${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]:
+			{
+				[`.${RendererCssClassName.SORTABLE_COLUMN_WRAPPER}`]: {
+					[`.${RendererCssClassName.SORTABLE_COLUMN}`]: {
+						[`.${HeadingAnchorWrapperClassName}`]: {
+							position: 'unset',
+						},
+						'> .renderer-heading-wrapper': {
+							// Reserve space for the sortable-column icon so the heading+anchor wrapper never overlaps it.
+							// Use padding (instead of margin on the heading) so we don't create a gap between the heading
+							// text and the copy-link anchor button
+							// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+							paddingRight: '30px',
+						},
+					},
+				},
+			},
+	},
+});
+
 // @ts-expect-error - throw TS error when use !import in position.
 const stickyHeaderStyles = css({
 	'tr[data-header-row].fixed': {
@@ -1965,8 +2292,14 @@ const stickyHeaderStyles = css({
 		overflow: 'hidden',
 		zIndex: `${akEditorStickyHeaderZIndex}`,
 
-		borderRight: `${token('border.width')} solid ${token('color.background.accent.gray.subtler', akEditorTableBorder)}`,
-		borderBottom: `${token('border.width')} solid ${token('color.background.accent.gray.subtler', akEditorTableBorder)}`,
+		borderRight: `${token('border.width')} solid ${token(
+			'color.background.accent.gray.subtler',
+			akEditorTableBorder,
+		)}`,
+		borderBottom: `${token('border.width')} solid ${token(
+			'color.background.accent.gray.subtler',
+			akEditorTableBorder,
+		)}`,
 
 		/* this is to compensate for the table border */
 		transform: 'translateX(-1px)',
@@ -2179,10 +2512,16 @@ const rendererAnnotationStyles = css({
 	"& [data-mark-type='annotation'][data-mark-annotation-state='active'] [data-annotation-mark], & [data-annotation-draft-mark][data-annotation-inline-node]":
 		{
 			background: token('color.background.accent.yellow.subtler', Y75),
-			borderBottom: `${token('border.width.selected')} solid ${token('color.border.accent.yellow', Y300)}`,
+			borderBottom: `${token('border.width.selected')} solid ${token(
+				'color.border.accent.yellow',
+				Y300,
+			)}`,
 			boxShadow: token('elevation.shadow.overlay', `1px 2px 3px ${N60A}, -1px 2px 3px ${N60A}`),
 			cursor: 'pointer',
-			padding: `${token('space.050', '4px')} ${token('space.025', '2px')}`,
+			paddingTop: token('space.050', '4px'),
+			paddingRight: token('space.025', '2px'),
+			paddingBottom: token('space.050', '4px'),
+			paddingLeft: token('space.025', '2px'),
 		},
 });
 
@@ -2191,8 +2530,12 @@ const rendererAnnotationStylesCommentHeightFix = css({
 	'& [data-annotation-draft-mark][data-annotation-inline-node]': {
 		borderBottom: `${token('border.width.selected')} solid transparent`,
 		cursor: 'pointer',
-		padding: `1px 0 ${token('space.025')}`,
-		background: token('color.background.accent.yellow.subtler', Y75),
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+		paddingTop: '1px',
+		paddingRight: 0,
+		paddingBottom: token('space.025'),
+		paddingLeft: 0,
+		backgroundColor: token('color.background.accent.yellow.subtler', Y75),
 		borderBottomColor: token('color.border.accent.yellow', Y300),
 		boxShadow: token('elevation.shadow.overlay', `1px 2px 3px ${N60A}, -1px 2px 3px ${N60A}`),
 	},
@@ -2356,6 +2699,7 @@ const syncBlockStyles = css({
 	[`.${SyncBlockSharedCssClassName.renderer}, .${BodiedSyncBlockSharedCssClassName.renderer}, .${SyncBlockSharedCssClassName.error}, .${SyncBlockSharedCssClassName.loading}`]:
 		{
 			borderRadius: token('radius.small', '3px'),
+			marginTop: token('space.075', '6px'),
 			paddingBlock: token('space.150', '12px'),
 		},
 
@@ -2380,6 +2724,21 @@ const syncBlockStyles = css({
 	[`.${SyncBlockSharedCssClassName.loading}`]: {
 		boxShadow: `0 0 0 1px ${token('color.border')}`,
 	},
+});
+
+const syncBlockOverflowStyles = css({
+	[`.${SyncBlockSharedCssClassName.renderer}, .${BodiedSyncBlockSharedCssClassName.renderer}, .${SyncBlockSharedCssClassName.error}, .${SyncBlockSharedCssClassName.loading}`]:
+		{
+			// Contain floated elements (wrap-left/wrap-right) within synced block borders
+			overflow: 'hidden',
+		},
+});
+
+const syncBlockPatch2Styles = css({
+	[`.${SyncBlockSharedCssClassName.renderer}, .${BodiedSyncBlockSharedCssClassName.renderer}, .${SyncBlockSharedCssClassName.error}, .${SyncBlockSharedCssClassName.loading}`]:
+	{
+		overflow: 'visible',
+	}
 });
 
 type RendererStyleContainerProps = Pick<
@@ -2456,8 +2815,16 @@ export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
 				} as React.CSSProperties
 			}
 			css={[
+				expValEquals('confluence_ttvc_inline_extensions', 'isEnabled', true)
+					? baseFontStyle
+					: originalBaseFontLineHeight,
 				baseStyles,
-				hideHeadingCopyLinkWrapperStyles,
+				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
+					? headingAnchorStyles
+					: headingAnchorStylesDuplicateAnchor,
+				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
+					? hideHeadingCopyLinkWrapperStyles
+					: hideHeadingCopyLinkWrapperStylesDuplicateAnchor,
 				appearance === 'full-page' &&
 					isPreviewPanelResponsivenessOn &&
 					rendererFullPageStylesWithReducedPadding,
@@ -2473,14 +2840,15 @@ export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
 					(expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
 						expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)) &&
 					rendererMaxWidthStyles,
-				!fg('platform_editor_ai_generic_prep_for_aifc_2') && telepointerStyles,
-				fg('platform_editor_ai_generic_prep_for_aifc_2') && rovoTelepointerStyles,
+				rovoTelepointerStyles,
 				whitespaceSharedStyles,
 				blockquoteSharedStyles,
-				fg('platform_editor_typography_ugc')
-					? headingsSharedStylesWithEditorUGC
-					: headingsSharedStyles,
-				headingWithAlignmentStyles,
+				headingsSharedStyles,
+				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true) &&
+					headingWrapperInlineFlowStyles,
+				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
+					? headingWithAlignmentStyles
+					: headingWithAlignmentStylesDuplicateAnchor,
 				ruleSharedStyles,
 				contentMode === 'compact' && isCompactModeSupported && extensionStyle,
 				fg('platform_editor_typography_ugc')
@@ -2488,22 +2856,23 @@ export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
 						? paragraphStylesUGCScaledMargin
 						: paragraphSharedStylesWithEditorUGC
 					: isCompactModeSupported
-						? paragraphSharedStyleScaledMargin
-						: paragraphSharedStyles,
+					? paragraphSharedStyleScaledMargin
+					: paragraphSharedStyles,
 				listsSharedStyles,
 				browser.gecko && listsSharedStylesForGekko,
 				indentationSharedStyles,
 				fg('platform_editor__renderer_indentation_text_margin') &&
 					indentationSharedStylesWithMarginFix,
-				blockMarksSharedStyles,
+				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
+					? blockMarksSharedStyles
+					: blockMarksSharedStylesDuplicateAnchor,
 				codeMarkSharedStyles,
 				shadowSharedStyle,
 				dateSharedStyle,
 				textColorStyles,
 				backgroundColorStyles,
-				expValEquals('platform_editor_text_highlight_padding', 'isEnabled', true) &&
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-					textHighlightPaddingStyles,
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+				textHighlightPaddingStyles,
 				tasksAndDecisionsStyles,
 				smartCardStyles,
 				smartCardStylesAvatarFix,
@@ -2514,8 +2883,18 @@ export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
 				fg('editor_inline_comments_on_inline_nodes') && rendererAnnotationStyles,
 				// eslint-disable-next-line @atlaskit/platform/no-preconditioning
 				fg('editor_inline_comments_on_inline_nodes') && rendererAnnotationStylesCommentHeightFix,
-				baseOtherStyles,
-				allowNestedHeaderLinks && alignedHeadingAnchorStyle,
+				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
+					? baseOtherStyles
+					: baseOtherStylesDuplicateAnchor,
+				// this should be placed after baseOtherStyles
+				expValEquals('platform_editor_render_bodied_extension_as_inline', 'isEnabled', true) &&
+					extensionAsInlineStyle,
+				expValEquals('confluence_insert_excerpt_inline_vertical_align', 'isEnabled', true) &&
+					inlineExtensionRendererMarginFix,
+				allowNestedHeaderLinks &&
+					(expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
+						? alignedHeadingAnchorStyle
+						: alignedHeadingAnchorStyleDuplicateAnchor),
 				mediaSingleSharedStyle,
 				// merge firstWrappedMediaStyles with mediaSingleSharedStyle when clean up platform_editor_fix_media_in_renderer
 				fg('platform_editor_fix_media_in_renderer') && firstWrappedMediaStyles,
@@ -2532,7 +2911,9 @@ export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
 				allowColumnSorting && rendererTableSortableColumnStyles,
 				allowColumnSorting &&
 					allowNestedHeaderLinks &&
-					rendererTableHeaderEqualHeightStylesAllowNestedHeaderLinks,
+					(expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
+						? rendererTableHeaderEqualHeightStylesAllowNestedHeaderLinks
+						: rendererTableHeaderEqualHeightStylesAllowNestedHeaderLinksDuplicateAnchor),
 				rendererTableColumnStyles,
 				stickyHeaderStyles,
 				codeBlockAndLayoutStyles,
@@ -2556,9 +2937,11 @@ export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
 						? scaledDenseEmojiStyles
 						: scaledEmojiStyles
 					: isCompactModeEnabled
-						? denseStyles
-						: undefined,
-				expValEquals('platform_synced_block', 'isEnabled', true) && syncBlockStyles,
+					? denseStyles
+					: undefined,
+				editorExperiment('platform_synced_block', true) && syncBlockStyles,
+				editorExperiment('platform_synced_block', true) && syncBlockOverflowStyles,
+                editorExperiment('platform_synced_block', true) && fg('platform_synced_block_patch_2') && syncBlockPatch2Styles,
 			]}
 			data-testid={testId}
 		>

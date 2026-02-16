@@ -1,5 +1,71 @@
 # @atlaskit/adf-schema
 
+## 51.5.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.5.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.5.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.5.12
+
+### Patch Changes
+
+- [`47dce55fed533`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/47dce55fed533) -
+  Add option to filter out marks if they don't have all required attrs and therefore are invalid
+- Updated dependencies
+
+## 51.5.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.5.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.5.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.5.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.5.7
+
+### Patch Changes
+
+- [`25c388e0f807a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/25c388e0f807a) -
+  EDITOR-4684 Clean up platform_editor_add_orange_highlight_color experiment - orange highlight
+  color is now permanently enabled
+- Updated dependencies
+
+## 51.5.6
+
+### Patch Changes
+
+- [`8eca3ae04714e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8eca3ae04714e) -
+  Fixed mixed HTML/Editor content copy/paste issue on Status node.
+
 ## 51.5.5
 
 ### Patch Changes

@@ -92,8 +92,16 @@ const TABLE_WIDTH_INFO_TIMEOUT = 10000;
  * Table plugin to be added to an `EditorPresetBuilder` and used with `ComposableEditor`
  * from `@atlaskit/editor-core`.
  */
-const tablePlugin: TablePlugin = ({ config: options, api }) => {
+const tablePlugin: TablePlugin = ({ config, api }) => {
 	const editorViewRef: Record<'current', EditorView | null> = { current: null };
+	const options: TablePluginOptions = {
+		...config,
+		tableOptions: config?.tableOptions ?? {},
+		dragAndDropEnabled: config?.dragAndDropEnabled || fg('platform_editor_enable_table_dnd'),
+		isTableScalingEnabled:
+			config?.isTableScalingEnabled || fg('platform_editor_enable_table_scaling'),
+	};
+
 	const defaultGetEditorContainerWidth: GetEditorContainerWidth = () => {
 		return (
 			api?.width?.sharedState.currentState() ?? {
@@ -103,8 +111,9 @@ const tablePlugin: TablePlugin = ({ config: options, api }) => {
 	};
 	const editorAnalyticsAPI = api?.analytics?.actions;
 
-	const isTableFixedColumnWidthsOptionEnabled =
-		options?.getEditorFeatureFlags?.().tableWithFixedColumnWidthsOption || false;
+	const isTableFixedColumnWidthsOptionEnabled = fg('platform_editor_table_fixed_column_width_prop')
+		? options?.allowFixedColumnWidthOption
+		: options?.getEditorFeatureFlags?.().tableWithFixedColumnWidthsOption || false;
 
 	const shouldUseIncreasedScalingPercent =
 		options?.isTableScalingEnabled &&
@@ -286,7 +295,9 @@ const tablePlugin: TablePlugin = ({ config: options, api }) => {
 			const isNestingSupported = Boolean(options?.tableOptions?.allowNestedTables);
 
 			const isTableFixedColumnWidthsOptionEnabled =
-				options?.getEditorFeatureFlags?.().tableWithFixedColumnWidthsOption || false;
+				(fg('platform_editor_table_fixed_column_width_prop')
+					? options?.allowFixedColumnWidthOption
+					: options?.getEditorFeatureFlags?.().tableWithFixedColumnWidthsOption) || false;
 
 			const shouldUseIncreasedScalingPercent =
 				options?.isTableScalingEnabled &&
@@ -403,6 +414,7 @@ const tablePlugin: TablePlugin = ({ config: options, api }) => {
 							shouldUseIncreasedScalingPercent,
 							isCommentEditor,
 							isChromelessEditor,
+							options?.allowFixedColumnWidthOption,
 						);
 					},
 				},

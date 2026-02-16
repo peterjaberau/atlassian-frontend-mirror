@@ -1,8 +1,11 @@
+import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
+import type { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
 	ACTION_SUBJECT,
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
+	type DispatchAnalyticsEvent,
 } from '@atlaskit/editor-common/analytics';
 import { copyDomNode, toDOM } from '@atlaskit/editor-common/copy-button';
 import type {
@@ -13,7 +16,7 @@ import type {
 	TypeAheadInsert,
 } from '@atlaskit/editor-common/types';
 import type { Schema } from '@atlaskit/editor-prosemirror/model';
-import { type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import { DOMSerializer, Fragment, type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import {
 	type EditorState,
 	type Transaction,
@@ -40,7 +43,10 @@ import {
 import type { SyncedBlockPlugin } from '../syncedBlockPluginType';
 import { FLAG_ID } from '../types';
 
+import { pasteSyncBlockHTMLContent } from './utils';
+
 type createSyncedBlockProps = {
+	fireAnalyticsEvent?: DispatchAnalyticsEvent;
 	syncBlockStore: SyncBlockStoreManager;
 	tr: Transaction;
 	typeAheadInsert?: TypeAheadInsert;
@@ -50,6 +56,7 @@ export const createSyncedBlock = ({
 	tr,
 	syncBlockStore,
 	typeAheadInsert,
+	fireAnalyticsEvent,
 }: createSyncedBlockProps): false | Transaction => {
 	const {
 		schema: {
@@ -67,12 +74,23 @@ export const createSyncedBlock = ({
 		);
 
 		if (!newBodiedSyncBlockNode) {
+			fireAnalyticsEvent?.({
+				action: ACTION.ERROR,
+				actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+				actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_CREATE,
+				attributes: {
+					error: 'Create and fill for empty content failed',
+				},
+				eventType: EVENT_TYPE.OPERATIONAL,
+			});
 			return false;
 		}
 
 		// Save the new node with empty content to backend
 		// This is so that the node can be copied and referenced without the source being saved/published
-		syncBlockStore.sourceManager.createBodiedSyncBlockNode(attrs);
+		if (!fg('platform_synced_block_patch_1')) {
+			syncBlockStore.sourceManager.createBodiedSyncBlockNode(attrs, () => {});
+		}
 
 		if (typeAheadInsert) {
 			tr = typeAheadInsert(newBodiedSyncBlockNode);
@@ -82,9 +100,15 @@ export const createSyncedBlock = ({
 	} else {
 		const conversionInfo = canBeConvertedToSyncBlock(tr.selection);
 		if (!conversionInfo) {
-			if (fg('platform_synced_block_dogfooding')) {
-				syncBlockStore.sourceManager.createExperience?.failure({ reason: 'Selection is not allowed to be converted to sync block'});
-			}
+			fireAnalyticsEvent?.({
+				action: ACTION.ERROR,
+				actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+				actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_CREATE,
+				attributes: {
+					error: 'Content cannot be converted to sync block',
+				},
+				eventType: EVENT_TYPE.OPERATIONAL,
+			});
 			return false;
 		}
 
@@ -95,39 +119,55 @@ export const createSyncedBlock = ({
 		);
 
 		if (!newBodiedSyncBlockNode) {
+			fireAnalyticsEvent?.({
+				action: ACTION.ERROR,
+				actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+				actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_CREATE,
+				attributes: {
+					error: 'Create and fill for content failed',
+				},
+				eventType: EVENT_TYPE.OPERATIONAL,
+			});
 			return false;
 		}
 
 		// Save the new node with empty content to backend
 		// This is so that the node can be copied and referenced without the source being saved/published
-		syncBlockStore.sourceManager.createBodiedSyncBlockNode(attrs);
+		if (!fg('platform_synced_block_patch_1')) {
+			// Moved to appendTransaction
+			syncBlockStore.sourceManager.createBodiedSyncBlockNode(
+				attrs,
+				() => {},
+				newBodiedSyncBlockNode,
+			);
+		}
 
-		tr.replaceWith(
-			conversionInfo.from > 0 ? conversionInfo.from - 1 : 0,
-			conversionInfo.to,
-			newBodiedSyncBlockNode,
-		).scrollIntoView();
+		tr.replaceWith(conversionInfo.from, conversionInfo.to, newBodiedSyncBlockNode).scrollIntoView();
 
-		// set selection to the end of the previous selection + 1 for the position taken up by the start of the new synced block
-		tr.setSelection(TextSelection.create(tr.doc, conversionInfo.to + 1));
+		// set selection to the start of the previous selection for the position taken up by the start of the new synced block
+		tr.setSelection(TextSelection.create(tr.doc, conversionInfo.from));
 	}
 
-	// This transaction will be intercepted in filterTransaction and dispatched when saving to backend succeeds
-	// see filterTransaction for more details
 	return tr;
 };
 
 export const copySyncedBlockReferenceToClipboardEditorCommand: (
 	syncBlockStore: SyncBlockStoreManager,
+	inputMethod: INPUT_METHOD,
 	api?: ExtractInjectionAPI<SyncedBlockPlugin>,
 ) => EditorCommand =
-	(syncBlockStore: SyncBlockStoreManager, api?: ExtractInjectionAPI<SyncedBlockPlugin>) =>
+	(
+		syncBlockStore: SyncBlockStoreManager,
+		inputMethod: INPUT_METHOD,
+		api?: ExtractInjectionAPI<SyncedBlockPlugin>,
+	) =>
 	({ tr }) => {
 		if (
 			copySyncedBlockReferenceToClipboardInternal(
 				tr.doc.type.schema,
 				tr.selection,
 				syncBlockStore,
+				inputMethod,
 				api,
 			)
 		) {
@@ -139,14 +179,20 @@ export const copySyncedBlockReferenceToClipboardEditorCommand: (
 
 export const copySyncedBlockReferenceToClipboard: (
 	syncBlockStore: SyncBlockStoreManager,
+	inputMethod: INPUT_METHOD,
 	api?: ExtractInjectionAPI<SyncedBlockPlugin>,
 ) => Command =
-	(syncBlockStore: SyncBlockStoreManager, api?: ExtractInjectionAPI<SyncedBlockPlugin>) =>
+	(
+		syncBlockStore: SyncBlockStoreManager,
+		inputMethod: INPUT_METHOD,
+		api?: ExtractInjectionAPI<SyncedBlockPlugin>,
+	) =>
 	(state: EditorState, _dispatch?: CommandDispatch, _view?: EditorView) => {
 		return copySyncedBlockReferenceToClipboardInternal(
 			state.tr.doc.type.schema,
 			state.tr.selection,
 			syncBlockStore,
+			inputMethod,
 			api,
 		);
 	};
@@ -155,10 +201,23 @@ const copySyncedBlockReferenceToClipboardInternal = (
 	schema: Schema,
 	selection: Selection,
 	syncBlockStore: SyncBlockStoreManager,
+	inputMethod: INPUT_METHOD,
 	api?: ExtractInjectionAPI<SyncedBlockPlugin>,
 ): boolean => {
 	const syncBlockFindResult = findSyncBlockOrBodiedSyncBlock(schema, selection);
 	if (!syncBlockFindResult) {
+		if (fg('platform_synced_block_patch_1')) {
+			api?.analytics?.actions?.fireAnalyticsEvent({
+				eventType: EVENT_TYPE.OPERATIONAL,
+				action: ACTION.ERROR,
+				actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+				actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
+				attributes: {
+					error: 'No sync block found in selection',
+					inputMethod,
+				},
+			});
+		}
 		return false;
 	}
 
@@ -180,6 +239,19 @@ const copySyncedBlockReferenceToClipboardInternal = (
 			),
 		});
 		if (!referenceSyncBlockNode) {
+			if (fg('platform_synced_block_patch_1')) {
+				api?.analytics?.actions?.fireAnalyticsEvent({
+					eventType: EVENT_TYPE.OPERATIONAL,
+					action: ACTION.ERROR,
+					actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+					actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
+					attributes: {
+						error: 'Failed to create reference sync block node',
+						resourceId: syncBlockFindResult.node.attrs.resourceId,
+						inputMethod,
+					},
+				});
+			}
 			return false;
 		}
 	} else {
@@ -187,6 +259,18 @@ const copySyncedBlockReferenceToClipboardInternal = (
 	}
 
 	if (!referenceSyncBlockNode) {
+		if (fg('platform_synced_block_patch_1')) {
+			api?.analytics?.actions?.fireAnalyticsEvent({
+				eventType: EVENT_TYPE.OPERATIONAL,
+				action: ACTION.ERROR,
+				actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+				actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
+				attributes: {
+					error: 'No reference sync block node available',
+					inputMethod,
+				},
+			});
+		}
 		return false;
 	}
 
@@ -196,6 +280,19 @@ const copySyncedBlockReferenceToClipboardInternal = (
 	// Use setTimeout to dispatch transaction in next tick and avoid re-entrant dispatch
 	setTimeout(() => {
 		api?.core.actions.execute(({ tr }) => {
+			if (fg('platform_synced_block_patch_1')) {
+				api?.analytics?.actions?.fireAnalyticsEvent({
+					eventType: EVENT_TYPE.OPERATIONAL,
+					action: ACTION.COPIED,
+					actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+					actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
+					attributes: {
+						resourceId: referenceSyncBlockNode.attrs.resourceId,
+						inputMethod,
+					},
+				});
+			}
+
 			return tr.setMeta(syncedBlockPluginKey, {
 				activeFlag: { id: FLAG_ID.SYNC_BLOCK_COPIED },
 			});
@@ -218,6 +315,18 @@ export const editSyncedBlockSource =
 		const syncBlockURL = syncBlockStore.referenceManager.getSyncBlockURL(resourceId);
 
 		if (syncBlockURL) {
+			if (fg('platform_synced_block_patch_1')) {
+				api?.analytics?.actions.fireAnalyticsEvent({
+					eventType: EVENT_TYPE.OPERATIONAL,
+					action: ACTION.SYNCED_BLOCK_EDIT_SOURCE,
+					actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+					actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_SOURCE_URL,
+					attributes: {
+						resourceId: resourceId,
+					},
+				});
+			}
+
 			window.open(syncBlockURL, '_blank');
 		} else {
 			const tr = state.tr;
@@ -267,3 +376,61 @@ export const removeSyncedBlock =
 
 		return true;
 	};
+
+export const removeSyncedBlockAtPos = (
+	api: ExtractInjectionAPI<SyncedBlockPlugin> | undefined,
+	pos: number,
+) => {
+	api?.core.actions.execute(({ tr }) => {
+		const node = tr.doc.nodeAt(pos);
+
+		if (node?.type.name === 'syncBlock') {
+			return tr.replace(pos, pos + (node?.nodeSize ?? 0));
+		}
+		return tr;
+	});
+};
+/**
+ * Deletes (bodied)SyncBlock node and paste its content to the editor
+ */
+export const unsync = (
+	storeManager: SyncBlockStoreManager,
+	isBodiedSyncBlock: boolean,
+	view?: EditorView,
+) => {
+	if (!view) {
+		return false;
+	}
+	const { state } = view;
+	const syncBlock = findSyncBlockOrBodiedSyncBlock(state.schema, state.selection);
+
+	if (!syncBlock) {
+		return false;
+	}
+
+	if (isBodiedSyncBlock) {
+		const content = syncBlock?.node.content;
+		const tr = state.tr;
+		tr.replaceWith(syncBlock.pos, syncBlock.pos + syncBlock.node.nodeSize, content).setMeta(
+			'deletionReason',
+			'source-block-unsynced',
+		);
+		view.dispatch(tr);
+
+		return true;
+	}
+
+	// handle syncBlock unsync
+	const syncBlockContent = storeManager.referenceManager.getFromCache(
+		syncBlock.node.attrs.resourceId,
+	)?.data?.content;
+	if (!syncBlockContent) {
+		return false;
+	}
+
+	// use defaultSchema for serialization so we can serialize any type of nodes and marks despite current editor's schema might not allow it
+	const contentFragment = Fragment.fromJSON(defaultSchema, syncBlockContent);
+	const contentDOM = DOMSerializer.fromSchema(defaultSchema).serializeFragment(contentFragment);
+
+	return pasteSyncBlockHTMLContent(contentDOM, view);
+};

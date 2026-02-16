@@ -28,12 +28,16 @@ import {
 import TextWrapperComponent from './nodes/text-wrapper';
 import { isNestedHeaderLinksEnabled } from './utils/links';
 
-import type { ExtensionHandlers } from '@atlaskit/editor-common/extensions';
+import type {
+	ExtensionHandlers,
+	ExtensionParams,
+	Parameters,
+} from '@atlaskit/editor-common/extensions';
 import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import type { EventHandlers } from '@atlaskit/editor-common/ui';
 import { getColumnWidths } from '@atlaskit/editor-common/utils';
 import { getMarksByOrder, isSameMark } from '@atlaskit/editor-common/validator';
-import { findChildrenByType } from '@atlaskit/editor-prosemirror/utils';
+import { findChildrenByMark, findChildrenByType } from '@atlaskit/editor-prosemirror/utils';
 import type { EmojiResourceConfig } from '@atlaskit/emoji/resource';
 import { fg } from '@atlaskit/platform-feature-flags';
 import type { MediaOptions } from '../types/mediaOptions';
@@ -43,6 +47,7 @@ import { isAnnotationMark, toReact as markToReact } from './marks';
 import { isCodeMark } from './marks/code';
 import {
 	insideBlockNode,
+	insideBreakoutExpand,
 	insideBreakoutLayout,
 	insideMultiBodiedExtension,
 	insideTable,
@@ -58,12 +63,15 @@ import type {
 import { renderTextSegments } from './utils/render-text-segments';
 import { segmentText } from './utils/segment-text';
 import { getStandaloneBackgroundColorMarks } from './utils/getStandaloneBackgroundColorMarks';
+import { markBlockAsInline } from './utils/markBlockAsInline';
+
 export interface ReactSerializerInit {
 	allowAltTextOnImages?: boolean;
 	allowAnnotations?: boolean;
 	allowColumnSorting?: boolean;
 	allowCopyToClipboard?: boolean;
 	allowCustomPanels?: boolean;
+	allowFixedColumnWidthOption?: boolean;
 	allowHeadingAnchorLinks?: HeadingAnchorLinksProps;
 	allowMediaLinking?: boolean;
 	allowPlaceholderText?: boolean;
@@ -91,6 +99,7 @@ export interface ReactSerializerInit {
 	onSetLinkTarget?: (url: string) => '_blank' | undefined;
 	portal?: HTMLElement;
 	providers?: ProviderFactory;
+	shouldDisplayExtensionAsInline?: (extensionParams: ExtensionParams<Parameters>) => boolean;
 	shouldOpenMediaViewer?: boolean;
 	smartLinks?: SmartLinksOptions;
 	/**
@@ -207,10 +216,15 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 	private textHighlighter?: TextHighlighter;
 	private allowTableAlignment?: boolean;
 	private allowTableResizing?: boolean;
+	private allowFixedColumnWidthOption?: boolean;
 	private isPresentational?: boolean;
 	private disableTableOverflowShadow?: boolean;
 	private standaloneBackgroundColorMarks: Mark[] = [];
 	private onSetLinkTarget?: (url: string) => '_blank' | undefined;
+	private shouldDisplayExtensionAsInline?: (
+		extensionParams: ExtensionParams<Parameters>,
+	) => boolean;
+	private inlinePositions: Set<number> = new Set();
 
 	constructor(init: ReactSerializerInit) {
 		if (editorExperiment('comment_on_bodied_extensions', true)) {
@@ -254,9 +268,11 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		this.textHighlighter = init.textHighlighter;
 		this.allowTableAlignment = init.allowTableAlignment;
 		this.allowTableResizing = init.allowTableResizing;
+		this.allowFixedColumnWidthOption = init.allowFixedColumnWidthOption;
 		this.isPresentational = init.isPresentational;
 		this.disableTableOverflowShadow = init.disableTableOverflowShadow;
 		this.onSetLinkTarget = init.onSetLinkTarget;
+		this.shouldDisplayExtensionAsInline = init.shouldDisplayExtensionAsInline;
 	}
 
 	private resetState() {
@@ -302,6 +318,11 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 				return this.getInlineCardProps(node, path);
 			case 'expand':
 				return this.getExpandProps(node, path);
+			case 'nestedExpand':
+				if (fg('hot-121622_lazy_load_expand_content')) {
+					return this.getExpandProps(node, path);
+				}
+				return this.getProps(node, path);
 			case 'unsupportedBlock':
 			case 'unsupportedInline':
 				return this.getUnsupportedContentProps(node);
@@ -334,7 +355,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 			target,
 			props,
 			key,
-			ReactSerializer.getChildNodes(fragment).map((node, index) => {
+			this.getChildNodes(fragment).map((node, index) => {
 				if (isTextWrapper(node)) {
 					return this.serializeTextWrapper(node.content, { index, parentInfo });
 				}
@@ -431,9 +452,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		const currentPath = (parentInfo && parentInfo.path) || [];
 		const nodePosition = (parentInfo && parentInfo.pos) || 1;
 
-		if (expValEquals('platform_editor_text_highlight_padding', 'isEnabled', true)) {
-			this.standaloneBackgroundColorMarks.push(...getStandaloneBackgroundColorMarks(content));
-		}
+		this.standaloneBackgroundColorMarks.push(...getStandaloneBackgroundColorMarks(content));
 
 		return ReactSerializer.buildMarkStructure(content).map((mark, _index) => {
 			return this.serializeMark({
@@ -468,9 +487,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const content = ((mark as any).content || []).map(serializeContent);
 			const markKey = `${mark.type.name}-component__${this.startPos}__${parentMark.path.length}`;
-			const isStandalone =
-				expValEquals('platform_editor_text_highlight_padding', 'isEnabled', true) &&
-				this.standaloneBackgroundColorMarks.some((m) => mark.eq(m));
+			const isStandalone = this.standaloneBackgroundColorMarks.some((m) => mark.eq(m));
 			return this.renderMark(
 				markToReact(mark),
 				{
@@ -559,9 +576,20 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		const isInsideMultiBodiedExtension = insideMultiBodiedExtension(path, node.type.schema);
 		const isInsideOfTable = insideTable(path, node.type.schema);
 
-		// TODO: CEMS-1048 - Support sticky headers inside breakout + layout
+		// TODO: EDITOR-3850 - support sticky headers inside breakouts (layouts and expands)
+		const isInsideBreakoutExpand =
+			expValEquals(
+				'platform_editor_table_sticky_header_improvements',
+				'cohort',
+				'test_with_overflow',
+			) &&
+			expValEquals('platform_editor_table_sticky_header_patch_11', 'isEnabled', true) &&
+			insideBreakoutExpand(path);
 		const stickyHeaders =
-			!isInsideOfTable && !insideBreakoutLayout(path) ? this.stickyHeaders : undefined;
+			!isInsideOfTable && !insideBreakoutLayout(path) && !isInsideBreakoutExpand
+				? this.stickyHeaders
+				: undefined;
+
 		return {
 			...this.getProps(node),
 			allowColumnSorting: this.allowColumnSorting,
@@ -575,6 +603,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 			allowTableResizing: this.allowTableResizing,
 			isPresentational: fg('platform_renderer_isPresentational') ? this.isPresentational : false,
 			disableTableOverflowShadow: this.disableTableOverflowShadow,
+			allowFixedColumnWidthOption: this.allowFixedColumnWidthOption,
 		};
 	}
 
@@ -645,6 +674,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 			...this.getProps(node, path),
 			extensionViewportSizes: this.extensionViewportSizes,
 			nodeHeight: this.getExtensionHeight?.(node),
+			shouldDisplayExtensionAsInline: this.shouldDisplayExtensionAsInline,
 		};
 	}
 
@@ -752,6 +782,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		const startPos = this.startPos + path.length;
 
 		return {
+			asInline: this.inlinePositions.has(startPos) ? 'on' : undefined,
 			text: node.text,
 			providers: this.providers,
 			eventHandlers: this.eventHandlers,
@@ -808,8 +839,21 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 	}
 
 	private getExpandProps(node: Node, _path: Array<Node> = []) {
+		let loadBodyContent = false;
+		if (fg('hot-121622_lazy_load_expand_content')) {
+			const annotations = findChildrenByMark(node, node.type.schema.marks.annotation, true);
+			// Force rendering children if there are inline comments to support comments navigation
+			// which relies on the HTML node to be present.
+			loadBodyContent = annotations.some((annotation) => {
+				return annotation.node.marks.some((mark) => mark.attrs.annotationType === 'inlineComment');
+			});
+		}
+
 		if (!isNestedHeaderLinksEnabled(this.allowHeadingAnchorLinks)) {
-			return this.getProps(node);
+			return {
+				...this.getProps(node),
+				loadBodyContent,
+			};
 		}
 
 		const nestedHeaderIds = findChildrenByType(node, node.type.schema.nodes.heading).map(
@@ -819,6 +863,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		return {
 			...this.getProps(node),
 			nestedHeaderIds,
+			loadBodyContent,
 		};
 	}
 
@@ -933,12 +978,26 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		return props;
 	};
 
-	static getChildNodes(fragment: Fragment): (Node | TextWrapper)[] {
-		const children: Node[] = [];
+	private getChildNodes(fragment: Fragment): (Node | TextWrapper)[] {
+		let children: Node[] = [];
 		fragment.forEach((node) => {
 			children.push(node);
 		});
-		return mergeTextNodes(children) as Node[];
+		children = mergeTextNodes(children) as Node[];
+		if (
+			!!this.shouldDisplayExtensionAsInline &&
+			expValEquals('platform_editor_render_bodied_extension_as_inline', 'isEnabled', true)
+		) {
+			markBlockAsInline({
+				nodes: children,
+				onMark: ({ pos }) => {
+					this.inlinePositions.add(pos);
+				},
+				parentPos: this.startPos,
+				shouldDisplayExtensionAsInline: this.shouldDisplayExtensionAsInline,
+			});
+		}
+		return children;
 	}
 
 	static getMarks(node: Node): Mark[] {

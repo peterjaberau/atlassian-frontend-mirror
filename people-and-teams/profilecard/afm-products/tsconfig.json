@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.products.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"declaration": true,
 		"target": "es5",
@@ -49,9 +49,6 @@
 			"path": "../../../design-system/empty-state/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../measurement/feature-gate-js-client/afm-products/tsconfig.json"
-		},
-		{
 			"path": "../../../team-central/give-kudos/afm-products/tsconfig.json"
 		},
 		{
@@ -59,6 +56,9 @@
 		},
 		{
 			"path": "../../../design-system/icon/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/link/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/lozenge/afm-products/tsconfig.json"

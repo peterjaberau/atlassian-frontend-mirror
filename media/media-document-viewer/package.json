@@ -29,7 +29,6 @@
 	"dependencies": {
 		"@atlaskit/browser-apis": "workspace:^",
 		"@atlaskit/css": "workspace:^",
-		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/media-common": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
@@ -45,6 +44,7 @@
 		"@af/integration-testing": "workspace:^",
 		"@af/visual-regression": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
@@ -52,9 +52,6 @@
 	},
 	"platform-feature-flags": {
 		"media-document-viewer-clear-render": {
-			"type": "boolean"
-		},
-		"media-document-viewer-annotations": {
 			"type": "boolean"
 		}
 	},
@@ -94,7 +91,7 @@
 		}
 	},
 	"name": "@atlaskit/media-document-viewer",
-	"version": "0.6.3",
+	"version": "0.6.7",
 	"description": "Modern and fast document viewer",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",

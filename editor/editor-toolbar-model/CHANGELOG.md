@@ -1,5 +1,29 @@
 # @atlaskit/editor-toolbar-model
 
+## 0.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.3.1
+
+### Patch Changes
+
+- [`8708f328d5db6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8708f328d5db6) -
+  Clean up platform_editor_toolbar_aifc_overflow_menu_update feature gate
+
+## 0.3.0
+
+### Minor Changes
+
+- [`0bddc82417f62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0bddc82417f62) -
+  Clean up platform_editor_toolbar_aifc_renderer_rewrite feature flag
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 0.2.11
 
 ### Patch Changes

@@ -1,5 +1,96 @@
 # @atlaskit/editor-plugin-code-block-advanced
 
+## 7.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.3
+
+### Patch Changes
+
+- [`3425184968470`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3425184968470) -
+  Fix aria-hidden-focus a11y violation by adding tabindex=-1 to fold gutter buttons
+- Updated dependencies
+
+## 7.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.1
+
+### Patch Changes
+
+- [`e91ea1cbba89a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e91ea1cbba89a) -
+  JRACLOUD-96830: Fix navigating and editing codeblocks with CRLF new lines.
+- Updated dependencies
+
+## 7.1.0
+
+### Minor Changes
+
+- [`77341edf4fd78`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/77341edf4fd78) -
+  [EDITOR-3786] Added a new plugin `@atlaskit/editor-plugin-content-format`, and made
+  `@atlaskit/editor-plugin-code-block-advanced` have a dependancy on it. Removed the ResizeObserver
+  from `@atlaskit/editor-plugin-code-block-advanced` and replaced it with a way to observe changes
+  to the `contentMode`. Updated examples to update the state of the new plugin so that examples work
+  with the new behaviour.
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.0.0
 
 ### Patch Changes

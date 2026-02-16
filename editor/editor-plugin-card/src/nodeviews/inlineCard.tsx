@@ -17,9 +17,10 @@ import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { UnsupportedInline, findOverflowScrollParent } from '@atlaskit/editor-common/ui';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { Decoration, EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
 import { Card as SmartCard } from '@atlaskit/smart-card';
+import { useSmartLinkReload } from '@atlaskit/smart-card/hooks';
 import { CardSSR } from '@atlaskit/smart-card/ssr';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import { type cardPlugin } from '../cardPlugin';
@@ -54,6 +55,7 @@ export const InlineCard = memo(
 		const { url, data } = node.attrs;
 		// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 		const refId = useRef(uuid());
+		const reload = useSmartLinkReload({ url });
 
 		useEffect(() => {
 			const id = refId.current;
@@ -63,6 +65,18 @@ export const InlineCard = memo(
 				view.dispatch(tr);
 			};
 		}, [getPos, view]);
+
+		useEffect(() => {
+			// if we render from cache, we want to make sure we reload the data in the background
+			const cardState = cardContext?.value?.store?.getState()[url || ''];
+			if (
+				expValEquals('platform_editor_smartlink_local_cache', 'isEnabled', true) &&
+				!isPageSSRed &&
+				cardState?.status === 'resolved'
+			) {
+				reload();
+			}
+		});
 
 		const scrollContainer: HTMLElement | undefined = useMemo(
 			// Ignored via go/ees005
@@ -140,7 +154,13 @@ export const InlineCard = memo(
 			: propsOnClick;
 
 		const card = useMemo(() => {
-			if (isPageSSRed && url) {
+			const cardState = cardContext?.value?.store?.getState()[url || ''];
+			if (
+				(isPageSSRed ||
+					(expValEquals('platform_editor_smartlink_local_cache', 'isEnabled', true) &&
+						cardState)) &&
+				url
+			) {
 				return (
 					<CardSSR
 						key={url}
@@ -192,6 +212,7 @@ export const InlineCard = memo(
 			hoverPreviewOptions,
 			isPageSSRed,
 			disablePreviewPanel,
+			cardContext?.value?.store,
 		]);
 
 		// [WS-2307]: we only render card wrapped into a Provider when the value is ready,
@@ -283,7 +304,7 @@ export function InlineCardNodeView(
 				{...(enableInlineUpgradeFeatures &&
 					getAwarenessProps(view.state, getPos, allowEmbeds, allowBlockCards, mode === 'view'))}
 			/>
-			{fg('prompt_whiteboard_competitor_link_gate') && CompetitorPromptComponent}
+			{CompetitorPromptComponent}
 		</>
 	);
 }

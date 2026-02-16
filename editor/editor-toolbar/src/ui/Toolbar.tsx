@@ -85,33 +85,30 @@ type ToolbarProps = {
  *
  * @note: Responsiveness support replies on container query with container editor-area and media query
  */
-export const Toolbar = ({ children, label, actionSubjectId, testId }: ToolbarProps): React.JSX.Element => {
-	const isResponsiveEnabled = expValEquals(
-		'platform_editor_toolbar_aifc_responsive',
-		'isEnabled',
-		true,
-	);
-
+export const Toolbar = ({
+	children,
+	label,
+	actionSubjectId,
+	testId,
+}: ToolbarProps): React.JSX.Element => {
 	const toolbar = (
 		<Box
 			xcss={cx(
 				styles.toolbarBase,
 				styles.toolbar,
-				isResponsiveEnabled && styles.toolbarResponsive,
-				isResponsiveEnabled && styles.hiddenSelectors,
-				expValEquals('platform_editor_toolbar_aifc_patch_6', 'isEnabled', true) &&
-					styles.toolbarSeparator,
-				expValEquals('platform_editor_toolbar_aifc_patch_6', 'isEnabled', true) &&
-					styles.hiddenSelectorsPatch,
+				styles.toolbarResponsive,
+				styles.hiddenSelectors,
+				styles.toolbarSeparator,
+				styles.hiddenSelectorsPatch,
 			)}
-			role="toolbar"
+			role={
+				expValEquals('platform_editor_aifc_remove_duplicate_role', 'isEnabled', true)
+					? undefined
+					: 'toolbar'
+			}
 			aria-label={label}
 			testId={testId}
-			data-toolbar-type={
-				expValEquals('platform_editor_toolbar_aifc_patch_6', 'isEnabled', true)
-					? 'inline'
-					: undefined
-			}
+			data-toolbar-type="inline"
 		>
 			<ViewEventEmitter actionSubject={ACTION_SUBJECT.TOOLBAR} actionSubjectId={actionSubjectId} />
 			{children}
@@ -121,6 +118,7 @@ export const Toolbar = ({ children, label, actionSubjectId, testId }: ToolbarPro
 	let wrappedToolbar = toolbar;
 
 	const { keyboardNavigation } = useToolbarUI();
+
 	if (keyboardNavigation) {
 		const {
 			childComponentSelector,
@@ -146,11 +144,7 @@ export const Toolbar = ({ children, label, actionSubjectId, testId }: ToolbarPro
 		);
 	}
 
-	if (isResponsiveEnabled) {
-		return <ResponsiveWrapper>{wrappedToolbar}</ResponsiveWrapper>;
-	}
-
-	return wrappedToolbar;
+	return <ResponsiveWrapper>{wrappedToolbar}</ResponsiveWrapper>;
 };
 
 type PrimaryToolbarProps = ToolbarProps & ResponsiveContainerProps;
@@ -162,42 +156,21 @@ export const PrimaryToolbar = ({
 	children,
 	label,
 	breakpointPreset,
-	reducedBreakpoints,
 }: PrimaryToolbarProps): React.JSX.Element => {
-	if (expValEquals('platform_editor_toolbar_aifc_responsive', 'isEnabled', true)) {
-		return (
-			<ResponsiveContainer
-				breakpointPreset={breakpointPreset}
-				reducedBreakpoints={reducedBreakpoints}
-			>
-				<Box
-					xcss={cx(styles.toolbarBase, styles.primaryToolbar, styles.hiddenSelectors)}
-					role="toolbar"
-					aria-label={label}
-					data-toolbar-type={
-						expValEquals('platform_editor_toolbar_aifc_patch_6', 'isEnabled', true)
-							? 'primary'
-							: undefined
-					}
-				>
-					{children}
-				</Box>
-			</ResponsiveContainer>
-		);
-	}
-
 	return (
-		<Box
-			xcss={cx(styles.toolbarBase, styles.primaryToolbar)}
-			role="toolbar"
-			aria-label={label}
-			data-toolbar-type={
-				expValEquals('platform_editor_toolbar_aifc_patch_6', 'isEnabled', true)
-					? 'primary'
-					: undefined
-			}
-		>
-			{children}
-		</Box>
+		<ResponsiveContainer breakpointPreset={breakpointPreset}>
+			<Box
+				xcss={cx(styles.toolbarBase, styles.primaryToolbar, styles.hiddenSelectors)}
+				role={
+					expValEquals('platform_editor_aifc_remove_duplicate_role', 'isEnabled', true)
+						? undefined
+						: 'toolbar'
+				}
+				aria-label={label}
+				data-toolbar-type="primary"
+			>
+				{children}
+			</Box>
+		</ResponsiveContainer>
 	);
 };

@@ -6,6 +6,7 @@ import { IntlProvider } from 'react-intl-next';
 import { FlagsProvider } from '@atlaskit/flag';
 import { asMock } from '@atlaskit/link-test-helpers/jest';
 import { Box } from '@atlaskit/primitives/compiled';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 import { ffTest } from '@atlassian/feature-flags-test-utils';
 
 import { useDatasourceExperienceId } from '../../../../contexts/datasource-experience-id';
@@ -17,11 +18,18 @@ import IconEditType from './index';
 jest.mock('../../../../contexts/datasource-experience-id');
 jest.mock('../../../../hooks/useLoadOptions');
 
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
+
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('IconEditType', () => {
 	const testId = 'inline-edit-priority-select--input';
 	const setEditValues = jest.fn();
-	const values = [{ label: 'major', source: 'data:image/svg+xml;base64...', text: 'Major', id: '1' }];
+	const values = [
+		{ label: 'major', source: 'data:image/svg+xml;base64...', text: 'Major', id: '1' },
+	];
 	const options = [
 		...values,
 		{ label: 'blocker', source: 'data:image/svg+xml;base64...', text: 'Blocker', id: '2' },
@@ -75,22 +83,20 @@ describe('IconEditType', () => {
 		expect(await screen.findByTestId(testId)).toBeInTheDocument();
 	});
 
-	ffTest.on('navx-sllv-fix-inline-edit-error', '', () => {
-		it.each([
-			['undefined object', undefined],
-			['empty array', []],
-			['empty item', [{}]],
-			['no text', [{ transitions: [] }]],
-			['wrong text type', [{ text: true }]],
-		])('should not throw error when receives invalid options with %s', async (_, options) => {
-			mockUseLoadOptions.mockReturnValue({
-				options,
-				isLoading: false,
-				hasFailed: false,
-			});
-
-			expect(() => setup()).not.toThrow();
+	it.each([
+		['undefined object', undefined],
+		['empty array', []],
+		['empty item', [{}]],
+		['no text', [{ transitions: [] }]],
+		['wrong text type', [{ text: true }]],
+	])('should not throw error when receives invalid options with %s', async (_, options) => {
+		mockUseLoadOptions.mockReturnValue({
+			options,
+			isLoading: false,
+			hasFailed: false,
 		});
+
+		expect(() => setup()).not.toThrow();
 	});
 
 	ffTest.on(

@@ -5,12 +5,13 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { DecorationSet, type NodeView } from '@atlaskit/editor-prosemirror/view';
 import type { NodeViewConstructor } from '@atlaskit/editor-common/lazy-node-view';
 import { EditorState } from '@atlaskit/editor-prosemirror/state';
-import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { Node as PMNode, Slice } from '@atlaskit/editor-prosemirror/model';
 import { DOMSerializer, type Mark, type Schema } from '@atlaskit/editor-prosemirror/model';
 import type { PMPluginFactoryParams, EditorPlugin } from '@atlaskit/editor-common/types';
 import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { EventDispatcher, createDispatch } from '@atlaskit/editor-common/event-dispatcher';
 import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 // The copy of type from prosemirror-view.
 // Probably, we need to fix this package exports and add `NodeViewConstructor` and `MarkViewConstructor` types here.
@@ -102,6 +103,15 @@ class SSREditorView implements Pick<EditorView, keyof EditorView> {
 	}
 	someProp() {
 		return undefined;
+	}
+
+	serializeForClipboard(slice: Slice): { dom: HTMLElement; slice: Slice; text: string } {
+		// No-op in SSR - clipboard operations are not supported
+		return {
+			dom: document.createElement('div'),
+			text: '',
+			slice,
+		};
 	}
 
 	constructor(place: null, props: { state: EditorState }) {
@@ -352,12 +362,20 @@ export function EditorSSRRenderer({
 		<div
 			ref={containerRef}
 			id={divProps.id}
+			// For some reason on SSR, the result `class` has a trailing space, that broke UFO,
+			// because ReactEditorView produces a div with `class` without space.
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-			className={divProps.className}
+			className={divProps.className.trim()}
 			aria-label={divProps['aria-label']}
 			aria-describedby={divProps['aria-describedby']}
 			data-editor-id={divProps['data-editor-id']}
 			data-vc-ignore-if-no-layout-shift={true}
+			data-ssr-placeholder={
+				expValEquals('platform_editor_hydratable_ui', 'isEnabled', true) ? 'editor-view' : undefined
+			}
+			data-ssr-placeholder-replace={
+				expValEquals('platform_editor_hydratable_ui', 'isEnabled', true) ? 'editor-view' : undefined
+			}
 			aria-multiline={true}
 			role="textbox"
 			// @ts-expect-error - contenteditable is not exist in div attributes

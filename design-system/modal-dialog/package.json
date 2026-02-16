@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/modal-dialog",
-	"version": "14.9.5",
+	"version": "14.10.3",
 	"description": "A modal dialog displays content that requires user interaction, in a layer above the page.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -77,9 +77,10 @@
 		"@atlaskit/tooltip": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
 		"@testing-library/dom": "root:*",
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"@types/raf-schd": "root:*",
+		"jscodeshift": "root:*",
 		"react-dom": "root:*",
 		"react-lorem-component": "root:*",
 		"react-sweet-state": "root:*",
@@ -136,9 +137,6 @@
 			"type": "boolean"
 		},
 		"platform_dst_autofocus-never-false": {
-			"type": "boolean"
-		},
-		"platform_ads_explicit_font_styles": {
 			"type": "boolean"
 		},
 		"platform-dst-shape-theme-default": {

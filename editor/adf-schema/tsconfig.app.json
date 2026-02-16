@@ -1,6 +1,12 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx", "codemods", "schema-generators/**/*.ts"],
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
+		"codemods",
+		"schema-generators/**/*.ts",
+		"json-schema/**/*.json"
+	],
 	"exclude": [
 		"**/docs/**/*",
 		"**/__tests__/**/*",
@@ -38,7 +44,7 @@
 			"path": "../editor-prosemirror/tsconfig.app.json"
 		},
 		{
-			"path": "../../measurement/feature-gate-js-client/tsconfig.app.json"
+			"path": "../tmp-editor-statsig/tsconfig.app.json"
 		}
 	]
 }

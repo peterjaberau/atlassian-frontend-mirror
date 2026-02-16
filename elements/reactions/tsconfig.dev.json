@@ -68,9 +68,6 @@
 			"path": "../../design-system/link/tsconfig.app.json"
 		},
 		{
-			"path": "../../design-system/motion/tsconfig.app.json"
-		},
-		{
 			"path": "../../platform/feature-flags/tsconfig.app.json"
 		},
 		{
@@ -87,6 +84,12 @@
 		},
 		{
 			"path": "../util-data-test/tsconfig.app.json"
+		},
+		{
+			"path": "../../accessibility/axe-integration/a11y-jest-testing/tsconfig.app.json"
+		},
+		{
+			"path": "../../platform/feature-flags-test-utils/tsconfig.app.json"
 		},
 		{
 			"path": "../../data/ufo-internal/tsconfig.app.json"

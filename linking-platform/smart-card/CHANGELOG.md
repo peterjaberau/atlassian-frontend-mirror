@@ -1,5 +1,221 @@
 # @atlaskit/smart-card
 
+## 43.24.5
+
+### Patch Changes
+
+- [`ed9a3814a96db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ed9a3814a96db) -
+  Add RovoChatAction component
+- Updated dependencies
+
+## 43.24.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.24.3
+
+### Patch Changes
+
+- [`6fbe52a1fd019`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6fbe52a1fd019) -
+  Add hook to send prompt message to Rovo Chat
+- Updated dependencies
+
+## 43.24.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.24.1
+
+### Patch Changes
+
+- [`f9c27b8da5b37`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f9c27b8da5b37) -
+  Feature gate cleanup for member count in card view
+- Updated dependencies
+
+## 43.24.0
+
+### Minor Changes
+
+- [`5f7b94aaccfec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5f7b94aaccfec) -
+  [ux] Cleaned up the platform_inline_smartcard_connect_button_exp experiment gate, enabling the
+  blue unauthorised connect button by default. Updated VR tests across multiple packages relying on
+  the inline smart card
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.23.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.23.6
+
+### Patch Changes
+
+- [`055b067a0080c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/055b067a0080c) -
+  Remove feature gate ufo_hold_flexible_card - No functional changes.
+- [`28c8da4e5e645`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28c8da4e5e645) -
+  Update border radius token for ExpandedFrame video player embed
+- [`548d9bf84d0f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/548d9bf84d0f6) -
+  Feature gate cleanup for user attribute in smart card
+- Updated dependencies
+
+## 43.23.5
+
+### Patch Changes
+
+- [`2184b26931733`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2184b26931733) -
+  fix React prop warning
+- Updated dependencies
+
+## 43.23.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.23.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.23.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.23.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.23.0
+
+### Minor Changes
+
+- [`110cf61eebfdd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/110cf61eebfdd) -
+  [ux] Cleanup prompt_whiteboard_competitor_link_gate
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.22.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.22.4
+
+### Patch Changes
+
+- [`e4b717d8304e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e4b717d8304e8) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+
+## 43.22.3
+
+### Patch Changes
+
+- [`64f80db3e663a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64f80db3e663a) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+- Updated dependencies
+
+## 43.22.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.22.1
+
+### Patch Changes
+
+- [`abf524088c01a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/abf524088c01a) -
+  NAVX-3072 cleaning up navx-2811-smart-link-a11y-image-alt
+- Updated dependencies
+
+## 43.22.0
+
+### Minor Changes
+
+- [`e3582a7070d57`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e3582a7070d57) -
+  NAVX-2565 Adding underline to inline card error/fallback states to align with ADS links
+
+### Patch Changes
+
+- [`c3c46453e8e85`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c3c46453e8e85) -
+  FG cleanup: platform-linking-smart-card-layered-link-a11y
+- [`70da902901b72`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/70da902901b72) -
+  NAVX-2946 cleaning up navx-2827-eslint-object-translation-smart-links
+- Updated dependencies
+
+## 43.21.0
+
+### Minor Changes
+
+- [`1dbb521f75d85`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1dbb521f75d85) -
+  [ux] Add maxWidth prop to FlexibleCard's State Lozenge, behind fg
+  platform_navx_sl_lozenge_max_width.
+
+### Patch Changes
+
+- [`451616e6c693d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/451616e6c693d) -
+  NAVX-3137 cleaning up navx-2185-smart-link-preview-modal-icon-role
+- Updated dependencies
+
+## 43.20.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.20.7
+
+### Patch Changes
+
+- [`78b92c67a0c6a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/78b92c67a0c6a) -
+  NAVX-3070 cleaning up navx-2816-a11y-fix-smart-links-headings
+
+## 43.20.6
+
+### Patch Changes
+
+- [`db0e269c86197`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db0e269c86197) -
+  Introduce UFO hold when FlexibleCard is used.
+
+## 43.20.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.20.4
+
+### Patch Changes
+
+- [`ed7dce3871915`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ed7dce3871915) -
+  Fix react-ufo incorrect dependency listing. No changes to production code.
+- Updated dependencies
+
+## 43.20.3
+
+### Patch Changes
+
+- [`9067b62fb8190`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9067b62fb8190) -
+  FG cleanup navx-2479-sl-fix-inilne-card-show-connect-button
+- Updated dependencies
+
 ## 43.20.2
 
 ### Patch Changes

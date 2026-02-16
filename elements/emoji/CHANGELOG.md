@@ -1,5 +1,79 @@
 # @atlaskit/emoji
 
+## 69.10.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.4
+
+### Patch Changes
+
+- [`64f80db3e663a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64f80db3e663a) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+- Updated dependencies
+
+## 69.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.2
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 69.10.1
 
 ### Patch Changes

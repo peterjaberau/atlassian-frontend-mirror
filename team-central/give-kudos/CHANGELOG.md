@@ -1,5 +1,76 @@
 # @atlassian/give-kudos
 
+## 4.11.0
+
+### Minor Changes
+
+- [`70298f25d9807`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/70298f25d9807) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 4.10.0
+
+### Minor Changes
+
+- [`fdccd06a88311`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fdccd06a88311) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 4.9.0
+
+### Minor Changes
+
+- [`09c3b35420464`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/09c3b35420464) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 4.8.1
+
+### Patch Changes
+
+- [`618326bff43d8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/618326bff43d8) -
+  PTC-15081: Add analytics for user profile tabs - hierarchy/goals/projects/kudos
+
+## 4.8.0
+
+### Minor Changes
+
+- [`f5b5edbe2612e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f5b5edbe2612e) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 4.7.0
+
+### Minor Changes
+
+- [`870000d868a04`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/870000d868a04) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 4.6.0
+
+### Minor Changes
+
+- [`eed47ede43ef1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eed47ede43ef1) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 4.5.2
 
 ### Patch Changes

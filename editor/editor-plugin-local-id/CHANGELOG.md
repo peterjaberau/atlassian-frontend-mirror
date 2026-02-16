@@ -1,5 +1,89 @@
 # @atlaskit/editor-plugin-local-id
 
+## 5.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.7
+
+### Patch Changes
+
+- [`d00c391ab0f5a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d00c391ab0f5a) -
+  Cleanup a flag making local ids shorter
+- Updated dependencies
+
+## 5.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`c082975fb2a0c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c082975fb2a0c) -
+  Added a new watchment plugin to the localId editror plugin for it to keep track of all localIds
+  created/updated since the start of the editor session. This is needed so the orchestrator is able
+  to identify when it cant lookup a localId, what the reason is for the localId being missing.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.2
+
+### Patch Changes
+
+- [`0bae952cf6885`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0bae952cf6885) -
+  Cleanup feature gate which prevents initial localid loading on collab editors
+
+## 5.0.1
+
+### Patch Changes
+
+- [`8d8cdcab50139`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d8cdcab50139) -
+  Use shortened UUIDs to reduce document size.
+- Updated dependencies
+
 ## 5.0.0
 
 ### Patch Changes

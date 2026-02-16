@@ -14,13 +14,11 @@ import {
 	LISTS_INDENTATION_MENU_SECTION_RANK,
 	NUMBERED_LIST_MENU_ITEM,
 	OUTDENT_MENU_ITEM,
-	TASK_LIST_MENU_ITEM,
 	TEXT_COLLAPSED_MENU,
 	TEXT_COLLAPSED_MENU_RANK,
 } from '@atlaskit/editor-common/toolbar';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import type { RegisterComponent, ToolbarComponentTypes } from '@atlaskit/editor-toolbar-model';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import type { RegisterComponent } from '@atlaskit/editor-toolbar-model';
 
 import type { ToolbarListsIndentationPlugin } from '../../toolbarListsIndentationPluginType';
 
@@ -30,7 +28,6 @@ import { ListsIndentationMenu } from './ListsIndentationMenu';
 import { MenuSection } from './MenuSection';
 import { NumberedListMenuItem } from './NumberedListMenuItem';
 import { OutdentMenuItem } from './OutdentMenuItem';
-import { TaskListMenuItem } from './TaskListMenuItem';
 
 export const getListsIndentationMenu = (
 	allowHeadingAndParagraphIndentation: boolean,
@@ -76,19 +73,13 @@ export const getListsIndentationMenu = (
 					key: LISTS_INDENTATION_MENU.key,
 					rank: LISTS_INDENTATION_MENU_RANK[LISTS_INDENTATION_MENU_SECTION.key],
 				},
-				...(expValEquals('platform_editor_toolbar_aifc_responsive', 'isEnabled', true)
-					? [
-							{
-								type: TEXT_COLLAPSED_MENU.type,
-								key: TEXT_COLLAPSED_MENU.key,
-								rank: TEXT_COLLAPSED_MENU_RANK[LISTS_INDENTATION_MENU_SECTION.key],
-							},
-						]
-					: []),
+				{
+					type: TEXT_COLLAPSED_MENU.type,
+					key: TEXT_COLLAPSED_MENU.key,
+					rank: TEXT_COLLAPSED_MENU_RANK[LISTS_INDENTATION_MENU_SECTION.key],
+				},
 			],
-			component: expValEquals('platform_editor_toolbar_aifc_responsive', 'isEnabled', true)
-				? MenuSection
-				: undefined,
+			component: MenuSection,
 		},
 		{
 			type: BULLETED_LIST_MENU_ITEM.type,
@@ -114,24 +105,6 @@ export const getListsIndentationMenu = (
 			],
 			component: ({ parents }) => <NumberedListMenuItem api={api} parents={parents} />,
 		},
-		...(!expValEquals('platform_editor_toolbar_aifc_patch_6', 'isEnabled', true)
-			? [
-					{
-						type: TASK_LIST_MENU_ITEM.type,
-						key: TASK_LIST_MENU_ITEM.key,
-						parents: [
-							{
-								type: LISTS_INDENTATION_MENU_SECTION.type,
-								key: LISTS_INDENTATION_MENU_SECTION.key,
-								rank: LISTS_INDENTATION_MENU_SECTION_RANK[TASK_LIST_MENU_ITEM.key],
-							},
-						],
-						component: ({ parents }: { parents: ToolbarComponentTypes }) => (
-							<TaskListMenuItem api={api} parents={parents} />
-						),
-					},
-				]
-			: []),
 		{
 			type: OUTDENT_MENU_ITEM.type,
 			key: OUTDENT_MENU_ITEM.key,

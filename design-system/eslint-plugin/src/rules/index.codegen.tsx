@@ -1,12 +1,13 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::ca89575f70ae79af2f43113bdc77c0c5>>
+ * @codegen <<SignedSource::9644eafd202e31d1b6f6c9b86ad519a2>>
  * @codegenCommand yarn workspace @atlaskit/eslint-plugin-design-system codegen
  */
 import type { Rule } from 'eslint';
 
 import consistentCssPropUsage from './consistent-css-prop-usage';
 import enforceInlineStylesInSelect from './enforce-inline-styles-in-select';
+import ensureAvatarTagAvatarProps from './ensure-avatar-tag-avatar-props';
 import ensureDesignTokenUsage from './ensure-design-token-usage';
 import ensureDesignTokenUsagePreview from './ensure-design-token-usage-preview';
 import ensureIconColor from './ensure-icon-color';
@@ -72,6 +73,9 @@ import usePopupLabel from './use-popup-label';
 import usePrimitives from './use-primitives';
 import usePrimitivesText from './use-primitives-text';
 import useShouldRenderToParent from './use-should-render-to-parent';
+import useSideNavItemsPackage from './use-side-nav-items-package';
+import useSimpleField from './use-simple-field';
+import useSimpleForm from './use-simple-form';
 import useSpotlightPackage from './use-spotlight-package';
 import useTagGroupLabel from './use-tag-group-label';
 import useTokensShape from './use-tokens-shape';
@@ -82,6 +86,7 @@ import useVisuallyHidden from './use-visually-hidden';
 export const rules: Record<string, Rule.RuleModule> = {
 	'consistent-css-prop-usage': consistentCssPropUsage,
 	'enforce-inline-styles-in-select': enforceInlineStylesInSelect,
+	'ensure-avatar-tag-avatar-props': ensureAvatarTagAvatarProps,
 	'ensure-design-token-usage': ensureDesignTokenUsage,
 	'ensure-design-token-usage/preview': ensureDesignTokenUsagePreview,
 	'ensure-icon-color': ensureIconColor,
@@ -147,6 +152,9 @@ export const rules: Record<string, Rule.RuleModule> = {
 	'use-primitives': usePrimitives,
 	'use-primitives-text': usePrimitivesText,
 	'use-should-render-to-parent': useShouldRenderToParent,
+	'use-side-nav-items-package': useSideNavItemsPackage,
+	'use-simple-field': useSimpleField,
+	'use-simple-form': useSimpleForm,
 	'use-spotlight-package': useSpotlightPackage,
 	'use-tag-group-label': useTagGroupLabel,
 	'use-tokens-shape': useTokensShape,

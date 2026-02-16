@@ -1,5 +1,61 @@
 # @atlaskit/prosemirror-input-rules
 
+## 3.6.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.10
+
+### Patch Changes
+
+- [`3242cbd5e88b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3242cbd5e88b9) -
+  Update packages to match prosemirror library updates
+- Updated dependencies
+
+## 3.6.9
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 3.6.8
 
 ### Patch Changes

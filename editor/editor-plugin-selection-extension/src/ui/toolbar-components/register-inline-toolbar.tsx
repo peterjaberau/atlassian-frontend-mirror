@@ -1,16 +1,18 @@
 import React from 'react';
 
 import {
-	SELECTION_EXTENSION_MENU_SECTION,
 	APPS_SECTION,
 	OVERFLOW_EXTENSIONS_MENU_SECTION,
+	useEditorToolbar,
 } from '@atlaskit/editor-common/toolbar';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { RegisterComponent } from '@atlaskit/editor-toolbar-model';
 import { fg } from '@atlaskit/platform-feature-flags';
 
 import type { SelectionExtensionPlugin } from '../../selectionExtensionPluginType';
-import type { ExtensionConfiguration } from '../../types';
+import type { ExtensionConfiguration, ExtensionMenuItemConfiguration } from '../../types';
+import { SelectionExtensionMenuItems } from '../menu/SelectionExtensionMenuItems';
+import { SelectionExtensionComponentContextProvider } from '../SelectionExtensionComponentContext';
 
 import { MenuItem } from './MenuItem';
 import { ToolbarButton } from './ToolbarButton';
@@ -23,6 +25,38 @@ type RegisterExtensionProps = {
 };
 
 const EXTENSION_RANK_MULTIPLIER = 100;
+
+type InlineToolbarMenuItemComponentProps = {
+	api: ExtractInjectionAPI<SelectionExtensionPlugin> | undefined;
+	extension: ExtensionConfiguration;
+	getMenuItems: () => ExtensionMenuItemConfiguration[];
+};
+
+const InlineToolbarMenuItemComponent = ({
+	api,
+	extension,
+	getMenuItems,
+}: InlineToolbarMenuItemComponentProps) => {
+	const { editorView } = useEditorToolbar();
+
+	if (!editorView || !api) {
+		return null;
+	}
+
+	return (
+		<SelectionExtensionComponentContextProvider
+			value={{
+				api,
+				editorView,
+				extensionKey: extension.key,
+				extensionSource: extension.source,
+				extensionLocation: 'inline-toolbar',
+			}}
+		>
+			<SelectionExtensionMenuItems getMenuItems={getMenuItems} />
+		</SelectionExtensionComponentContextProvider>
+	);
+};
 
 export const registerInlineToolbar = ({ api, extension, index }: RegisterExtensionProps) => {
 	const { key, inlineToolbar } = extension;
@@ -108,7 +142,9 @@ export const registerInlineToolbar = ({ api, extension, index }: RegisterExtensi
 		}
 
 		// Remove ExtensionMenuSectionConfiguration - only care about items
-		const menuItems = getMenuItems().filter((item) => 'label' in item && 'icon' in item);
+		const menuItems = fg('platform_editor_block_menu_v2_patch_1')
+			? []
+			: getMenuItems().filter((item) => 'label' in item && 'icon' in item);
 
 		components.push({
 			type: 'menu-item',
@@ -117,16 +153,20 @@ export const registerInlineToolbar = ({ api, extension, index }: RegisterExtensi
 				{
 					type: 'menu-section',
 					// if we have a custom menu, place items in there, otherwise in the overflow menu
-					key: getToolbarItem
-						? menuSectionKey
-						: fg('platform_editor_toolbar_aifc_overflow_menu_update')
-							? OVERFLOW_EXTENSIONS_MENU_SECTION.key
-							: SELECTION_EXTENSION_MENU_SECTION.key,
+					key: getToolbarItem ? menuSectionKey : OVERFLOW_EXTENSIONS_MENU_SECTION.key,
 					rank: (index + 1) * EXTENSION_RANK_MULTIPLIER,
 				},
 			],
 			component: () => {
-				return <MenuItem api={api} extensionMenuItems={menuItems} />;
+				return fg('platform_editor_block_menu_v2_patch_1') ? (
+					<InlineToolbarMenuItemComponent
+						api={api}
+						extension={extension}
+						getMenuItems={getMenuItems}
+					/>
+				) : (
+					<MenuItem api={api} extensionMenuItems={menuItems} />
+				);
 			},
 		});
 	}

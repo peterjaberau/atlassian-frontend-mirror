@@ -1,5 +1,45 @@
 # @atlaskit/user-picker
 
+## 11.21.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.21.0
+
+### Minor Changes
+
+- [`9889f45fc6eca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9889f45fc6eca) -
+  fix optionData.data type for user type
+
+## 11.20.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.20.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.20.2
+
+### Patch Changes
+
+- [`fd3c847f4f947`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fd3c847f4f947) -
+  Adding a VR test for when includeTeamsUpdates is true, checking for verified lozenge in
+  SingleValue and MultiValue
+
+## 11.20.1
+
+### Patch Changes
+
+- [`50a4ae1fff8f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50a4ae1fff8f0) -
+  FG cleanup for Icon as avatar support
+
 ## 11.20.0
 
 ### Minor Changes

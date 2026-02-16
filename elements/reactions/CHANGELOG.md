@@ -1,5 +1,44 @@
 # @atlaskit/reactions
 
+## 33.8.12
+
+### Patch Changes
+
+- [`2fb6fe3d37cd3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fb6fe3d37cd3) -
+  Added appropriate list markup for comment reactions
+
+## 33.8.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.8.10
+
+### Patch Changes
+
+- [`64f80db3e663a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64f80db3e663a) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+- Updated dependencies
+
+## 33.8.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.8.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.8.7
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 33.8.6
 
 ### Patch Changes

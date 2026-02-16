@@ -9,6 +9,7 @@ import { jsx } from '@compiled/react';
 import ButtonGroup from '@atlaskit/button/button-group';
 import Button from '@atlaskit/button/new';
 import { ExitingPersistence, SlideIn } from '@atlaskit/motion';
+// @ts-ignore - this is not a valid package entry point and cannot be resolved when using a modern Typescript 'moduleResolution' setting
 import { type Direction, type Fade } from '@atlaskit/motion/src/entering/types';
 
 import { Block, Centered, RetryContainer } from './utils';
@@ -16,7 +17,7 @@ import { Block, Centered, RetryContainer } from './utils';
 const froms: Direction[] = ['top', 'right', 'bottom', 'left'];
 const fades: Fade[] = ['none', 'in', 'out', 'inout'];
 
-export default () => {
+export default (): JSX.Element => {
 	const [isIn, setIsIn] = useState(true);
 	const [fromIndex, setFromIndex] = useState(0);
 	const [fadeIndex, setFadeIndex] = useState(0);

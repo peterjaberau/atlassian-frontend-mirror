@@ -3,6 +3,7 @@
 	"include": [
 		"**/docs/**/*",
 		"**/__tests__/**/*",
+		"**/__tests__/**/*.json",
 		"**/vr-tests/**/*",
 		"**/__perf__/**/*",
 		"**/*.test.*",
@@ -14,6 +15,7 @@
 		"**/examples/*.tsx",
 		"**/examples/**/*.ts",
 		"**/examples/**/*.tsx",
+		"**/examples/**/*.json",
 		"**/storybook/**/*",
 		"**/constellation/**/*",
 		".storybook/*",
@@ -35,7 +37,10 @@
 	"exclude": ["./dist/**/*", "./build/**/*", "./node_modules/**/*"],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__renderer/dev"
+		"outDir": "../../../tsDist/@atlaskit__renderer/dev",
+		"paths": {
+			"@atlaskit/editor-common/src/*": ["packages/editor/editor-common/src/*"]
+		}
 	},
 	"references": [
 		{
@@ -121,9 +126,6 @@
 		},
 		{
 			"path": "../../linking-platform/json-ld-types/tsconfig.app.json"
-		},
-		{
-			"path": "../../design-system/link/tsconfig.app.json"
 		},
 		{
 			"path": "../../linking-platform/link-datasource/tsconfig.app.json"
@@ -223,6 +225,9 @@
 		},
 		{
 			"path": "../../platform/feature-flags-test-utils/tsconfig.app.json"
+		},
+		{
+			"path": "../../platform/testing-library/tsconfig.app.json"
 		}
 	]
 }

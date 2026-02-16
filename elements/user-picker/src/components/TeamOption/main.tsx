@@ -10,7 +10,6 @@ import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team
 import { jsx } from '@emotion/react';
 import React from 'react';
 import { FormattedMessage } from 'react-intl-next';
-import { fg } from '@atlaskit/platform-feature-flags';
 import { type Team } from '../../types';
 import { AvatarItemOption, textWrapper } from '../AvatarItemOption';
 import { HighlightText } from '../HighlightText';
@@ -52,11 +51,13 @@ export class TeamOption extends React.PureComponent<TeamOptionProps> {
 	private renderByline = () => {
 		const {
 			isSelected,
-			team: { memberCount, includesYou, verified },
+			team: { memberCount, includesYou, verified, teamTypeName },
 			includeTeamsUpdates,
 		} = this.props;
 
 		const isVerified = includeTeamsUpdates && verified;
+		const hasTeamTypeName = Boolean(teamTypeName);
+		const verifiedIcon = isVerified ? this.renderVerifiedIcon() : null;
 
 		// if Member count is missing, do not show the byline, regardless of the availability of includesYou
 		if (memberCount === null || typeof memberCount === 'undefined') {
@@ -66,10 +67,10 @@ export class TeamOption extends React.PureComponent<TeamOptionProps> {
 				if (memberCount > 50) {
 					return this.getBylineComponent(
 						isSelected,
-						isVerified ? (
+						hasTeamTypeName ? (
 							<FormattedMessage
 								{...messages.officialPlus50MembersWithYou}
-								values={{ verifiedIcon: this.renderVerifiedIcon() }}
+								values={{ verifiedIcon, teamTypeName }}
 							/>
 						) : (
 							<FormattedMessage {...messages.plus50MembersWithYou} />
@@ -78,10 +79,10 @@ export class TeamOption extends React.PureComponent<TeamOptionProps> {
 				} else {
 					return this.getBylineComponent(
 						isSelected,
-						isVerified ? (
+						hasTeamTypeName ? (
 							<FormattedMessage
 								{...messages.officialMemberCountWithYou}
-								values={{ verifiedIcon: this.renderVerifiedIcon(), count: memberCount }}
+								values={{ verifiedIcon, count: memberCount, teamTypeName }}
 							/>
 						) : (
 							<FormattedMessage {...messages.memberCountWithYou} values={{ count: memberCount }} />
@@ -92,10 +93,10 @@ export class TeamOption extends React.PureComponent<TeamOptionProps> {
 				if (memberCount > 50) {
 					return this.getBylineComponent(
 						isSelected,
-						isVerified ? (
+						hasTeamTypeName ? (
 							<FormattedMessage
 								{...messages.officialPlus50MembersWithoutYou}
-								values={{ verifiedIcon: this.renderVerifiedIcon() }}
+								values={{ verifiedIcon, teamTypeName }}
 							/>
 						) : (
 							<FormattedMessage {...messages.plus50MembersWithoutYou} />
@@ -104,10 +105,10 @@ export class TeamOption extends React.PureComponent<TeamOptionProps> {
 				} else {
 					return this.getBylineComponent(
 						isSelected,
-						isVerified ? (
+						hasTeamTypeName ? (
 							<FormattedMessage
 								{...messages.officialMemberCountWithoutYou}
-								values={{ verifiedIcon: this.renderVerifiedIcon(), count: memberCount }}
+								values={{ verifiedIcon, count: memberCount, teamTypeName }}
 							/>
 						) : (
 							<FormattedMessage
@@ -137,8 +138,7 @@ export class TeamOption extends React.PureComponent<TeamOptionProps> {
 		const {
 			team: { avatarUrl, icon, iconColor },
 		} = this.props;
-		// Only use icon if feature gate is enabled
-		if (icon && fg('atlaskit_user_picker_support_icon')) {
+		if (icon) {
 			return (
 				<AvatarOrIcon appearance="big" icon={icon} iconColor={iconColor} src={avatarUrl} type="team" />
 			);

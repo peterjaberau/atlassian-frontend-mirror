@@ -1,5 +1,594 @@
 # @atlaskit/editor-plugins
 
+## 12.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`d7d5c764d05d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d7d5c764d05d1) -
+  EDITOR-4942: Remove AI Suggestions plugin from editor-plugins. AI Suggestions Editor Plugin was
+  unintentionally added to the editor-plugins package.
+
+## 11.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.0
+
+### Minor Changes
+
+- [`97e373e31a1bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/97e373e31a1bd) -
+  Set up AI Suggestions Plugin for Suggested Edits.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.35
+
+### Patch Changes
+
+- [`79401b181112e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/79401b181112e) -
+  Add sideEffects false to the plugin package.json
+
+## 11.3.34
+
+### Patch Changes
+
+- [`9068b92adf796`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9068b92adf796) -
+  [ux] EDITOR-4439 Implement option to raise warn flag on paste for unsupported content
+- Updated dependencies
+
+## 11.3.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.0
+
+### Minor Changes
+
+- [`77341edf4fd78`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/77341edf4fd78) -
+  [EDITOR-3786] Added a new plugin `@atlaskit/editor-plugin-content-format`, and made
+  `@atlaskit/editor-plugin-code-block-advanced` have a dependancy on it. Removed the ResizeObserver
+  from `@atlaskit/editor-plugin-code-block-advanced` and replaced it with a way to observe changes
+  to the `contentMode`. Updated examples to update the state of the new plugin so that examples work
+  with the new behaviour.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.42
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 11.2.41
 
 ### Patch Changes

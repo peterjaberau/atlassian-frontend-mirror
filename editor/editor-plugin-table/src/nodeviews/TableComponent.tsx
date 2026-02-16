@@ -20,6 +20,7 @@ import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorTableNumberColumnWidth } from '@atlaskit/editor-shared-styles';
 import { isTableSelected } from '@atlaskit/editor-tables/utils';
+import { fg } from '@atlaskit/platform-feature-flags';
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import type { CleanupFn } from '@atlaskit/pragmatic-drag-and-drop/types';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
@@ -81,6 +82,7 @@ const NESTED_TABLE_IN_NESTED_PARENT_WIDTH_DIFF_MAX_THRESHOLD = 20;
 interface ComponentProps {
 	allowColumnResizing?: boolean;
 	allowControls?: boolean;
+	allowFixedColumnWidthOption?: boolean;
 	allowTableAlignment?: boolean;
 	allowTableResizing?: boolean;
 	containerWidth: EditorContainerWidth;
@@ -194,14 +196,16 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 			}
 		});
 
-		// Disable inline table editing and resizing controls in Firefox
-		// https://github.com/ProseMirror/prosemirror/issues/432
-		if ('execCommand' in document) {
-			['enableObjectResizing', 'enableInlineTableEditing'].forEach((cmd) => {
-				if (document.queryCommandSupported(cmd)) {
-					document.execCommand(cmd, false, 'false');
-				}
-			});
+		if (!expValEquals('platform_editor_disable_query_command_supported', 'isEnabled', true)) {
+			if ('execCommand' in document) {
+				// Disable inline table editing and resizing controls in Firefox
+				// https://github.com/ProseMirror/prosemirror/issues/432
+				['enableObjectResizing', 'enableInlineTableEditing'].forEach((cmd) => {
+					if (document.queryCommandSupported(cmd)) {
+						document.execCommand(cmd, false, 'false');
+					}
+				});
+			}
 		}
 	}
 
@@ -498,7 +502,10 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 				isTableResized,
 			});
 
-			const { tableWithFixedColumnWidthsOption = false } = getEditorFeatureFlags();
+			const tableWithFixedColumnWidthsOption =
+				(fg('platform_editor_table_fixed_column_width_prop')
+					? this.props?.allowFixedColumnWidthOption
+					: getEditorFeatureFlags()?.tableWithFixedColumnWidthsOption) || false;
 
 			const isTableScalingWithFixedColumnWidthsOptionEnabled =
 				!!this.props.options?.isTableScalingEnabled && tableWithFixedColumnWidthsOption;
@@ -597,11 +604,15 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 			isTableScalingEnabled, // we could use options.isTableScalingEnabled here
 			getPos,
 			getEditorFeatureFlags,
+			allowFixedColumnWidthOption,
 		} = this.props;
 
 		let shouldScale = false;
 		let shouldHandleColgroupUpdates = false;
-		const { tableWithFixedColumnWidthsOption = false } = getEditorFeatureFlags();
+		const tableWithFixedColumnWidthsOption =
+			(fg('platform_editor_table_fixed_column_width_prop')
+				? allowFixedColumnWidthOption
+				: getEditorFeatureFlags()?.tableWithFixedColumnWidthsOption) || false;
 
 		if (isTableScalingEnabled && !tableWithFixedColumnWidthsOption) {
 			shouldScale = true;
@@ -837,7 +848,7 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 				isTableResizingEnabled={allowTableResizing}
 				isResizing={isResizing}
 				isTableScalingEnabled={isTableScalingEnabled}
-				isTableWithFixedColumnWidthsOptionEnabled={tableWithFixedColumnWidthsOption}
+				allowFixedColumnWidthOption={tableWithFixedColumnWidthsOption}
 				isWholeTableInDanger={isWholeTableInDanger}
 				isTableAlignmentEnabled={allowTableAlignment}
 				shouldUseIncreasedScalingPercent={shouldUseIncreasedScalingPercent}
@@ -888,7 +899,8 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 								if (
 									this.table &&
 									this.props.view &&
-									expValEquals('platform_editor_table_update_table_ref', 'isEnabled', true)
+									(expValEquals('platform_editor_table_update_table_ref', 'isEnabled', true) ||
+										fg('platform_editor_enable_table_update_ref_atlas'))
 								) {
 									setTableRef(this.table)(this.props.view.state, this.props.view.dispatch);
 								}

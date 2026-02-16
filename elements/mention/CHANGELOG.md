@@ -1,5 +1,38 @@
 # @atlaskit/mention
 
+## 24.4.10
+
+### Patch Changes
+
+- [`24eaee764c0df`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/24eaee764c0df) -
+  [ux] Inline invites for mentions in editor.
+
+## 24.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.4.8
+
+### Patch Changes
+
+- [`64f80db3e663a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64f80db3e663a) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+- Updated dependencies
+
+## 24.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 24.4.5
 
 ### Patch Changes

@@ -38,7 +38,13 @@
 			"path": "../editor-common/tsconfig.app.json"
 		},
 		{
+			"path": "../editor-plugin-collab-edit/tsconfig.app.json"
+		},
+		{
 			"path": "../editor-plugin-composition/tsconfig.app.json"
+		},
+		{
+			"path": "../editor-plugin-limited-mode/tsconfig.app.json"
 		},
 		{
 			"path": "../editor-prosemirror/tsconfig.app.json"

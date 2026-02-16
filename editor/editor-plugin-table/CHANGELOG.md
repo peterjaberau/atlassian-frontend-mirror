@@ -1,5 +1,245 @@
 # @atlaskit/editor-plugin-table
 
+## 17.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.11
+
+### Patch Changes
+
+- [`ad8f50e8000f5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ad8f50e8000f5) -
+  [EDITOR-4662] Cleans up FG platform_editor_number_column_sticky_header_bug
+
+## 17.3.10
+
+### Patch Changes
+
+- [`d1ee0512f85f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d1ee0512f85f4) -
+  [EDITOR-4531] Cleans up FG platform_editor_table_numbered_table_border
+- Updated dependencies
+
+## 17.3.9
+
+### Patch Changes
+
+- [`95a9857d9f007`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/95a9857d9f007) -
+  Replaced keymaps for moving table columns/rows in the Editor behind experiment
+- Updated dependencies
+
+## 17.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.6
+
+### Patch Changes
+
+- [`d3b00bd311c9d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d3b00bd311c9d) -
+  Improves an edge case where users may face unexpected cursor jumps collaboratively
+- Updated dependencies
+
+## 17.3.5
+
+### Patch Changes
+
+- [`7f6ca0d7b6afc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f6ca0d7b6afc) -
+  Updated the table drag menu to fire a track analytic event when the menu is opened
+- Updated dependencies
+
+## 17.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.2
+
+### Patch Changes
+
+- [`e910a57bdc437`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e910a57bdc437) -
+  [ux] EDITOR-4880 Fix cell option menu showing in view mode
+- Updated dependencies
+
+## 17.3.1
+
+### Patch Changes
+
+- [`afb6165b36773`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/afb6165b36773) -
+  [ux] Add new gate for missing cell option menu fix for atlas"
+
+## 17.3.0
+
+### Minor Changes
+
+- [`fe3cbbba3c6d6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fe3cbbba3c6d6) -
+  [EDITOR-4877](https://hello.jira.atlassian.cloud/browse/EDITOR-4877) - remove
+  queryCommandSupported from TableComponent
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.0
+
+### Minor Changes
+
+- [`5dfede89f8ccc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dfede89f8ccc) -
+  [EDITOR-4601](https://hello.jira.atlassian.cloud/browse/EDITOR-4601) - rename table Numbered rows
+  label
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`a218bead9e6a7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a218bead9e6a7) -
+  EDITOR-4542 Make isTableWithFixedColumnWidthsOptionEnabled an editor prop instead of using FG
+  value
+
+## 17.0.1
+
+### Patch Changes
+
+- [`2bd7dcf49bbf2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bd7dcf49bbf2) -
+  [ux] [EDITOR-4452] remove the selection change after setting the background color on multiple
+  table cells behind platform_editor_table_cell_colour_change
+- Updated dependencies
+
+## 17.0.0
+
+### Major Changes
+
+- [`c774e8b6231c2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c774e8b6231c2) -
+  EDITOR-4549 Removing allowCellOptionsInFloatingToolbar as a prop as the functionality has been
+  removed and changing this prop doesn't do anything
+
+## 16.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.3
+
+### Patch Changes
+
+- [`b68e8044e4394`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b68e8044e4394) -
+  [ux] EDITOR-4416 Set tableRef to fix drop targets not appearing when editor is not focused
+- Updated dependencies
+
+## 16.4.2
+
+### Patch Changes
+
+- [`0a5d4198cf008`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a5d4198cf008) -
+  [ux] Fix numbered column selection style when multiple nodes are selected
+
+## 16.4.1
+
+### Patch Changes
+
+- [`265980d7959cf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/265980d7959cf) -
+  [ux] recursive node decoration and 'selected danger' classname
+- Updated dependencies
+
+## 16.4.0
+
+### Minor Changes
+
+- [`f2606056e2aa9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2606056e2aa9) -
+  [ux] EDITOR-4516 Deprecate isTableScaling to enable it by default
+
+### Patch Changes
+
+- [`111f223aff3d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/111f223aff3d1) -
+  Clean up platform_editor_table_less_padding_fix
+- Updated dependencies
+
+## 16.3.4
+
+### Patch Changes
+
+- [`275fdae298e95`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/275fdae298e95) -
+  [ux] EDITOR-4412 Show/hide header column/row and numbered column toggles in drag controls based on
+  editor props
+- Updated dependencies
+
+## 16.3.3
+
+### Patch Changes
+
+- [`e225fb5074e28`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e225fb5074e28) -
+  [ux] Update logic for enabling drag and drop in tables
+- Updated dependencies
+
+## 16.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.3.1
+
+### Patch Changes
+
+- [`d668a11849163`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d668a11849163) -
+  [ux] EDITOR-4411 Enable sorting by default in column drag menu
+
+## 16.3.0
+
+### Minor Changes
+
+- [`814909b91111b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/814909b91111b) -
+  [ux] EDITOR-4459 Set dragAndDropEnabled by default in tablesPlugin
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.0
+
+### Minor Changes
+
+- [`9ee3f2262dfcf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ee3f2262dfcf) -
+  improve performance of table floating toolbar when determine the disabled state of distribute
+  column button
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 16.1.9
 
 ### Patch Changes

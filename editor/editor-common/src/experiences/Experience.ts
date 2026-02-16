@@ -9,7 +9,7 @@ import { DEFAULT_EXPERIENCE_SAMPLE_RATE, EXPERIENCE_ABORT_REASON } from './const
 import { canTransition } from './experience-state';
 import type { ExperienceCheck } from './ExperienceCheck';
 import { ExperienceCheckComposite } from './ExperienceCheckComposite';
-import type { CustomExperienceMetadata, ExperienceState } from './types';
+import type { CustomExperienceMetadata, ExperienceId, ExperienceState } from './types';
 
 type ExperienceOptions = {
 	/**
@@ -72,7 +72,7 @@ type ExperienceEndOptions = {
 };
 
 export class Experience {
-	private readonly id: string;
+	private readonly id: ExperienceId;
 	private readonly actionSubjectId: string | undefined;
 	private readonly dispatchAnalyticsEvent: DispatchAnalyticsEvent;
 	private readonly sampleRate: number;
@@ -114,16 +114,16 @@ export class Experience {
 	/**
 	 * Creates a new Experience instance for tracking user experiences.
 	 *
-	 * @param id - Unique identifier for the experience e.g. 'toolbar-open' 'menu-action'
+	 * @param id - Unique identifier for the experience e.g. 'toolbarOpen' 'menuAction'
 	 * @param options - Configuration options for the experience
 	 * @param options.checks - Experience checks to monitor for completion
 	 * @param options.dispatchAnalyticsEvent - Function to dispatch analytics events
 	 * @param options.sampleRate - Sample rate for experienceSampled events
 	 * @param options.metadata - Global metadata to attach to all events
-	 * @param options.action - Optional sub identifier for the specific experience action e.g. 'bold' 'insert-table'
-	 * @param options.actionSubjectId - Optional sub identifier for the experience action subject e.g. 'selection-toolbar' 'quick-insert'
+	 * @param options.action - Optional sub identifier for the specific experience action e.g. 'bold' 'insertTable'
+	 * @param options.actionSubjectId - Optional sub identifier for the experience action subject e.g. 'selectionToolbar' 'quickInsert'
 	 */
-	constructor(id: string, options: ExperienceOptions) {
+	constructor(id: ExperienceId, options: ExperienceOptions) {
 		this.id = id;
 		this.actionSubjectId = options.actionSubjectId;
 		this.dispatchAnalyticsEvent = options.dispatchAnalyticsEvent;

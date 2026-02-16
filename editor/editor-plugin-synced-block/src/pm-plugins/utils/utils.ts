@@ -1,9 +1,9 @@
+import { expandSelectionToBlockRange } from '@atlaskit/editor-common/selection';
 import { Fragment } from '@atlaskit/editor-prosemirror/model';
 import type { NodeType, Node as PMNode, Schema, Slice } from '@atlaskit/editor-prosemirror/model';
-import { TextSelection, type Selection } from '@atlaskit/editor-prosemirror/state';
+import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import { findParentNodeOfType, findSelectedNodeOfType } from '@atlaskit/editor-prosemirror/utils';
 import type { ContentNodeWithPos } from '@atlaskit/editor-prosemirror/utils';
-import { CellSelection, findTable } from '@atlaskit/editor-tables';
 
 export const findSyncBlock = (
 	schema: Schema,
@@ -55,52 +55,29 @@ const UNSUPPORTED_NODE_TYPES = new Set([
  * stripping out unsupported marks (breakout on codeblock/expand/layout), as well as from and to positions,
  * or false if conversion is not possible
  */
-export const canBeConvertedToSyncBlock = (
-	selection: Selection,
-): SyncBlockConversionInfo | false => {
-	const schema = selection.$from.doc.type.schema;
-	const { nodes } = schema;
+export const canBeConvertedToSyncBlock = (selection: Selection): SyncBlockConversionInfo | false => {
+	const { $from, range } = expandSelectionToBlockRange(selection);
 
-	let from = selection.from;
-	let to = selection.to;
-	let contentToInclude = selection.content().content;
-
-	if (selection instanceof CellSelection) {
-		const table = findTable(selection);
-		if (!table) {
-			return false;
-		}
-
-		contentToInclude = Fragment.from([table.node]);
-		from = table.pos;
-		to = table.pos + table.node.nodeSize;
-	} else if (selection instanceof TextSelection) {
-		const trueParent = findParentNodeOfType([
-			nodes.bulletList,
-			nodes.orderedList,
-			nodes.taskList,
-			nodes.blockquote,
-		])(selection);
-
-		if (trueParent) {
-			contentToInclude = Fragment.from([trueParent.node]);
-			from = trueParent.pos;
-			to = trueParent.pos + trueParent.node.nodeSize;
-		}
+	if (!range) {
+		return false;
 	}
 
+	const from = range.start;
+	const to = range.end;
+
 	let canBeConverted = true;
-	selection.$from.doc.nodesBetween(from, to, (node) => {
+	$from.doc.nodesBetween(from, to, (node) => {
 		if (UNSUPPORTED_NODE_TYPES.has(node.type.name)) {
 			canBeConverted = false;
 			return false;
 		}
 	});
+
 	if (!canBeConverted) {
 		return false;
 	}
 
-	contentToInclude = removeBreakoutMarks(contentToInclude);
+	const contentToInclude = removeBreakoutMarks($from.doc.slice(from, to).content);
 
 	return {
 		contentToInclude,
@@ -128,11 +105,13 @@ const removeBreakoutMarks = (content: Fragment): Fragment => {
 };
 
 export const sliceFullyContainsNode = (slice: Slice, node: PMNode): boolean => {
-	const isFirstChild = slice.content.firstChild?.type === node.type &&
-						slice.content.firstChild?.attrs.resourceId === node.attrs.resourceId;
+	const isFirstChild =
+		slice.content.firstChild?.type === node.type &&
+		slice.content.firstChild?.attrs.resourceId === node.attrs.resourceId;
 
-	const isLastChild = slice.content.lastChild?.type === node.type &&
-						slice.content.lastChild?.attrs.resourceId === node.attrs.resourceId;
+	const isLastChild =
+		slice.content.lastChild?.type === node.type &&
+		slice.content.lastChild?.attrs.resourceId === node.attrs.resourceId;
 
 	const isOpenAtStart = isFirstChild && slice.openStart > 0;
 	const isOpenAtEnd = isLastChild && slice.openEnd > 0;
@@ -142,4 +121,4 @@ export const sliceFullyContainsNode = (slice: Slice, node: PMNode): boolean => {
 	}
 
 	return true;
-}
+};

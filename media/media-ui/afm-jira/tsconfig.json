@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.jira.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"declaration": true,
 		"target": "es5",
@@ -47,9 +47,6 @@
 		},
 		{
 			"path": "../../icon-file-type/afm-jira/tsconfig.json"
-		},
-		{
-			"path": "../../../design-system/icon-lab/afm-jira/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/locale/afm-jira/tsconfig.json"

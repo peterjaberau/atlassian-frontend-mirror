@@ -139,6 +139,11 @@ export type ReactUFOPayload = {
 			'ufo:errors:globalCount': number;
 			'ufo:errors:count': number;
 			'ufo:payloadTime'?: number;
+			'ufo:pageVisibilityHiddenTimestamp'?: number;
+			'ufo:wasPageHiddenBeforeInit'?: boolean;
+			'ufo:isOpenedInBackground'?: boolean;
+			'ufo:isTabThrottled'?: boolean;
+
 			// TODO: align this better with `InteractionMetrics` type - that is outdated now, this is the type as sent by the UFO payload as of 10th April 2025
 			interactionMetrics: {
 				namePrefix: string;
@@ -211,6 +216,13 @@ export type ReactUFOPayload = {
 			'metric:vc90'?: number;
 			'ufo:next:speedIndex'?: number;
 			'ufo:vc:updates:next'?: Array<{ time: number; vc: number; elements: string[] }>;
+
+			// Tracing context
+			'ufo:tracingContext'?: {
+				'X-B3-TraceId': string;
+				'X-B3-SpanId': string;
+				browserTimeOrigin: number;
+			};
 		};
 	};
 };

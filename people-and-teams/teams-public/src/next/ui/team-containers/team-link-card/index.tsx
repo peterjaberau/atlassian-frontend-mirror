@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
-import { cssMap } from '@atlaskit/css';
+import { cssMap, cx } from '@atlaskit/css';
 import { fg } from '@atlaskit/platform-feature-flags';
 import { Anchor, Box, Flex, Inline, Stack, Text } from '@atlaskit/primitives/compiled';
-import { useAnalyticsEvents as useAnalyticsEventsNext } from '@atlaskit/teams-app-internal-analytics';
+import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics';
 import { token } from '@atlaskit/tokens';
 
 import { type ContainerSubTypes, type ContainerTypes } from '../../../../common/types';
 import { ContainerIcon } from '../../../../common/ui/container-icon';
 import { Separator } from '../../../../common/ui/separator';
 import { TeamLinkCardActions } from '../../../../common/ui/team-link-card-actions';
-import { AnalyticsAction, usePeopleAndTeamAnalytics } from '../../../../common/utils/analytics';
 import { getContainerProperties } from '../../../../common/utils/get-container-properties';
 import { getDomainFromLinkUri } from '../../../../common/utils/get-link-domain';
 
@@ -62,6 +60,9 @@ const styles = cssMap({
 	linkableContent: {
 		flex: '1',
 	},
+	cardHeight: {
+		height: '36px',
+	},
 });
 
 export interface TeamLinkCardProps {
@@ -96,7 +97,6 @@ export const TeamLinkCard = ({
 	openInNewTab,
 	isReadOnly,
 }: TeamLinkCardProps): React.JSX.Element => {
-	const { createAnalyticsEvent } = useAnalyticsEvents();
 	const { description, containerTypeText } = getContainerProperties({
 		containerType,
 		iconSize: 'medium',
@@ -107,8 +107,7 @@ export const TeamLinkCard = ({
 	const [focused, setFocused] = useState(false);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [showKeyboardFocus, setShowKeyboardFocus] = useState(false);
-	const { fireUIEvent } = usePeopleAndTeamAnalytics();
-	const { fireEvent } = useAnalyticsEventsNext();
+	const { fireEvent } = useAnalyticsEvents();
 
 	const handleMouseEnter = () => {
 		setHovered(true);
@@ -143,16 +142,7 @@ export const TeamLinkCard = ({
 				? { containerSelected: { ...baseAttributes, linkDomain: getDomainFromLinkUri(link) } }
 				: { containerSelected: baseAttributes };
 
-		if (fg('ptc-enable-teams-public-analytics-refactor')) {
-			fireEvent('ui.container.clicked.teamContainer', attributes);
-		} else {
-			fireUIEvent(createAnalyticsEvent, {
-				action: AnalyticsAction.CLICKED,
-				actionSubject: 'container',
-				actionSubjectId: 'teamContainer',
-				attributes,
-			});
-		}
+		fireEvent('ui.container.clicked.teamContainer', attributes);
 
 		if (openInNewTab) {
 			e.preventDefault();
@@ -171,7 +161,7 @@ export const TeamLinkCard = ({
 			onKeyDown={handleKeyDown}
 			testId="team-link-card-inner"
 		>
-			<Inline space="space.100" xcss={styles.card}>
+			<Inline space="space.100" xcss={cx(styles.card, fg('enable-fix-team-container-height') ? styles.cardHeight : null)}>
 				<ContainerIcon
 					containerType={containerType}
 					title={title}

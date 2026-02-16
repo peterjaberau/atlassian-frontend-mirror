@@ -26,9 +26,9 @@ import {
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorFloatingOverlapPanelZIndex } from '@atlaskit/editor-shared-styles';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { conditionalHooksFactory } from '@atlaskit/platform-feature-flags-react';
 import { Box } from '@atlaskit/primitives/compiled';
+import { redo, undo } from '@atlaskit/prosemirror-history';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 import { token } from '@atlaskit/tokens';
 
@@ -80,9 +80,40 @@ type BlockMenuEffectParams = {
 	selectedByShortcutOrDragHandle: boolean;
 };
 
-const useConditionalBlockMenuEffect = conditionalHooksFactory(
-	() => fg('platform_editor_toolbar_aifc_user_intent_fix'),
-	({
+const useConditionalBlockMenuEffect = ({
+	api,
+	isMenuOpen,
+	menuTriggerBy,
+	selectedByShortcutOrDragHandle,
+	hasFocus,
+	openedViaKeyboard,
+	prevIsMenuOpenRef,
+}: BlockMenuEffectParams) => {
+	/**
+	 * NOTE: do not add `currentUserIntent` to dependency array as it causes unnecessary re-renders and messes with the user intent state
+	 */
+	useEffect(() => {
+		if (!isMenuOpen || !menuTriggerBy || !selectedByShortcutOrDragHandle || !hasFocus) {
+			return;
+		}
+
+		// Fire analytics event when block menu opens (only on first transition from closed to open)
+		if (!prevIsMenuOpenRef.current && isMenuOpen) {
+			api?.analytics?.actions.fireAnalyticsEvent({
+				action: ACTION.OPENED,
+				actionSubject: ACTION_SUBJECT.BLOCK_MENU,
+				eventType: EVENT_TYPE.UI,
+				attributes: {
+					inputMethod: openedViaKeyboard ? INPUT_METHOD.KEYBOARD : INPUT_METHOD.MOUSE,
+				},
+			});
+		}
+
+		// Update the previous state
+		prevIsMenuOpenRef.current = isMenuOpen;
+
+		api?.core.actions.execute(api?.userIntent?.commands.setCurrentUserIntent('blockMenuOpen'));
+	}, [
 		api,
 		isMenuOpen,
 		menuTriggerBy,
@@ -90,91 +121,8 @@ const useConditionalBlockMenuEffect = conditionalHooksFactory(
 		hasFocus,
 		openedViaKeyboard,
 		prevIsMenuOpenRef,
-	}: BlockMenuEffectParams) => {
-		/**
-		 * NOTE: do not add `currentUserIntent` to dependency array as it causes unnecessary re-renders and messes with the user intent state
-		 */
-		useEffect(() => {
-			if (!isMenuOpen || !menuTriggerBy || !selectedByShortcutOrDragHandle || !hasFocus) {
-				return;
-			}
-
-			// Fire analytics event when block menu opens (only on first transition from closed to open)
-			if (!prevIsMenuOpenRef.current && isMenuOpen) {
-				api?.analytics?.actions.fireAnalyticsEvent({
-					action: ACTION.OPENED,
-					actionSubject: ACTION_SUBJECT.BLOCK_MENU,
-					eventType: EVENT_TYPE.UI,
-					attributes: {
-						inputMethod: openedViaKeyboard ? INPUT_METHOD.KEYBOARD : INPUT_METHOD.MOUSE,
-					},
-				});
-			}
-
-			// Update the previous state
-			prevIsMenuOpenRef.current = isMenuOpen;
-
-			api?.core.actions.execute(api?.userIntent?.commands.setCurrentUserIntent('blockMenuOpen'));
-		}, [
-			api,
-			isMenuOpen,
-			menuTriggerBy,
-			selectedByShortcutOrDragHandle,
-			hasFocus,
-			openedViaKeyboard,
-			prevIsMenuOpenRef,
-		]);
-	},
-
-	({
-		api,
-		isMenuOpen,
-		menuTriggerBy,
-		selectedByShortcutOrDragHandle,
-		hasFocus,
-		currentUserIntent,
-		openedViaKeyboard,
-		prevIsMenuOpenRef,
-	}: BlockMenuEffectParams) => {
-		useEffect(() => {
-			if (
-				!isMenuOpen ||
-				!menuTriggerBy ||
-				!selectedByShortcutOrDragHandle ||
-				!hasFocus ||
-				['resizing', 'dragging'].includes(currentUserIntent || '')
-			) {
-				return;
-			}
-
-			// Fire analytics event when block menu opens (only on first transition from closed to open)
-			if (!prevIsMenuOpenRef.current && isMenuOpen) {
-				api?.analytics?.actions.fireAnalyticsEvent({
-					action: ACTION.OPENED,
-					actionSubject: ACTION_SUBJECT.BLOCK_MENU,
-					eventType: EVENT_TYPE.UI,
-					attributes: {
-						inputMethod: openedViaKeyboard ? INPUT_METHOD.KEYBOARD : INPUT_METHOD.MOUSE,
-					},
-				});
-			}
-
-			// Update the previous state
-			prevIsMenuOpenRef.current = isMenuOpen;
-
-			api?.core.actions.execute(api?.userIntent?.commands.setCurrentUserIntent('blockMenuOpen'));
-		}, [
-			api,
-			isMenuOpen,
-			menuTriggerBy,
-			selectedByShortcutOrDragHandle,
-			hasFocus,
-			currentUserIntent,
-			openedViaKeyboard,
-			prevIsMenuOpenRef,
-		]);
-	},
-);
+	]);
+};
 
 export type BlockMenuProps = {
 	api: ExtractInjectionAPI<BlockMenuPlugin> | undefined;
@@ -201,10 +149,27 @@ const BlockMenuContent = ({
 		setOutsideClickTargetRef(el);
 		setRef?.(el);
 	};
+	const shouldDisableArrowKeyNavigation = (event: KeyboardEvent) => {
+		if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') {
+			return false;
+		}
+
+		const target = event.target;
+		if (!(target instanceof HTMLElement)) {
+			return false;
+		}
+
+		return target.closest('[data-toolbar-nested-dropdown-menu]') !== null;
+	};
 
 	return (
 		<Box
 			testId="editor-block-menu"
+			role={
+				expValEquals('platform_editor_enghealth_a11y_jan_fixes', 'isEnabled', true)
+					? 'menu'
+					: undefined
+			}
 			ref={ref}
 			xcss={cx(
 				styles.base,
@@ -214,6 +179,7 @@ const BlockMenuContent = ({
 			<ArrowKeyNavigationProvider
 				type={ArrowKeyNavigationType.MENU}
 				handleClose={(e) => e.preventDefault()}
+				disableArrowKeyNavigation={shouldDisableArrowKeyNavigation}
 			>
 				<BlockMenuRenderer allRegisteredComponents={blockMenuComponents || []} />
 			</ArrowKeyNavigationProvider>
@@ -274,9 +240,6 @@ const BlockMenu = ({
 		menuTriggerBy,
 		selectedByShortcutOrDragHandle,
 		hasFocus,
-		currentUserIntent: fg('platform_editor_toolbar_aifc_user_intent_fix')
-			? undefined
-			: currentUserIntent,
 		openedViaKeyboard,
 		prevIsMenuOpenRef,
 	});
@@ -293,10 +256,22 @@ const BlockMenu = ({
 			return;
 		}
 
+		const key = event.key.toLowerCase();
+		const isMetaCtrl = event.metaKey || event.ctrlKey;
+		const isDelete = ['backspace', 'delete'].includes(key);
+		const isUndo = isMetaCtrl && key === 'z' && !event.shiftKey;
+		const isRedo = isMetaCtrl && (key === 'y' || (key === 'z' && event.shiftKey));
+
 		// Necessary to prevent the editor from handling the delete natively
-		if (['backspace', 'delete'].includes(event.key.toLowerCase())) {
+		if (isDelete || isUndo || isRedo) {
 			event.preventDefault();
 			event.stopPropagation();
+		}
+
+		if (isUndo) {
+			undo(editorView.state, editorView.dispatch);
+		} else if (isRedo) {
+			redo(editorView.state, editorView.dispatch);
 		}
 
 		api?.core?.actions.execute(

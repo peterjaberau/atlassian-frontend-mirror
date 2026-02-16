@@ -5,9 +5,11 @@
 import { css, jsx } from '@compiled/react';
 
 import Avatar from '@atlaskit/avatar';
+import { Code } from '@atlaskit/code';
 import Heading from '@atlaskit/heading';
 import { Inline, Stack, Text } from '@atlaskit/primitives/compiled';
-import { AvatarTag, RemovableTag, SimpleTag } from '@atlaskit/tag';
+import Tag, { AvatarTag, RemovableTag, SimpleTag } from '@atlaskit/tag';
+import TeamAvatar from '@atlaskit/teams-avatar';
 
 // eslint-disable-next-line @atlaskit/platform/use-entrypoints-in-examples
 import TagNew from '../src/tag-new/tag-new';
@@ -26,7 +28,13 @@ const sectionStyles = css({
 	borderRadius: 'var(--ds-border-radius-200, 8px)',
 });
 
-export default function TagVisualUplifts() {
+const lozengeStyle = {
+	style: {
+		color: 'pink',
+	},
+};
+
+export default function TagVisualUplifts(): JSX.Element {
 	return (
 		<div css={containerStyles}>
 			<Stack space="space.400">
@@ -34,7 +42,7 @@ export default function TagVisualUplifts() {
 				<Stack space="space.100">
 					<Heading size="large">Tag Visual Refresh Testing</Heading>
 					<Text>
-						Toggle the feature flag <code>platform-dst-lozenge-tag-badge-visual-uplifts</code> to
+						Toggle the feature flag <Code>platform-dst-lozenge-tag-badge-visual-uplifts</Code> to
 						see the visual differences.
 					</Text>
 				</Stack>
@@ -156,33 +164,38 @@ export default function TagVisualUplifts() {
 					</Stack>
 				</div>
 
-				{/* AvatarTag Component */}
+				{/* AvatarTag Component - People */}
 				<div css={sectionStyles}>
 					<Stack space="space.200">
-						<Text weight="bold">AvatarTag Component (for users/people)</Text>
+						<Text weight="bold">AvatarTag Component - People (for users/people)</Text>
 						<Text size="small">
-							Use AvatarTag for avatar-based user tags. Rounded pill design with avatar support.
+							Use AvatarTag with type="user" for user tags. Rounded pill design with circular
+							avatar.
 						</Text>
 						<Inline space="space.100" alignBlock="center">
 							<AvatarTag
+								type="user"
 								text="John Doe"
 								avatar={Avatar}
 								testId="avatar-tag-1"
 								isRemovable={false}
 							/>
 							<AvatarTag
+								type="user"
 								text="Jane Smith"
 								avatar={Avatar}
 								testId="avatar-tag-2"
 								isRemovable={false}
 							/>
 							<AvatarTag
+								type="user"
 								text="Bob Johnson"
 								avatar={Avatar}
 								removeButtonLabel="Remove"
 								testId="avatar-tag-removable"
 							/>
 							<AvatarTag
+								type="user"
 								text="Linked User"
 								avatar={Avatar}
 								href="https://atlassian.com"
@@ -190,11 +203,96 @@ export default function TagVisualUplifts() {
 								testId="avatar-tag-linked"
 							/>
 							<AvatarTag
+								type="user"
 								text="Linked + Removable"
 								avatar={Avatar}
 								href="https://atlassian.com"
 								removeButtonLabel="Remove"
 								testId="avatar-tag-linked-removable"
+							/>
+						</Inline>
+					</Stack>
+				</div>
+
+				{/* AvatarTag Component - Other/Teams */}
+				<div css={sectionStyles}>
+					<Stack space="space.200">
+						<Text weight="bold">AvatarTag Component - Other (for teams/groups)</Text>
+						<Text size="small">
+							Use AvatarTag with type="other" for team/group tags. Square design with rounded
+							corners and team avatar support.
+						</Text>
+						<Inline space="space.100" alignBlock="center">
+							<AvatarTag
+								type="other"
+								text="Design System Team"
+								avatar={TeamAvatar}
+								testId="avatar-tag-team-1"
+								isRemovable={false}
+							/>
+							<AvatarTag
+								type="other"
+								text="Engineering Team"
+								avatar={TeamAvatar}
+								testId="avatar-tag-team-2"
+								isRemovable={false}
+							/>
+							<AvatarTag
+								type="other"
+								text="Product Team"
+								avatar={TeamAvatar}
+								removeButtonLabel="Remove"
+								testId="avatar-tag-team-removable"
+							/>
+							<AvatarTag
+								type="other"
+								text="Linked Team"
+								avatar={TeamAvatar}
+								href="https://atlassian.com"
+								isRemovable={false}
+								testId="avatar-tag-team-linked"
+							/>
+							<AvatarTag
+								type="other"
+								text="Linked + Removable Team"
+								avatar={TeamAvatar}
+								href="https://atlassian.com"
+								removeButtonLabel="Remove"
+								testId="avatar-tag-team-linked-removable"
+							/>
+						</Inline>
+					</Stack>
+				</div>
+
+				{/* AvatarTag Component - Agent */}
+				<div css={sectionStyles}>
+					<Stack space="space.200">
+						<Text weight="bold">AvatarTag Component - Agent (for AI agents)</Text>
+						<Text size="small">
+							Use AvatarTag with type="agent" for AI agent tags. Hexagonal design for agent
+							entities.
+						</Text>
+						<Inline space="space.100" alignBlock="center">
+							<AvatarTag
+								type="agent"
+								text="Rovo"
+								avatar={Avatar}
+								testId="avatar-tag-agent-1"
+								isRemovable={false}
+							/>
+							<AvatarTag
+								type="agent"
+								text="AI Assistant"
+								avatar={Avatar}
+								testId="avatar-tag-agent-2"
+								isRemovable={false}
+							/>
+							<AvatarTag
+								type="agent"
+								text="Removable Agent"
+								avatar={Avatar}
+								removeButtonLabel="Remove"
+								testId="avatar-tag-agent-removable"
 							/>
 						</Inline>
 					</Stack>
@@ -220,6 +318,26 @@ export default function TagVisualUplifts() {
 							<Text size="small">• orange → orange</Text>
 							<Text size="small">• teal → teal</Text>
 						</Stack>
+					</Stack>
+				</div>
+
+				{/* Style Prop Preservation */}
+				<div css={sectionStyles}>
+					<Stack space="space.200">
+						<Text weight="bold">Style Prop Preservation (Lozenge → Tag Migration)</Text>
+						<Text size="small">
+							When migrating from Lozenge to Tag, the <code>style</code> prop is preserved.
+						</Text>
+						<Inline space="space.100" alignBlock="center">
+							{/* Before: <Lozenge appearance="success" style={{ color: 'pink' }}>With maxWidth</Lozenge> */}
+							<Tag
+								text="With style prop of color pink"
+								color="lime"
+								migration_fallback="lozenge"
+								testId="migration-style-maxwidth"
+								{...lozengeStyle}
+							/>
+						</Inline>
 					</Stack>
 				</div>
 			</Stack>

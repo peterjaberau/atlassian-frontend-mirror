@@ -1,5 +1,129 @@
 # @atlaskit/editor-plugin-selection-extension
 
+## 10.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.6
+
+### Patch Changes
+
+- [`e779ee38a7d18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e779ee38a7d18) -
+  Update toolbar rendering logic to use SelectionExtensionMenuItems component
+- Updated dependencies
+
+## 10.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.3
+
+### Patch Changes
+
+- [`38dee2c85c456`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38dee2c85c456) -
+  [ux] [EDITOR-4486] render tooltips for ToolbarDropdownMenu using new TooltipComponent prop behind
+  platform_editor_hide_toolbar_tooltips_fix
+- Updated dependencies
+
+## 10.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.0
+
+### Minor Changes
+
+- [`88fd7b57c2c76`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88fd7b57c2c76) -
+  Export SelectionRange type
+
+## 10.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`6e8029473620b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e8029473620b) -
+  [EDITOR-4496] clean up experiment platform_editor_toolbar_aifc_patch_3 and remove view-mode plugin
+  dependency from loom plugin
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- [`8708f328d5db6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8708f328d5db6) -
+  Clean up platform_editor_toolbar_aifc_overflow_menu_update feature gate
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`1993b8227cbf3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1993b8227cbf3) -
+  [ux] Update selection extension APIs to allow Snippets to register at parent level
+
+### Patch Changes
+
+- [`c947ea0c83c0e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c947ea0c83c0e) -
+  [ED-29456] clean up platform_editor_toolbar_aifc_selection_extension
+- Updated dependencies
+
+## 10.0.6
+
+### Patch Changes
+
+- [`2fc345bb747f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fc345bb747f4) -
+  [ux] Add isHidden check for extensions to be true if no extensions were registered in block menu.
+
 ## 10.0.5
 
 ### Patch Changes

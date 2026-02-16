@@ -38,20 +38,6 @@ import {
 	TopNavMiddle,
 	TopNavStart,
 } from '@atlaskit/navigation-system/layout/top-nav';
-import { ButtonMenuItem } from '@atlaskit/navigation-system/side-nav-items/button-menu-item';
-import {
-	ExpandableMenuItem,
-	ExpandableMenuItemContent,
-	ExpandableMenuItemTrigger,
-} from '@atlaskit/navigation-system/side-nav-items/expandable-menu-item';
-import {
-	FlyoutMenuItem,
-	FlyoutMenuItemContent,
-	FlyoutMenuItemTrigger,
-} from '@atlaskit/navigation-system/side-nav-items/flyout-menu-item';
-import { LinkMenuItem } from '@atlaskit/navigation-system/side-nav-items/link-menu-item';
-import { MenuList } from '@atlaskit/navigation-system/side-nav-items/menu-list';
-import { Divider } from '@atlaskit/navigation-system/side-nav-items/menu-section';
 import {
 	AppLogo,
 	AppSwitcher,
@@ -63,6 +49,20 @@ import {
 	Settings,
 } from '@atlaskit/navigation-system/top-nav-items';
 import Popup from '@atlaskit/popup';
+import { ButtonMenuItem } from '@atlaskit/side-nav-items/button-menu-item';
+import {
+	ExpandableMenuItem,
+	ExpandableMenuItemContent,
+	ExpandableMenuItemTrigger,
+} from '@atlaskit/side-nav-items/expandable-menu-item';
+import {
+	FlyoutMenuItem,
+	FlyoutMenuItemContent,
+	FlyoutMenuItemTrigger,
+} from '@atlaskit/side-nav-items/flyout-menu-item';
+import { LinkMenuItem } from '@atlaskit/side-nav-items/link-menu-item';
+import { MenuList } from '@atlaskit/side-nav-items/menu-list';
+import { Divider } from '@atlaskit/side-nav-items/menu-section';
 import { token } from '@atlaskit/tokens';
 
 import { WithResponsiveViewport } from './utils/example-utils';
@@ -200,7 +200,7 @@ function MockNotifications(): JSX.Element {
 	);
 }
 
-export function SideNavLayering() {
+export function SideNavLayering(): JSX.Element {
 	return (
 		<WithResponsiveViewport>
 			<Root testId="root" isSideNavShortcutEnabled>
@@ -247,9 +247,37 @@ export function SideNavLayering() {
 							<LinkMenuItem href="#" elemBefore={<AppsIcon label="" color="currentColor" />}>
 								Apps
 							</LinkMenuItem>
-							<LinkMenuItem href="#" elemBefore={<ProjectIcon label="" color="currentColor" />}>
+							<LinkMenuItem
+								href="#"
+								elemBefore={<ProjectIcon label="" color="currentColor" />}
+								actions={
+									<DropdownMenu
+										shouldRenderToParent
+										trigger={({ triggerRef: ref, ...props }) => (
+											<IconButton
+												ref={ref}
+												{...props}
+												spacing="compact"
+												appearance="subtle"
+												label="Project more options"
+												icon={(iconProps) => (
+													<ShowMoreHorizontalCoreIcon {...iconProps} size="small" />
+												)}
+												isTooltipDisabled={false}
+											/>
+										)}
+									>
+										<DropdownItemGroup>
+											{Array.from({ length: 100 }, (_, i) => (
+												<DropdownItem key={i}>Item {i + 1}</DropdownItem>
+											))}
+										</DropdownItemGroup>
+									</DropdownMenu>
+								}
+							>
 								Projects
 							</LinkMenuItem>
+
 							<FlyoutMenuItem>
 								<FlyoutMenuItemTrigger elemBefore={<ClockIcon label="" color="currentColor" />}>
 									Recent
@@ -347,7 +375,11 @@ export function SideNavLayering() {
 							</ExpandableMenuItem>
 						</MenuList>
 					</SideNavContent>
-					<SideNavPanelSplitter label="Resize side nav" testId="side-nav-panel-splitter" />
+					<SideNavPanelSplitter
+						label="Resize side nav"
+						testId="side-nav-panel-splitter"
+						tooltipContent="Double click to collapse"
+					/>
 				</SideNav>
 				<Main id="main-container">
 					<div css={headingStyles.root}>

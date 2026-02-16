@@ -32,6 +32,9 @@
 	},
 	"references": [
 		{
+			"path": "../../helpers/browser-apis/tsconfig.app.json"
+		},
+		{
 			"path": "../../design-system/css/tsconfig.app.json"
 		},
 		{
@@ -74,10 +77,10 @@
 			"path": "../../platform/feature-flags/tsconfig.app.json"
 		},
 		{
-			"path": "../../platform/feature-flags-react/tsconfig.app.json"
+			"path": "../../design-system/primitives/tsconfig.app.json"
 		},
 		{
-			"path": "../../design-system/primitives/tsconfig.app.json"
+			"path": "../prosemirror-history/tsconfig.app.json"
 		},
 		{
 			"path": "../tmp-editor-statsig/tsconfig.app.json"

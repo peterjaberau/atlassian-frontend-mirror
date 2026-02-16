@@ -52,7 +52,6 @@
 		"@atlaskit/media-test-data": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@testing-library/react": "root:*",
-		"@testing-library/react-hooks": "root:*",
 		"@testing-library/user-event": "root:*",
 		"jest-fetch-mock": "root:*",
 		"msw": "root:*",
@@ -63,6 +62,9 @@
 			"type": "boolean"
 		},
 		"media-perf-uplift-mutation-fix": {
+			"type": "boolean"
+		},
+		"dfo_attachments_late_render_fix": {
 			"type": "boolean"
 		}
 	},

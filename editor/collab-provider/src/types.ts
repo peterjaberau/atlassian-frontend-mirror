@@ -70,6 +70,7 @@ export interface Config {
 		isPresenceOnly?: boolean,
 		analyticsHelper?: AnalyticsHelper,
 		path?: string,
+		documentAri?: string,
 	) => SocketIOSocket;
 	documentAri: string;
 	/**
@@ -96,7 +97,9 @@ export interface Config {
 	need404?: boolean;
 	/**
 	 * Used for sharded routing, product passes route to collab provider
-	 * e.g. /ncs-presence/{cloudId}/{activationId}/confluence
+	 * Presence traffic e.g. /ncs-presence/{cloudId}/{activationId}/confluence
+	 * Edit traffic e.g. /ncs/{cloudId}/{activationId}/confluence
+	 *
 	 */
 	path?: string;
 	/**

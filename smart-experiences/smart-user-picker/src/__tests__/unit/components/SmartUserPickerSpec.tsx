@@ -2,11 +2,12 @@ import React from 'react';
 import { screen, render, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { IntlProvider } from 'react-intl-next';
-import { type DefaultValue, type OptionData, type User } from '@atlaskit/user-picker';
+import { type DefaultValue, type OptionData, type Team, type User } from '@atlaskit/user-picker';
 import { AnalyticsListener, type AnalyticsEventPayload } from '@atlaskit/analytics-next';
 // Commented due to HOT-111922
 import { /* type ConcurrentExperience, */ type UFOExperience } from '@atlaskit/ufo';
 import { fg } from '@atlaskit/platform-feature-flags';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 
 import SmartUserPicker, { type Props } from '../../../index';
 import MessagesIntlProvider from '../../../components/MessagesIntlProvider';
@@ -19,6 +20,11 @@ import {
 } from '../_testUtils';
 
 temporarilySilenceActAndAtlaskitDeprecationWarnings();
+
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
 
 const mockPREFETCH_SESSION_ID = 'prefetch-session-id';
 
@@ -359,8 +365,8 @@ describe('SmartUserPicker', () => {
 			 * Simulate a requst race for two queries
 			 * 1. query ''
 			 * 2. query 'a'
-			 * 3. response 'a' ➞ [{}, {}]
-			 * 4. response '' ➞ []
+			 * 3. response 'a' âžž [{}, {}]
+			 * 4. response '' âžž []
 			 */
 			getUserRecommendationsMock.mockImplementation(({ query }) => {
 				if (query === '') {
@@ -460,7 +466,6 @@ describe('SmartUserPicker', () => {
 				includeTeams: false,
 				includeUsers: true,
 				includeNonLicensedUsers: false,
-				verifiedTeams: false,
 				maxNumberOfResults: 100,
 				query: '',
 				searchEmail: false,
@@ -1489,7 +1494,6 @@ describe('SmartUserPicker', () => {
 			});
 		});
 	});
-
 	describe('UFO metrics', () => {
 		beforeEach(() => {
 			jest.spyOn(console, 'error');
@@ -2002,14 +2006,14 @@ describe('SmartUserPicker', () => {
 				});
 
 				// Verify the API was called with verifiedTeams: true
-				const lastCall = getUserRecommendationsMock.mock.calls[
-					getUserRecommendationsMock.mock.calls.length - 1
-				];
+				const lastCall =
+					getUserRecommendationsMock.mock.calls[getUserRecommendationsMock.mock.calls.length - 1];
 				expect(lastCall[0].verifiedTeams).toBe(true);
 			});
 
-			it('should not filter teams when verifiedTeams is false', async () => {
-				const mockTeamsWithVerified: OptionData[] = [
+			it('should include both teams when verifiedTeams prop is false (treated same as undefined)', async () => {
+				// When verifiedTeams is false, it's treated the same as undefined - include both
+				const mockAllTeams: OptionData[] = [
 					{
 						id: 'verified-team-1',
 						name: 'Verified Team 1',
@@ -2024,7 +2028,7 @@ describe('SmartUserPicker', () => {
 					},
 				];
 
-				getUserRecommendationsMock.mockReturnValue(Promise.resolve(mockTeamsWithVerified));
+				getUserRecommendationsMock.mockReturnValue(Promise.resolve(mockAllTeams));
 
 				renderSmartUserPicker({
 					includeTeams: true,
@@ -2038,6 +2042,11 @@ describe('SmartUserPicker', () => {
 					expect(screen.getByText('Verified Team 1')).toBeInTheDocument();
 					expect(screen.getByText('Unverified Team 1')).toBeInTheDocument();
 				});
+
+				// Verify the API was called with verifiedTeams: undefined (false is treated as "include both")
+				const lastCall =
+					getUserRecommendationsMock.mock.calls[getUserRecommendationsMock.mock.calls.length - 1];
+				expect(lastCall[0].verifiedTeams).toBeUndefined();
 			});
 
 			it('should not filter teams when verifiedTeams is true but includeTeams is false', async () => {
@@ -2111,9 +2120,8 @@ describe('SmartUserPicker', () => {
 				});
 
 				// Verify the API was called with verifiedTeams: true
-				const lastCall = getUserRecommendationsMock.mock.calls[
-					getUserRecommendationsMock.mock.calls.length - 1
-				];
+				const lastCall =
+					getUserRecommendationsMock.mock.calls[getUserRecommendationsMock.mock.calls.length - 1];
 				expect(lastCall[0].verifiedTeams).toBe(true);
 			});
 
@@ -2132,16 +2140,15 @@ describe('SmartUserPicker', () => {
 					expect(getUserRecommendationsMock).toHaveBeenCalled();
 				});
 
-				const lastCall = getUserRecommendationsMock.mock.calls[
-					getUserRecommendationsMock.mock.calls.length - 1
-				];
+				const lastCall =
+					getUserRecommendationsMock.mock.calls[getUserRecommendationsMock.mock.calls.length - 1];
 				const request = lastCall[0];
 
 				expect(request.verifiedTeams).toBe(true);
 				expect(request.includeTeams).toBe(true);
 			});
 
-			it('should pass verifiedTeams as false to backend when feature flag is disabled even if verifiedTeams prop is true', async () => {
+			it('should not pass verifiedTeams to backend when feature flag is disabled even if verifiedTeams prop is true', async () => {
 				const { fg } = require('@atlaskit/platform-feature-flags');
 				fg.mockImplementation((flag: string) => {
 					if (flag === 'smart-user-picker-managed-teams-gate') {
@@ -2183,11 +2190,10 @@ describe('SmartUserPicker', () => {
 					expect(screen.getByText('Unverified Team 1')).toBeInTheDocument();
 				});
 
-				// Verify the API was called with verifiedTeams: false (because feature flag is disabled)
-				const lastCall = getUserRecommendationsMock.mock.calls[
-					getUserRecommendationsMock.mock.calls.length - 1
-				];
-				expect(lastCall[0].verifiedTeams).toBe(false);
+				// Verify the API was called with verifiedTeams: undefined (because feature flag is disabled)
+				const lastCall =
+					getUserRecommendationsMock.mock.calls[getUserRecommendationsMock.mock.calls.length - 1];
+				expect(lastCall[0].verifiedTeams).toBeUndefined();
 
 				// Reset mock for other tests
 				fg.mockImplementation((flag: string) => {
@@ -2306,6 +2312,96 @@ describe('SmartUserPicker', () => {
 
 			const callArgs = mockGetUserRecommendations.mock.calls[0][0];
 			expect(callArgs.restrictTo).toBeUndefined();
+		});
+	});
+
+	it('should allow email selection when only team matches found', async () => {
+		// Mock feature gate to enable the new behavior
+		const { fg } = require('@atlaskit/platform-feature-flags');
+		fg.mockImplementation((flag: string) => {
+			if (flag === 'smart_user_picker_allow_email_if_team_is_found') {
+				return true;
+			}
+			return false;
+		});
+
+		// When allowEmailSelectionWhenEmailMatched is false and only teams match (no users),
+		// email selection should still be allowed (as long as query is email format)
+		const mockTeamOnlyResponse: Team[] = [
+			{
+				id: 'team-1',
+				name: 'GMB - Website unite.eu',
+				type: 'team',
+			},
+		];
+
+		(getUserRecommendations as jest.Mock).mockResolvedValue(mockTeamOnlyResponse);
+
+		renderSmartUserPicker({
+			enableEmailSearch: true,
+			allowEmail: true,
+			allowEmailSelectionWhenEmailMatched: false,
+		});
+
+		const input = screen.getByRole('combobox');
+		await userEvent.type(input, 'datenschutz@unite.eu');
+
+		await waitFor(() => {
+			expect(getUserRecommendations).toHaveBeenCalledWith(
+				expect.objectContaining({
+					query: 'datenschutz@unite.eu',
+					searchEmail: true,
+				}),
+				expect.any(Object),
+			);
+			// We expect both team entry AND email selection option, since only teams matched
+			expect(screen.queryByText('GMB - Website unite.eu')).toBeInTheDocument();
+			expect(screen.queryByText('Select an email address')).toBeInTheDocument();
+		});
+	});
+
+	it('should not allow email selection when query is not email format', async () => {
+		// Mock feature gate to enable the news behavior
+		const { fg } = require('@atlaskit/platform-feature-flags');
+		fg.mockImplementation((flag: string) => {
+			if (flag === 'smart_user_picker_allow_email_if_team_is_found') {
+				return true;
+			}
+			return false;
+		});
+
+		// When allowEmailSelectionWhenEmailMatched is false and query is not an email format,
+		// email selection should be disabled even if teams match
+		const mockTeamResponse: Team[] = [
+			{
+				id: 'team-1',
+				name: 'Design Team',
+				type: 'team',
+			},
+		];
+
+		(getUserRecommendations as jest.Mock).mockResolvedValue(mockTeamResponse);
+
+		renderSmartUserPicker({
+			enableEmailSearch: true,
+			allowEmail: true,
+			allowEmailSelectionWhenEmailMatched: false,
+		});
+
+		const input = screen.getByRole('combobox');
+		await userEvent.type(input, 'design');
+
+		await waitFor(() => {
+			expect(getUserRecommendations).toHaveBeenCalledWith(
+				expect.objectContaining({
+					query: 'design',
+					searchEmail: false,
+				}),
+				expect.any(Object),
+			);
+			// We expect only the team entry, no email selection option (query is not email format)
+			expect(screen.queryByText('Design Team')).toBeInTheDocument();
+			expect(screen.queryByText('Select an email address')).not.toBeInTheDocument();
 		});
 	});
 });

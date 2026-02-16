@@ -2,64 +2,151 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { forwardRef, Fragment, memo, type Ref } from 'react';
+import { forwardRef, memo, type Ref } from 'react';
 
+import Badge, { type BadgeNewProps } from '@atlaskit/badge';
 import { cssMap, cx, jsx } from '@atlaskit/css';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import Pressable from '@atlaskit/primitives/pressable';
+import Spinner from '@atlaskit/spinner';
 import { token } from '@atlaskit/tokens';
 
 import IconRenderer from './icon-renderer';
-import { type LozengeDropdownTriggerProps, type NewLozengeProps } from './types';
+import { type LozengeBaseProps } from './types';
 import { getThemeStyles, resolveLozengeColor } from './utils';
 
-interface LozengeBaseProps extends NewLozengeProps, LozengeDropdownTriggerProps {
+type LozengeBasePropsWithRef = LozengeBaseProps & {
 	ref?: Ref<HTMLElement | HTMLButtonElement>;
-}
+};
+
+// Get the pressed background color for the selected lozenge dropdown trigger
+const pressedBackgroundMapping = {
+	success: token('color.background.success.subtler.pressed'),
+	warning: token('color.background.warning.subtler.pressed'),
+	danger: token('color.background.danger.subtler.pressed'),
+	information: token('color.background.information.subtler.pressed'),
+	neutral: token('color.background.neutral.pressed'),
+	discovery: token('color.background.discovery.subtler.pressed'),
+	'accent-red': token('color.background.accent.red.subtler.pressed'),
+	'accent-orange': token('color.background.accent.orange.subtler.pressed'),
+	'accent-yellow': token('color.background.accent.yellow.subtler.pressed'),
+	'accent-lime': token('color.background.accent.lime.subtler.pressed'),
+	'accent-green': token('color.background.accent.green.subtler.pressed'),
+	'accent-teal': token('color.background.accent.teal.subtler.pressed'),
+	'accent-blue': token('color.background.accent.blue.subtler.pressed'),
+	'accent-purple': token('color.background.accent.purple.subtler.pressed'),
+	'accent-magenta': token('color.background.accent.magenta.subtler.pressed'),
+	'accent-gray': token('color.background.accent.gray.subtlest.pressed'),
+};
 
 const styles = cssMap({
 	container: {
+		position: 'relative',
 		display: 'inline-flex',
 		alignItems: 'center',
 		boxSizing: 'border-box',
-		height: '20px',
+		height: '1.25rem',
 		borderRadius: token('radius.small', '4px'),
 		overflow: 'hidden',
-		paddingBlock: token('space.025'),
-		paddingInline: token('space.050'),
-		gap: token('space.050'),
+		paddingBlockStart: token('space.025'),
+		paddingBlockEnd: token('space.025'),
+		paddingInlineStart: token('space.050'),
+		paddingInlineEnd: token('space.050'),
 		borderWidth: token('border.width'),
 		borderStyle: 'solid',
 		borderColor: 'transparent',
 	},
-	containerInteractive: {
-		cursor: 'pointer',
-		'&:focus-visible': {
-			outlineColor: token('color.border.focused'),
-			outlineOffset: token('space.025'),
-			outlineStyle: 'solid',
-			outlineWidth: token('border.width.focused'),
-		},
+	containerSpacious: {
+		minHeight: '2rem',
+		borderRadius: token('radius.medium', '6px'),
+		paddingBlockStart: token('space.050'),
+		paddingBlockEnd: token('space.050'),
+		paddingInlineStart: token('space.150'),
+		paddingInlineEnd: token('space.150'),
 	},
-	containerSelected: {
-		backgroundColor: token('color.background.selected'),
-		color: token('color.text.selected'),
-		'&:hover': {
-			backgroundColor: token('color.background.selected.hovered'),
-		},
-		'&:active': {
-			backgroundColor: token('color.background.selected.pressed'),
-		},
+	containerBadgePadding: {
+		// @ts-expect-error
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+		paddingInlineEnd: '0.0625rem',
 	},
 	text: {
+		// eslint-disable-next-line @compiled/shorthand-property-sorting
 		font: token('font.body.small'),
 		overflow: 'hidden',
 		textOverflow: 'ellipsis',
 		whiteSpace: 'nowrap',
 	},
+	textSpacious: {
+		font: token('font.body'),
+		// eslint-disable-next-line @compiled/shorthand-property-sorting
+		fontWeight: token('font.weight.medium'),
+	},
 	textSelected: {
 		color: token('color.text.selected'),
 	},
+	loadingOverlay: {
+		display: 'flex',
+		position: 'absolute',
+		alignItems: 'center',
+		justifyContent: 'center',
+		overflow: 'hidden',
+		insetBlockEnd: token('space.0'),
+		insetBlockStart: token('space.0'),
+		insetInlineEnd: token('space.0'),
+		insetInlineStart: token('space.0'),
+		pointerEvents: 'none',
+		// Force Spinner to follow the lozenge icon color.
+	},
+	metricBadgeWrapper: {
+		display: 'flex',
+	},
+
+	// Trailing metric badge appearance variables (can be overridden independently from the lozenge appearance)
+	'metric.semantic.success': {
+		// @ts-expect-error -- CSS variables not valid in cssMap types
+		'--badge-background-color': token('color.background.success.subtler.pressed'),
+		'--badge-background-color-pressed': token('color.background.success.pressed'),
+	},
+	'metric.semantic.warning': {
+		// @ts-expect-error -- CSS variables not valid in cssMap types
+		'--badge-background-color': token('color.background.warning.subtler.pressed'),
+		'--badge-background-color-pressed': token('color.background.warning.pressed'),
+	},
+	'metric.semantic.danger': {
+		// @ts-expect-error -- CSS variables not valid in cssMap types
+		'--badge-background-color': token('color.background.danger.subtler.pressed'),
+		'--badge-background-color-pressed': token('color.background.danger.pressed'),
+	},
+	'metric.semantic.information': {
+		// @ts-expect-error -- CSS variables not valid in cssMap types
+		'--badge-background-color': token('color.background.information.subtler.pressed'),
+		'--badge-background-color-pressed': token('color.background.information.pressed'),
+	},
+	'metric.semantic.neutral': {
+		// Neutral400
+		// @ts-expect-error -- CSS variables not valid in cssMap types
+		'--badge-background-color': '#B7B9BE',
+		// Neutral300
+		'--badge-background-color-pressed': '#DDDEE1',
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-nested-selectors
+		'[data-color-mode="dark"] &': {
+			// DarkNeutral400
+			'--badge-background-color': '#4B4D51',
+			// DarkNeutral350
+			'--badge-background-color-pressed': '#3D3F43',
+		},
+	},
+	'metric.semantic.discovery': {
+		// @ts-expect-error -- CSS variables not valid in cssMap types
+		'--badge-background-color': token('color.background.discovery.subtler.pressed'),
+		'--badge-background-color-pressed': token('color.background.discovery.pressed'),
+	},
+	'metric.inverse': {
+		// @ts-expect-error -- CSS variables not valid in cssMap types
+		'--badge-background-color': token('elevation.surface'),
+		'--badge-background-color-pressed': token('elevation.surface'),
+	},
+
 	// Semantic colors
 	'semantic.success': {
 		// @ts-expect-error -- CSS variables not valid in cssMap types
@@ -174,6 +261,7 @@ const styles = cssMap({
 		backgroundColor: token('color.background.accent.gray.subtlest'),
 		color: token('color.text.accent.gray.bolder'),
 	},
+	// Interactive styles for semantic colors
 	'interactive.semantic.success': {
 		'&:hover': {
 			backgroundColor: token('color.background.success.subtler.hovered'),
@@ -303,16 +391,6 @@ const styles = cssMap({
 			backgroundColor: token('color.background.accent.gray.subtlest.pressed'),
 		},
 	},
-	// Selected interactive styles - when lozenge is both selected and interactive
-	selectedInteractive: {
-		'&:hover': {
-			backgroundColor: token('color.background.selected.hovered'),
-		},
-		'&:active': {
-			backgroundColor: token('color.background.selected.pressed'),
-		},
-	},
-
 	// Icon and border filter for darkening or lightening the icon color and border color
 	/* eslint-disable @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-important-styles */
 	iconBorderFilter: {
@@ -413,6 +491,39 @@ const styles = cssMap({
 			},
 		},
 	},
+	// Selected state icons should retain semantic/accent colors.
+	// We treat "selected" as "pressed" for the current appearance.
+	containerSelected: {
+		// @ts-expect-error -- CSS variables not valid in cssMap types
+		'& > span:first-of-type > svg': {
+			color: 'oklch(from var(--icon-color) calc(l * var(--icon-pressed-l-factor)) c h) !important',
+		},
+	},
+	content: {
+		gap: token('space.050'),
+		display: 'inline-flex',
+		alignItems: 'center',
+	},
+	contentSpacious: {
+		gap: token('space.075'),
+	},
+	loadingContent: {
+		opacity: 0,
+	},
+	containerBadge: {
+		// @ts-expect-error - nested selector for metric badge not in cssMap schema
+		'& [data-lozenge-metric-wrapper] > span:first-of-type': {
+			backgroundColor: 'var(--badge-background-color)',
+		},
+	},
+	containerBadgeInteractive: {
+		'&:active': {
+			// @ts-expect-error - nested selector for metric badge not in cssMap schema
+			'& [data-lozenge-metric-wrapper] > span:first-of-type': {
+				backgroundColor: 'var(--badge-background-color-pressed)',
+			},
+		},
+	},
 });
 
 /**
@@ -421,16 +532,20 @@ const styles = cssMap({
  * A lozenge is a visual indicator used to highlight an item's status for quick recognition.
  * This is the updated version with the new North Star visual language.
  */
-const LozengeBase = memo(
-	forwardRef<HTMLElement | HTMLButtonElement, LozengeBaseProps>(
+const LozengeBase: import("react").MemoExoticComponent<import("react").ForwardRefExoticComponent<Omit<LozengeBaseProps, "ref"> & import("react").RefAttributes<HTMLButtonElement | HTMLElement>>> = memo(
+	forwardRef<HTMLElement | HTMLButtonElement, LozengeBasePropsWithRef>(
 		(
 			{
 				children,
 				testId,
 				appearance,
 				iconBefore,
+				trailingMetric,
+				trailingMetricAppearance,
 				maxWidth = 200,
+				spacing = 'default',
 				isSelected, // for dropdown trigger
+				isLoading = false, // for dropdown trigger
 				onClick, // for dropdown trigger
 				style,
 				analyticsContext,
@@ -449,23 +564,53 @@ const LozengeBase = memo(
 			const maxWidthValue = typeof maxWidth === 'string' ? maxWidth : `${maxWidth}px`;
 			const maxWidthIsPc = typeof maxWidth === 'string' && /%$/.test(maxWidth);
 
+			const resolvedTrailingMetricAppearance = trailingMetricAppearance
+				? trailingMetricAppearance === 'inverse'
+					? 'inverse'
+					: resolveLozengeColor(trailingMetricAppearance)
+				: resolvedColor;
+
+			const metricBadgeAppearance = (
+				resolvedTrailingMetricAppearance === 'inverse'
+					? 'inverse'
+					: resolvedTrailingMetricAppearance != null &&
+						  resolvedTrailingMetricAppearance.startsWith('accent-')
+						? 'neutral'
+						: (resolvedTrailingMetricAppearance ?? 'neutral')
+			) as BadgeNewProps['appearance'];
+
+			const metricStyleKey =
+				resolvedTrailingMetricAppearance === 'inverse'
+					? ('metric.inverse' as keyof typeof styles)
+					: resolvedTrailingMetricAppearance != null &&
+						  !resolvedTrailingMetricAppearance.startsWith('accent-')
+						? (`metric.semantic.${getThemeStyles(resolvedTrailingMetricAppearance).key}` as keyof typeof styles)
+						: ('metric.semantic.neutral' as keyof typeof styles);
+
 			const commonStyleOverrides = {
 				backgroundColor: style?.backgroundColor,
 				maxWidth: maxWidthIsPc ? maxWidth : '100%',
 			};
+			const hasTrailingMetric = trailingMetric != null && trailingMetric !== '';
 
 			const innerContent = (
-				<Fragment>
+				<span
+					css={[
+						styles.content,
+						spacing === 'spacious' && styles.contentSpacious,
+						isLoading && styles.loadingContent,
+					]}
+				>
 					{iconBefore && (
 						<IconRenderer
+							size={spacing === 'spacious' ? 'medium' : 'small'}
 							icon={iconBefore}
 							color={resolvedColor}
-							isSelected={isInteractive ? isSelected : undefined}
 							testId={testId && `${testId}--icon`}
 						/>
 					)}
 					<span
-						css={styles.text}
+						css={[styles.text, spacing === 'spacious' && styles.textSpacious]}
 						style={{
 							maxWidth: maxWidthIsPc
 								? '100%'
@@ -476,15 +621,24 @@ const LozengeBase = memo(
 					>
 						{children}
 					</span>
+					{hasTrailingMetric && !resolvedColor.startsWith('accent-') && (
+						<span
+							css={styles.metricBadgeWrapper}
+							data-lozenge-metric-wrapper
+							data-testid={testId && `${testId}--metric`}
+						>
+							<Badge appearance={metricBadgeAppearance}>{trailingMetric}</Badge>
+						</span>
+					)}
 					{isInteractive && (
 						<ChevronDownIcon
 							label=""
 							size="small"
-							color={isSelected ? token('color.icon.selected') : 'currentColor'}
+							color={'currentColor'}
 							testId={testId && `${testId}--chevron`}
 						/>
 					)}
-				</Fragment>
+				</span>
 			);
 
 			if (isInteractive) {
@@ -493,19 +647,31 @@ const LozengeBase = memo(
 						ref={ref as Ref<HTMLButtonElement>}
 						xcss={cx(
 							styles.container,
+							spacing === 'spacious' && styles.containerSpacious,
 							!isSelected && styles.iconBorderFilter,
-							!isSelected && styles.iconBorderInteractiveFilter,
+							!isLoading && styles.iconBorderInteractiveFilter,
 							styles[colorStyleKey],
-							styles[interactiveStyleKey],
+							!isLoading && styles[interactiveStyleKey],
 							isSelected && styles.containerSelected,
+							hasTrailingMetric && styles.containerBadge,
+							hasTrailingMetric && styles.containerBadgeInteractive,
+							hasTrailingMetric && styles[metricStyleKey],
 						)}
-						onClick={onClick}
+						{...(isLoading && { 'aria-busy': true, 'aria-disabled': true, isDisabled: true })}
+						aria-label={isLoading ? 'Loading' : undefined}
+						onClick={isLoading ? undefined : onClick}
 						style={{
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 							...commonStyleOverrides,
 							// Specified because Pressable has a default border:none which overrides the border specified on the container
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-							border: `solid ${token('border.width')} ${isSelected ? token('color.border.selected') : 'transparent'}`,
+							border: `solid ${token('border.width')} ${
+								isSelected
+									? 'oklch(from var(--border-color) calc(l * var(--border-pressed-l-factor)) c h) !important'
+									: 'transparent'
+							}`,
+							backgroundColor: isSelected ? pressedBackgroundMapping[resolvedColor] : undefined,
+							cursor: isLoading ? 'progress' : 'pointer',
 						}}
 						testId={testId}
 						analyticsContext={analyticsContext}
@@ -513,6 +679,15 @@ const LozengeBase = memo(
 						componentName="LozengeDropdownTrigger"
 					>
 						{innerContent}
+						{isLoading && (
+							<span css={styles.loadingOverlay}>
+								<Spinner
+									size={spacing === 'spacious' ? 'small' : 'xsmall'}
+									label=", Loading"
+									testId={testId ? `${testId}--loading-spinner` : undefined}
+								/>
+							</span>
+						)}
 					</Pressable>
 				);
 			}
@@ -520,7 +695,15 @@ const LozengeBase = memo(
 			return (
 				<span
 					ref={ref}
-					css={[styles.container, styles[colorStyleKey], styles.iconBorderFilter]}
+					css={[
+						styles.container,
+						spacing === 'spacious' && styles.containerSpacious,
+						spacing !== 'spacious' && hasTrailingMetric && styles.containerBadgePadding,
+						styles[colorStyleKey],
+						hasTrailingMetric && styles[metricStyleKey],
+						styles.iconBorderFilter,
+						styles.containerBadge,
+					]}
 					style={commonStyleOverrides}
 					data-testid={testId}
 				>

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-placeholder",
-	"version": "7.1.0",
+	"version": "7.2.12",
 	"description": "Placeholder plugin for @atlaskit/editor-core.",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -31,12 +31,15 @@
 	},
 	"dependencies": {
 		"@atlaskit/adf-utils": "workspace:^",
+		"@atlaskit/css": "workspace:^",
 		"@atlaskit/editor-plugin-composition": "workspace:^",
 		"@atlaskit/editor-plugin-focus": "workspace:^",
 		"@atlaskit/editor-plugin-show-diff": "workspace:^",
 		"@atlaskit/editor-plugin-type-ahead": "workspace:^",
 		"@atlaskit/editor-prosemirror": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/spinner": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*"
@@ -48,7 +51,7 @@
 		"react-intl-next": "*"
 	},
 	"devDependencies": {
-		"@testing-library/react": "^16.3.0"
+		"@testing-library/react": "root:*"
 	},
 	"platform-feature-flags": {
 		"platform_editor_ai_aifc_patch_ga": {
@@ -57,7 +60,7 @@
 		"platform_editor_ai_aifc_patch_ga_blockers": {
 			"type": "boolean"
 		},
-		"platform_editor_placeholder_plugin_tidying": {
+		"platform_editor_ai_aifc_adf_placeholder": {
 			"type": "boolean"
 		}
 	},

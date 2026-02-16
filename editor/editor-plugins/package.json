@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugins",
-	"version": "11.2.41",
+	"version": "12.0.30",
 	"description": "A convenience facade package that exposes all @atlaskit/editor-plugin-* plugins so that users can add this package without having to manually add all their plugins",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -24,6 +24,7 @@
 			]
 		}
 	},
+	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
 		"./accessibility-utils": "./src/accessibility-utils/index.ts",
@@ -50,6 +51,7 @@
 		"./collab-edit": "./src/collab-edit/index.ts",
 		"./composition": "./src/composition/index.ts",
 		"./connectivity": "./src/connectivity/index.ts",
+		"./content-format": "./src/content-format/index.ts",
 		"./content-insertion": "./src/content-insertion/index.ts",
 		"./context-identifier": "./src/context-identifier/index.ts",
 		"./context-panel": "./src/context-panel/index.ts",
@@ -158,6 +160,7 @@
 		"@atlaskit/editor-plugin-collab-edit": "workspace:*",
 		"@atlaskit/editor-plugin-composition": "workspace:*",
 		"@atlaskit/editor-plugin-connectivity": "workspace:*",
+		"@atlaskit/editor-plugin-content-format": "workspace:*",
 		"@atlaskit/editor-plugin-content-insertion": "workspace:*",
 		"@atlaskit/editor-plugin-context-identifier": "workspace:*",
 		"@atlaskit/editor-plugin-context-panel": "workspace:*",
@@ -243,7 +246,7 @@
 		"@af/formatting": "workspace:^",
 		"@atlassian/ts-loader": "workspace:^",
 		"@manypkg/find-root": "root:*",
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"typescript": "root:*",
 		"wait-for-expect": "root:*",
 		"yargs": "root:*"

@@ -29,11 +29,12 @@ import { blockDraggingToIFrames } from '@atlaskit/pragmatic-drag-and-drop/elemen
 import { disableNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/disable-native-drag-preview';
 import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/prevent-unhandled';
 import { token } from '@atlaskit/tokens';
-import Tooltip, { type TooltipPrimitiveProps, type TooltipProps } from '@atlaskit/tooltip';
-import TooltipContainer from '@atlaskit/tooltip/TooltipContainer';
+import Tooltip, { type TooltipProps } from '@atlaskit/tooltip';
+import TooltipContainer, { type TooltipContainerProps } from '@atlaskit/tooltip/TooltipContainer';
 import VisuallyHidden from '@atlaskit/visually-hidden';
 
 import { useIsFhsEnabled } from '../../fhs-rollout/use-is-fhs-enabled';
+import { contentInsetBlockStart } from '../constants';
 
 import {
 	OnDoubleClickContext,
@@ -152,6 +153,15 @@ const tooltipStyles = cssMap({
 		// We use a negative margin to offset this extra space, resulting in only an extra 1px of space between the tooltip and the splitter.
 		marginInlineStart: token('space.negative.075'),
 	},
+	fullHeightSidebarWithLayeringFixes: {
+		// With UNSAFE_shouldRenderToParent, the tooltip is rendered alongside the panel splitter in the DOM.
+		// With fg('platform-dst-side-nav-layering-fixes'), the side nav's panel splitter is rendered outside of the side nav element.
+		// The side nav panel splitter's container (portal target) uses `transform` for positioning, which makes it the containing block
+		// (https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Display/Containing_block) for the tooltip.
+		// This means its width will constrain the tooltip's width, causing the tooltip label to wrap.
+		// `width: max-content` bypasses this and lets the tooltip size to its content instead.
+		width: 'max-content',
+	},
 });
 
 export type PanelSplitterProps = {
@@ -204,10 +214,39 @@ function signPanelSplitterDragData(data: PanelSplitterDragData) {
 type MaybeTooltipProps = Pick<PanelSplitterProps, 'tooltipContent'> & {
 	children: ReactNode;
 	shortcut?: TooltipProps['shortcut'];
+	testId?: string;
 };
 
-const PanelSplitterTooltip = forwardRef<HTMLDivElement, TooltipPrimitiveProps>(
+const PanelSplitterTooltip = forwardRef<HTMLDivElement, TooltipContainerProps>(
 	({ children, className, ...props }, ref) => {
+		const style = useMemo(() => {
+			if (!props.style || !props.style.transform) {
+				return props.style;
+			}
+
+			// We cannot just match against integers safely, as browsers may introduce non-integer values due to scaling
+			// In the future we can probably use `CSSStyleValue.parse()` to get the browser to handle parsing for us,
+			// but there's no Firefox support yet.
+			const [translateX, translateY] = props.style.transform.matchAll(/(?:-|\+)?\d*\.?\d+px/g);
+
+			if (!translateY) {
+				// If we can't extract the translateY value we bail out and return the original style
+				return props.style;
+			}
+
+			/**
+			 * Adjusts the translate Y to keep the tooltip within the main content area,
+			 * so that it does not appear over the banner or top navigation.
+			 */
+			const newTranslateY = `max(calc(${contentInsetBlockStart} + ${token('space.100')}), ${translateY})`;
+			const newTransform = `translate3d(${translateX}, ${newTranslateY}, 0)`;
+
+			return {
+				...props.style,
+				transform: newTransform,
+			};
+		}, [props.style]);
+
 		return (
 			<TooltipContainer
 				{...props}
@@ -216,7 +255,13 @@ const PanelSplitterTooltip = forwardRef<HTMLDivElement, TooltipPrimitiveProps>(
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/design-system/no-unsafe-style-overrides
 				className={className}
 				// eslint-disable-next-line @atlaskit/design-system/no-unsafe-style-overrides
-				css={tooltipStyles.root}
+				css={[
+					tooltipStyles.root,
+					fg('platform-dst-side-nav-layering-fixes') &&
+						tooltipStyles.fullHeightSidebarWithLayeringFixes,
+				]}
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+				style={style}
 			>
 				{children}
 			</TooltipContainer>
@@ -227,12 +272,13 @@ const PanelSplitterTooltip = forwardRef<HTMLDivElement, TooltipPrimitiveProps>(
 /**
  * A wrapper component that renders a tooltip if the tooltipContent or shortcut is provided.
  */
-const MaybeTooltip = ({ tooltipContent, shortcut, children }: MaybeTooltipProps) => {
+const MaybeTooltip = ({ tooltipContent, shortcut, children, testId }: MaybeTooltipProps) => {
 	const isFhsEnabled = useIsFhsEnabled();
 
 	if (tooltipContent && isFhsEnabled) {
 		return (
 			<Tooltip
+				testId={testId}
 				content={tooltipContent}
 				shortcut={shortcut}
 				position={fg('platform_dst_nav4_side_nav_resize_tooltip_feedback') ? 'mouse-y' : 'mouse'}
@@ -244,6 +290,7 @@ const MaybeTooltip = ({ tooltipContent, shortcut, children }: MaybeTooltipProps)
 						: undefined
 				}
 				UNSAFE_shouldAlwaysFadeIn={fg('platform_dst_nav4_side_nav_resize_tooltip_feedback')}
+				UNSAFE_shouldRenderToParent={fg('platform_dst_nav4_side_nav_resize_tooltip_feedback')}
 			>
 				{children}
 			</Tooltip>
@@ -545,7 +592,15 @@ const PortaledPanelSplitter = ({
 			]}
 			data-testid={testId ? `${testId}-container` : undefined}
 		>
-			<MaybeTooltip tooltipContent={tooltipContent} shortcut={shortcut}>
+			<MaybeTooltip
+				tooltipContent={tooltipContent}
+				shortcut={shortcut}
+				testId={
+					testId && fg('platform_dst_nav4_side_nav_resize_tooltip_feedback')
+						? `${testId}-tooltip`
+						: undefined
+				}
+			>
 				{/* eslint-disable-next-line @atlassian/a11y/no-static-element-interactions --
 				We intentionally do not add keyboard event listeners to this element, as keyboard accessibility
 				is provided via a dedicated keyboard shortcut elsewhere in the application. */}

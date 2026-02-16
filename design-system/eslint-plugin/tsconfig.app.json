@@ -26,14 +26,11 @@
 		"**/codemods/**/*.tsx"
 	],
 	"compilerOptions": {
-		"lib": ["ES2021.String"],
+		"lib": ["ES2021.String", "ES2022.Array", "ES2022.String"],
 		"composite": true,
 		"outDir": "../../../tsDist/@atlaskit__eslint-plugin-design-system/app"
 	},
 	"references": [
-		{
-			"path": "../ds-lib/tsconfig.app.json"
-		},
 		{
 			"path": "../eslint-utils/tsconfig.app.json"
 		},
@@ -44,16 +41,10 @@
 			"path": "../icon-lab/tsconfig.app.json"
 		},
 		{
-			"path": "../theme/tsconfig.app.json"
-		},
-		{
 			"path": "../tokens/tsconfig.app.json"
 		},
 		{
 			"path": "../codegen/tsconfig.app.json"
-		},
-		{
-			"path": "../../monorepo-tooling/ts-loader/tsconfig.app.json"
 		}
 	],
 	"files": []

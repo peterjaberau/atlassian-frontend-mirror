@@ -31,6 +31,7 @@ import {
 	akEditorSelectedBorderColor,
 } from '@atlaskit/editor-shared-styles';
 import { scrollbarStyles } from '@atlaskit/editor-shared-styles/scrollbar';
+import { hideNativeBrowserTextSelectionStyles } from '@atlaskit/editor-shared-styles/selection';
 import { fg } from '@atlaskit/platform-feature-flags';
 import { N0, N40A, R500 } from '@atlaskit/theme/colors';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
@@ -105,6 +106,16 @@ const cornerControlHeight = tableToolbarSize + 1;
 */
 export const insertColumnButtonOffset = tableInsertColumnButtonSize / 2;
 export const tableRowHeight = 44;
+
+// Shared styling for numbered column buttons in selected state
+const numberedColumnButtonSelectedStyles = `
+	border-bottom: 1px solid ${tableBorderSelectedColor};
+	border-color: ${tableBorderSelectedColor};
+	background-color: ${tableToolbarSelectedColor};
+	position: relative;
+	z-index: ${akEditorUnitZIndex};
+	color: ${token('color.text.selected', N0)};
+`;
 
 const rangeSelectionStyles = `
 .${ClassName.NODEVIEW_WRAPPER}.${akEditorSelectedNodeClassName} table tbody tr {
@@ -311,7 +322,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 	${insertLine()};
 	${resizeHandle()};
 	${rangeSelectionStyles};
-	${fg('platform_editor_table_numbered_table_border') && rangeSelectionStylesForFakeBorders};
+	${rangeSelectionStylesForFakeBorders};
 	${viewModeSortStyles()};
 	${expValEquals(
 		'platform_editor_table_sticky_header_improvements',
@@ -367,11 +378,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 	${fg('platform_editor_nested_tables_sticky_header_bug')
 		? `
 		.${ClassName.TABLE_STICKY} > .${props.isDragAndDropEnabled ? ClassName.DRAG_ROW_CONTROLS_WRAPPER : ClassName.ROW_CONTROLS_WRAPPER} .${ClassName.NUMBERED_COLUMN} .${ClassName.NUMBERED_COLUMN_BUTTON}:first-of-type {
-			margin-top: ${
-				fg('platform_editor_number_column_sticky_header_bug')
-					? stickyRowOffsetTop
-					: stickyRowOffsetTop + 2
-			}px;
+			margin-top: ${stickyRowOffsetTop}px;
 			width: ${akEditorTableNumberColumnWidth}px;
 
 			position: fixed !important;
@@ -383,11 +390,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		`
 		: `
     	.${ClassName.TABLE_STICKY} .${ClassName.NUMBERED_COLUMN} .${ClassName.NUMBERED_COLUMN_BUTTON}:first-of-type {
-			margin-top: ${
-				fg('platform_editor_number_column_sticky_header_bug')
-					? stickyRowOffsetTop
-					: stickyRowOffsetTop + 2
-			}px;
+			margin-top: ${stickyRowOffsetTop}px;
 			width: ${akEditorTableNumberColumnWidth}px;
 
 			position: fixed !important;
@@ -662,30 +665,20 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		.${ClassName.WITH_CONTROLS}.${ClassName.TABLE_STICKY} > .${ClassName.DRAG_ROW_CONTROLS_WRAPPER}
 			.${ClassName.NUMBERED_COLUMN}
 			.${ClassName.NUMBERED_COLUMN_BUTTON}:first-of-type {
-			margin-top: ${
-				fg('platform_editor_number_column_sticky_header_bug')
-					? tableControlsSpacing
-					: tableControlsSpacing + 2
-			}px;
+			margin-top: ${tableControlsSpacing}px;
 		}
 		`
 		: `
 		.${ClassName.WITH_CONTROLS}.${ClassName.TABLE_STICKY}
 			.${ClassName.NUMBERED_COLUMN}
 			.${ClassName.NUMBERED_COLUMN_BUTTON}:first-of-type {
-			margin-top: ${
-				fg('platform_editor_number_column_sticky_header_bug')
-					? tableControlsSpacing
-					: tableControlsSpacing + 2
-			}px;
+			margin-top: ${tableControlsSpacing}px;
 		}
 		`}
 
 	.${ClassName.CORNER_CONTROLS}.sticky {
-		border-top: ${fg('platform_editor_number_column_sticky_header_bug')
-				? tableControlsSpacing - tableToolbarSize
-				: tableControlsSpacing - tableToolbarSize + 2}px
-			solid ${token('elevation.surface', 'white')};
+		border-top: ${tableControlsSpacing - tableToolbarSize}px solid
+			${token('elevation.surface', 'white')};
 	}
 
 	${sentinelStyles}
@@ -743,16 +736,12 @@ const baseTableStylesWithoutSharedStyle = (props: {
 			left: calc(100% - 16px);
 		}
 
-		${fg('platform_editor_table_less_padding_fix')
-			? `
-				.${TableSharedCssClassName.TABLE_LEFT_BORDER} {
-					left: 8px;
-				}
-				.${TableSharedCssClassName.TABLE_RIGHT_BORDER} {
-					right: 8px;
-				}
-			`
-			: ''}
+		.${TableSharedCssClassName.TABLE_LEFT_BORDER} {
+			left: 8px;
+		}
+		.${TableSharedCssClassName.TABLE_RIGHT_BORDER} {
+			right: 8px;
+		}
 	}
 
 	> .${ClassName.NODEVIEW_WRAPPER} {
@@ -1146,12 +1135,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 			}
 
 			.${ClassName.NUMBERED_COLUMN_BUTTON}.active {
-				border-bottom: 1px solid ${tableBorderSelectedColor};
-				border-color: ${tableBorderSelectedColor};
-				background-color: ${tableToolbarSelectedColor};
-				position: relative;
-				z-index: ${akEditorUnitZIndex};
-				color: ${token('color.text.selected', N0)};
+				${numberedColumnButtonSelectedStyles}
 			}
 		}
 
@@ -1162,17 +1146,25 @@ const baseTableStylesWithoutSharedStyle = (props: {
 			}
 		}
 	}
+
+	${expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
+		? `/* Apply numbered column styling when table is selected via text selection (e.g., block menu) */
+	.${akEditorSelectedNodeClassName} {
+		.${ClassName.NUMBERED_COLUMN} {
+			.${ClassName.NUMBERED_COLUMN_BUTTON} {
+				${numberedColumnButtonSelectedStyles}
+				${hideNativeBrowserTextSelectionStyles}
+			}
+		}
+	}`
+		: ''}
+
 	:not(.${ClassName.IS_RESIZING}) .${ClassName.WITH_CONTROLS} {
 		.${ClassName.NUMBERED_COLUMN_BUTTON}:not(.${ClassName.NUMBERED_COLUMN_BUTTON_DISABLED}) {
 			cursor: pointer;
 		}
 		.${ClassName.NUMBERED_COLUMN_BUTTON}:not(.${ClassName.NUMBERED_COLUMN_BUTTON_DISABLED}):hover {
-			border-bottom: 1px solid ${tableBorderSelectedColor};
-			border-color: ${tableBorderSelectedColor};
-			background-color: ${tableToolbarSelectedColor};
-			position: relative;
-			z-index: ${akEditorUnitZIndex};
-			color: ${token('color.text.selected', N0)};
+			${numberedColumnButtonSelectedStyles}
 		}
 		.${ClassName.NUMBERED_COLUMN_BUTTON}.${ClassName.HOVERED_CELL_IN_DANGER} {
 			background-color: ${tableToolbarDeleteColor};
@@ -1257,9 +1249,25 @@ const baseTableStylesWithoutSharedStyle = (props: {
 			background: ${tableCellSelectedColor};
 			z-index: ${akEditorSmallZIndex};
 		}
-		th.${ClassName.HOVERED_CELL_IN_DANGER}::after, td.${ClassName.HOVERED_CELL_IN_DANGER}::after {
-			background: ${tableCellDeleteColor};
-			z-index: ${akEditorUnitZIndex * 100};
+		/* Override border colors for danger state */
+		th.${ClassName.TABLE_HEADER_CELL}.${ClassName.HOVERED_CELL_IN_DANGER},
+			td.${ClassName.TABLE_CELL}.${ClassName.HOVERED_CELL_IN_DANGER} {
+			border-left-color: ${tableBorderDeleteColor};
+			border-top-color: ${tableBorderDeleteColor};
+			&::after {
+				height: 100%;
+				width: 100%;
+				border: 1px solid ${tableBorderDeleteColor};
+				content: '';
+				position: absolute;
+				left: -1px;
+				top: -1px;
+				bottom: 0;
+				z-index: ${akEditorUnitZIndex * 100};
+				display: inline-block;
+				pointer-events: none;
+				background: ${tableCellDeleteColor};
+			}
 		}
 		td.${ClassName.HOVERED_CELL},
 			td.${ClassName.SELECTED_CELL},
@@ -1281,11 +1289,13 @@ const baseTableStylesWithoutSharedStyle = (props: {
 			&.${ClassName.HOVERED_CELL_IN_DANGER}::after {
 				${tableBorderStyles()};
 				z-index: ${akEditorUnitZIndex * 100};
+				background: ${tableCellDeleteColor};
 			}
 
 			&.${ClassName.HOVERED_NO_HIGHLIGHT}.${ClassName.HOVERED_CELL_IN_DANGER}::after {
 				${tableBorderStyles()};
 				z-index: ${akEditorUnitZIndex * 100};
+				background: ${tableCellDeleteColor};
 			}
 		}
 	}

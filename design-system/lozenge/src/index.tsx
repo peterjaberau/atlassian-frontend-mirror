@@ -5,4 +5,7 @@ export type {
 	NewLozengeProps,
 	LozengeColor as NewLozengeColor,
 	LozengeDropdownTriggerProps,
+	LozengeSpacing,
+	SemanticColor,
+	AccentColor,
 } from './new/types';

@@ -1,5 +1,7 @@
 export type {
 	AdfRendererProps,
+	AtlassianTileProps,
+	AtlassianIconProps,
 	BadgeProps,
 	BoxProps,
 	ButtonGroupProps,
@@ -129,6 +131,8 @@ export type {
 	TPressable,
 	TFilePicker,
 	TTile,
+	TAtlassianTile,
+	TAtlassianIcon,
 } from './components/__generated__';
 
 export type {
@@ -156,3 +160,18 @@ export type {
 } from './components/editor';
 
 export type { ChartColorTokens } from './types';
+
+export type { FrameProps } from './components/frame';
+
+export type {
+	GlobalSidebarProps,
+	TGlobalSidebar,
+	GlobalLinkMenuItemProps,
+	TGlobalLinkMenuItem,
+	GlobalExpandableMenuItemProps,
+	TGlobalExpandableMenuItem,
+	GlobalProps,
+	TGlobal,
+	GlobalMainProps,
+	TGlobalMain,
+} from './components/global/__generated__';

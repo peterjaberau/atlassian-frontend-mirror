@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-block-menu",
-	"version": "6.0.14",
+	"version": "6.0.39",
 	"description": "BlockMenu plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -31,6 +31,7 @@
 		".": "./src/index.ts"
 	},
 	"dependencies": {
+		"@atlaskit/browser-apis": "workspace:^",
 		"@atlaskit/css": "workspace:^",
 		"@atlaskit/dropdown-menu": "workspace:^",
 		"@atlaskit/editor-plugin-analytics": "workspace:^",
@@ -47,9 +48,11 @@
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/platform-feature-flags-react": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/prosemirror-history": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
-		"@babel/runtime": "root:*"
+		"@babel/runtime": "root:*",
+		"bind-event-listener": "root:*"
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
@@ -94,9 +97,6 @@
 	},
 	"platform-feature-flags": {
 		"platform_editor_adf_with_localid": {
-			"type": "boolean"
-		},
-		"platform_editor_toolbar_aifc_user_intent_fix": {
 			"type": "boolean"
 		}
 	}

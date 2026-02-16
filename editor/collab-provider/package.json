@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/collab-provider",
-	"version": "15.0.0",
+	"version": "15.3.9",
 	"description": "A provider for collaborative editing.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -70,6 +70,7 @@
 	},
 	"devDependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^"
 	},
 	"platform-feature-flags": {

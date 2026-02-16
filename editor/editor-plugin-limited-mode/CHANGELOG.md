@@ -1,5 +1,76 @@
 # @atlaskit/editor-plugin-limited-mode
 
+## 4.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.6
+
+### Patch Changes
+
+- [`49dad8567c387`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/49dad8567c387) -
+  EDITOR-4948 - Change performance mode threshold condition to include doc size, node count, and LCM
+  check.
+- Updated dependencies
+
+## 4.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.3
+
+### Patch Changes
+
+- [`256b4fc86bae0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/256b4fc86bae0) -
+  [ux] EDITOR-4464 Limited Mode: Change threshold to activate limited mode to use the node count
+  rather than the raw document size.
+- Updated dependencies
+
+## 4.0.2
+
+### Patch Changes
+
+- [`2c3c92548bb9c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c3c92548bb9c) -
+  EDITOR-4639 cleanup cc_editor_limited_mode, cc_editor_limited_mode_include_lcm and unshipped code.
+- Updated dependencies
+
+## 4.0.1
+
+### Patch Changes
+
+- [`e0bc30ca14a41`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0bc30ca14a41) -
+  EDITOR-4465 - Add killSwitchEnabled option to disable performance/limited mode via Statsig
+  configuration.
+- Updated dependencies
+
 ## 4.0.0
 
 ### Patch Changes

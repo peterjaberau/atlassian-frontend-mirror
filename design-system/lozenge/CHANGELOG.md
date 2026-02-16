@@ -1,5 +1,56 @@
 # @atlaskit/lozenge
 
+## 13.4.2
+
+### Patch Changes
+
+- [`6d33a20db82a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d33a20db82a1) -
+  [ux] Added support for trailing metrics on semantic lozenges via the `trailingMetric` prop, with
+  optional `trailingMetricAppearance` override (including `inverse`). Not supported for accent
+  lozenges.
+- Updated dependencies
+
+## 13.4.1
+
+### Patch Changes
+
+- [`396504e5d05d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/396504e5d05d4) -
+  [ux] Changed to use pressed state colors on selected lozenge dropdown trigger to keep the semantic
+  colors.
+
+## 13.4.0
+
+### Minor Changes
+
+- [`2828d1ffb6a1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2828d1ffb6a1e) -
+  Added a `spacing` prop which takes `default` and `spacious`. `spacious` increases padding and sets
+  the lozenge height to 32px.
+
+## 13.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.3
+
+### Patch Changes
+
+- [`a0e326c1b7fcd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0e326c1b7fcd) -
+  Refactored scaling to use rem units to maintain a 20px computed height for accessibility.
+
+## 13.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 13.3.0
 
 ### Minor Changes

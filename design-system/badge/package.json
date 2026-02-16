@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/badge",
-	"version": "18.3.1",
+	"version": "18.4.0",
 	"description": "A badge is a visual indicator for numeric values such as tallies and scores.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -34,8 +34,8 @@
 					"title": "Badge",
 					"id": "badge",
 					"status": {
-						"type": "alpha",
-						"description": "This is an experiment under a feature flag. We may make frequent breaking changes with limited notice. We don't recommend using this without support from our team."
+						"type": "beta",
+						"description": "New and ready to use. We'll provide comms and support for any major changes."
 					}
 				}
 			]
@@ -65,7 +65,7 @@
 		"@atlaskit/theme": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:*",
-		"@testing-library/react": "^16.3.0",
+		"@atlassian/testing-library": "workspace:*",
 		"react-dom": "root:*"
 	},
 	"techstack": {
@@ -94,9 +94,6 @@
 	},
 	"homepage": "https://atlassian.design/components/badge/",
 	"platform-feature-flags": {
-		"platform_ken_2029_negative_numbers_badge": {
-			"type": "boolean"
-		},
 		"platform-dst-lozenge-tag-badge-visual-uplifts": {
 			"type": "boolean"
 		}

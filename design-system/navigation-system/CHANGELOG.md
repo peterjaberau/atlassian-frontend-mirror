@@ -1,5 +1,166 @@
 # @atlassian/navigation-system
 
+## 5.34.0
+
+### Minor Changes
+
+- [`b9dcd2a2ed822`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b9dcd2a2ed822) -
+  Internal refactor to change the imports of side nav item components from
+  `@atlaskit/navigation-system` to the new package `@atlaskit/side-nav-items`.
+
+  There are no functional changes - `@atlaskit/navigation-system` was already just re-exporting them
+  from `@atlaskit/side-nav-items`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.33.1
+
+### Patch Changes
+
+- [`790a15b2d6cc0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/790a15b2d6cc0) -
+  Fixes a bug behind the `platform_dst_nav4_side_nav_resize_tooltip_feedback` gate, where the side
+  nav panel splitter tooltip could be mispositioned on scaled displays.
+- Updated dependencies
+
+## 5.33.0
+
+### Minor Changes
+
+- [`57838cec99f29`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/57838cec99f29) -
+  Layering refactors have been made to the top nav and full height sidebar, behind the feature gate
+  `platform-dst-side-nav-layering-fixes`.
+  - Layers inside the side nav that are rendered to parent (`shouldRenderToParent`) will be layered
+    below the top nav and banner.
+  - Refactors have been made to the positioning and render location of the side nav panel splitter.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.32.2
+
+### Patch Changes
+
+- [`20e1df968ddc7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/20e1df968ddc7) -
+  Clean up feature gate platform-dst-buttonmenuitem-selected-state-support
+- Updated dependencies
+
+## 5.32.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.32.0
+
+### Minor Changes
+
+- [`ea028d2a58383`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ea028d2a58383) -
+  Implemented the SkeletonMenuItem and SkeletonMenuSectionHeading components to match the
+  corresponding components they represent.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.31.0
+
+### Minor Changes
+
+- [`c50f9ea3221b7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c50f9ea3221b7) -
+  The `description` of menu items will now use the selected state token when the menu item is
+  selected.
+
+  This change was previously behind the feature gate `platform-dst-menu-item-description-selected`,
+  which has now been cleaned up.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.30.0
+
+### Minor Changes
+
+- [`357e243a8b514`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/357e243a8b514) -
+  Side nav item components have moved to a new package `@atlaskit/side-nav-items`.
+
+  The `@atlaskit/navigation-system` package will re-export them from the new package during the
+  migration period. They will eventually be removed from the `@atlaskit/navigation-system` package.
+
+  This includes all exports from the entrypoints beginning with
+  `@atlaskit/navigation-system/side-nav-items/`:
+  - ContainerAvatar
+  - ExpandableMenuItem, ExpandableMenuItemTrigger, ExpandableMenuItemContentg
+  - FlyoutMenuItem, FlyoutMenuItemTrigger, FlyoutMenuItemContent, FlyoutHeader, FlyoutBody,
+    FlyoutFooter
+  - ButtonMenuItem
+  - LinkMenuItem
+  - MenuList
+  - MenuListItem
+  - MenuSection, MenuSectionHeading, Divider
+  - TopLevelSpacer
+  - LazyDragHandle, DragPreview, DropIndicator, GroupDropIndicator, useMenuItemDragAndDrop
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.29.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.29.1
+
+### Patch Changes
+
+- [`88290f9d44829`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88290f9d44829) -
+  Update the `Aside` component's description to indicate our intention to deprecate it in the
+  future.
+
+## 5.29.0
+
+### Minor Changes
+
+- [`5b501c4928e72`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5b501c4928e72) -
+  Added `ref`, and `onKeyDown`, `onKeyUp`, and `onBlurCapture` props to `FlyoutBody` to support
+  keyboard interaction and infinite scrolling.
+
+  Adjusted spacing for `FlyoutHeader`, `FlyoutBody` and `FlyoutFooter` to fix padding and margins.
+
+  Introduced a `maxHeight` prop on `FlyoutMenuItemContent` (default `760px`) to provide a secondary
+  height clamp for the flyout container.
+
+## 5.28.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.28.0
+
+### Minor Changes
+
+- [`2ff0f3751e4e4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ff0f3751e4e4) -
+  Clean up the `platform_dst_nav4_layering_in_main_slot_fixes` feature gate. This change was
+  abandoned because it broke usage of fixed positioning in apps.
+
+## 5.27.0
+
+### Minor Changes
+
+- [`9cb76d1d2b1a0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9cb76d1d2b1a0) -
+  Changes `PanelSplitter` tooltips to remain vertically within the main content area, behind the
+  `platform_dst_nav4_side_nav_resize_tooltip_feedback` feature gate.
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 5.26.0
 
 ### Minor Changes

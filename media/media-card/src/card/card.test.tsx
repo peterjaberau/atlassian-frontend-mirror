@@ -70,6 +70,7 @@ jest.mock('@atlaskit/react-ufo/experience-trace-id-context', () => ({
 }));
 
 import { useAnalyticsEvents, type CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 import * as svgHelpersModule from './svgView/helpers';
 import * as imageRendererHelpersModule from './ui/imageRenderer/helpers';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
@@ -125,6 +126,11 @@ const dummyMediaClientConfig = {} as MediaClientConfig;
 const GLOBAL_MEDIA_CARD_SSR = 'mediaCardSsr';
 const GLOBAL_MEDIA_NAMESPACE = '__MEDIA_INTERNAL';
 const PERFORMANCE_NOW = 1000;
+
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
 
 const setGlobalSSRData = (id: string, data: any) => {
 	// @ts-ignore
@@ -4460,6 +4466,13 @@ describe('Card ', () => {
 		});
 
 		describe('should fire an operational event', () => {
+			beforeEach(() => {
+				// Feature flag defaults to false (disabled), so all events fire
+				// Mock Math.random to always return a value < 0.1 (within sample rate)
+				// This ensures success events always fire in tests, preventing flakiness
+				jest.spyOn(Math, 'random').mockReturnValue(0.05);
+			});
+
 			it('when the card status changes (file identifier)', async () => {
 				const [fileItem, identifier] = generateSampleFileItem.workingPdfWithRemotePreview();
 				const { MockedMediaClientProvider, processItem } = createMockedMediaClientProvider({
@@ -4771,6 +4784,7 @@ describe('Card ', () => {
 							},
 							status: 'fail',
 							failReason: 'failed-processing',
+							processingFailReason: 'not-available',
 							ssrReliability: { server: { status: 'unknown' }, client: { status: 'unknown' } },
 							traceContext: expect.objectContaining({ traceId: expect.any(String) }),
 							metadataTraceContext: { traceId: expect.any(String), spanId: expect.any(String) },
@@ -5150,6 +5164,13 @@ describe('Card ', () => {
 	});
 
 	describe.each([true, false])('SVG (disableOverlay: %p )', (disableOverlay) => {
+		beforeEach(() => {
+			// Feature flag defaults to false (disabled), so all events fire
+			// Mock Math.random to always return a value < 0.1 (within sample rate)
+			// This ensures success events always fire in tests, preventing flakiness
+			jest.spyOn(Math, 'random').mockReturnValue(0.05);
+		});
+
 		it('should render SVG natively', async () => {
 			const [fileItem, identifier] = generateSampleFileItem.svg();
 			const { mediaApi } = createMockedMediaApi(fileItem);

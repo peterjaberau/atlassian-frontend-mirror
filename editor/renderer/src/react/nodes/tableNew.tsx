@@ -68,12 +68,12 @@ const stickyContainerAdditionalStyles = {
 	zIndex: 1,
 };
 
-export const isTableResizingEnabled = (appearance: RendererAppearance) =>
+export const isTableResizingEnabled = (appearance: RendererAppearance): boolean =>
 	isFullWidthOrFullPageAppearance(appearance) ||
 	(isCommentAppearance(appearance) &&
 		editorExperiment('support_table_in_comment', true, { exposure: true }));
 
-export const isStickyScrollbarEnabled = (appearance: RendererAppearance) =>
+export const isStickyScrollbarEnabled = (appearance: RendererAppearance): boolean =>
 	isFullWidthOrFullPageAppearance(appearance) &&
 	editorExperiment('platform_renderer_table_sticky_scrollbar', true, { exposure: true });
 
@@ -124,7 +124,7 @@ export const orderChildren = (
 	return sortedTable.map((elem) => elem.rowReact);
 };
 
-export const hasRowspan = (row: PMNode) => {
+export const hasRowspan = (row: PMNode): boolean => {
 	let hasRowspan = false;
 	row.forEach((cell: PMNode) => (hasRowspan = hasRowspan || cell.attrs.rowspan > 1));
 	return hasRowspan;
@@ -139,10 +139,13 @@ export const shouldHeaderStick = (
 	tableTop: number,
 	tableBottom: number,
 	rowHeight: number,
-) => tableTop <= scrollTop && !(tableBottom - rowHeight <= scrollTop);
+): boolean => tableTop <= scrollTop && !(tableBottom - rowHeight <= scrollTop);
 
-export const shouldHeaderPinBottom = (scrollTop: number, tableBottom: number, rowHeight: number) =>
-	tableBottom - rowHeight <= scrollTop && !(tableBottom < scrollTop);
+export const shouldHeaderPinBottom = (
+	scrollTop: number,
+	tableBottom: number,
+	rowHeight: number,
+): boolean => tableBottom - rowHeight <= scrollTop && !(tableBottom < scrollTop);
 
 export const addSortableColumn = (
 	// Ignored via go/ees005
@@ -178,7 +181,8 @@ export type TableProps = SharedTableProps & {
 
 export const isHeaderRowEnabled = (
 	rows: (React.ReactChild | React.ReactFragment | React.ReactPortal)[],
-) => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any => {
 	if (!rows.length) {
 		return false;
 	}
@@ -199,7 +203,8 @@ export const isHeaderRowEnabled = (
 export const tableCanBeSticky = (
 	node: PMNode | undefined,
 	children: (React.ReactChild | React.ReactFragment | React.ReactPortal)[],
-) => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any => {
 	return isHeaderRowEnabled(children) && node && node.firstChild && !hasRowspan(node.firstChild);
 };
 
@@ -471,6 +476,7 @@ export class TableContainer extends React.Component<
 			allowTableAlignment,
 			allowTableResizing,
 			isPresentational,
+			allowFixedColumnWidthOption,
 		} = this.props;
 
 		const { stickyMode } = this.state;
@@ -666,6 +672,7 @@ export class TableContainer extends React.Component<
 							rendererAppearance={rendererAppearance}
 							allowTableResizing={allowTableResizing}
 							fixTableSSRResizing
+							allowFixedColumnWidthOption={allowFixedColumnWidthOption}
 						>
 							{[children && children[0]]}
 						</StickyTable>
@@ -695,6 +702,7 @@ export class TableContainer extends React.Component<
 							isinsideMultiBodiedExtension={isinsideMultiBodiedExtension}
 							allowTableResizing={allowTableResizing}
 							isPresentational={isPresentational}
+							allowFixedColumnWidthOption={allowFixedColumnWidthOption}
 						>
 							{this.grabFirstRowRef(children)}
 						</Table>

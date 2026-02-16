@@ -10,11 +10,10 @@ var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 var t = _interopRequireWildcard(require("@babel/types"));
 var _tokenNames = _interopRequireDefault(require("../artifacts/token-names"));
-var _atlassianLegacyLight = _interopRequireDefault(require("../artifacts/tokens-raw/atlassian-legacy-light"));
 var _atlassianLight = _interopRequireDefault(require("../artifacts/tokens-raw/atlassian-light"));
 var _atlassianShape = _interopRequireDefault(require("../artifacts/tokens-raw/atlassian-shape"));
 var _atlassianSpacing = _interopRequireDefault(require("../artifacts/tokens-raw/atlassian-spacing"));
-var _atlassianTypographyAdg = _interopRequireDefault(require("../artifacts/tokens-raw/atlassian-typography-adg3"));
+var _atlassianTypography = _interopRequireDefault(require("../artifacts/tokens-raw/atlassian-typography"));
 function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, default: e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0, _defineProperty2.default)(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
@@ -125,7 +124,7 @@ function plugin() {
               // if no fallback is set, optionally find one from the default theme
               if (path.node.arguments.length < 2) {
                 if (state.opts.shouldUseAutoFallback !== false) {
-                  replacementNode = t.stringLiteral("var(".concat(cssTokenValue, ", ").concat(getDefaultFallback(tokenName, state.opts.defaultTheme), ")"));
+                  replacementNode = t.stringLiteral("var(".concat(cssTokenValue, ", ").concat(getDefaultFallback(tokenName), ")"));
                 } else {
                   replacementNode = t.stringLiteral("var(".concat(cssTokenValue, ")"));
                 }
@@ -136,7 +135,7 @@ function plugin() {
               var forceAutoFallbackExemptions = ['radius'].concat((0, _toConsumableArray2.default)(state.opts.forceAutoFallbackExemptions || []));
 
               // Handle fallbacks
-              var fallback = state.opts.shouldForceAutoFallback !== false && !isExempted(tokenName, forceAutoFallbackExemptions) ? t.stringLiteral(getDefaultFallback(tokenName, state.opts.defaultTheme)) : path.node.arguments[1];
+              var fallback = state.opts.shouldForceAutoFallback !== false && !isExempted(tokenName, forceAutoFallbackExemptions) ? t.stringLiteral(getDefaultFallback(tokenName)) : path.node.arguments[1];
               if (t.isStringLiteral(fallback)) {
                 // String literals can be concatenated into css variable call
                 // Empty string fallbacks are ignored. For now, as the user did specify a fallback, no default is inserted
@@ -194,12 +193,10 @@ function plugin() {
   };
 }
 var lightValues = getThemeValues(_atlassianLight.default);
-var legacyLightValues = getThemeValues(_atlassianLegacyLight.default);
 var shapeValues = getThemeValues(_atlassianShape.default);
 var spacingValues = getThemeValues(_atlassianSpacing.default);
-var typographyValues = getThemeValues(_atlassianTypographyAdg.default);
+var typographyValues = getThemeValues(_atlassianTypography.default);
 function getDefaultFallback(tokenName) {
-  var theme = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'light';
   if (shapeValues[tokenName]) {
     return shapeValues[tokenName];
   }
@@ -209,8 +206,7 @@ function getDefaultFallback(tokenName) {
   if (typographyValues[tokenName]) {
     return typographyValues[tokenName];
   }
-  var colorValues = theme === 'legacy-light' ? legacyLightValues : lightValues;
-  return colorValues[tokenName];
+  return lightValues[tokenName];
 }
 function getNonAliasedImportName(node) {
   if (t.isIdentifier(node.imported)) {

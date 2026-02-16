@@ -39,12 +39,14 @@ export { helpDialogMessages } from './help-dialog';
 export { highlightMessages } from './highlight';
 export { messages as blockControlsMessages } from './block-controls';
 export { mediaInsertMessages } from './media-insert';
+export { mediaEditingMessages } from './media-editing';
 export { selectionExtensionMessages } from './selection-extension';
 export { selectionToolbarMessages } from './selection-toolbar';
 export { contextPanelMessages } from './context-panel';
 export { trackChangesMessages } from './track-changes';
 export { syncBlockMessages } from './syncBlock';
 export { limitedModeMessages } from './limited-mode';
+export { companyHubTextColorMessages } from './company-hub-text-color';
 
 export default defineMessages({
 	layoutFixedWidth: {

@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect } from 'react';
 
 import type { DocNode } from '@atlaskit/adf-schema';
-import type { SyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
+import { ACTION_SUBJECT, type AnalyticsEventPayload } from '@atlaskit/editor-common/analytics';
+import { ErrorBoundary } from '@atlaskit/editor-common/error-boundary';
+import { SyncBlockActionsProvider } from '@atlaskit/editor-common/sync-block';
 import type { JSONNode } from '@atlaskit/editor-json-transformer';
 import {
 	convertSyncBlockJSONNodeToSyncBlockNode,
@@ -9,9 +11,9 @@ import {
 	type SyncBlockDataProvider,
 	type SyncBlockInstance,
 	type SyncBlockNode,
+	type SyncedBlockProvider,
+	type SyncBlockPrefetchData,
 } from '@atlaskit/editor-synced-block-provider';
-import type { SyncedBlockProvider } from '@atlaskit/editor-synced-block-provider';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 import type { SyncedBlockRendererOptions } from './types';
 import {
@@ -20,7 +22,8 @@ import {
 } from './ui/SyncedBlockNodeComponentRenderer';
 
 export type GetSyncedBlockNodeComponentProps = {
-	fireAnalyticsEvent?: (payload: SyncBlockEventPayload) => void;
+	fireAnalyticsEvent?: (payload: AnalyticsEventPayload) => void;
+	getPrefetchedData?: () => SyncBlockPrefetchData | undefined;
 	getSSRData?: () => Record<string, SyncBlockInstance> | undefined;
 	syncBlockNodes: SyncBlockNode[];
 	syncBlockProvider: SyncedBlockProvider;
@@ -44,6 +47,7 @@ export const useMemoizedSyncedBlockNodeComponent = ({
 	syncBlockRendererOptions,
 	fireAnalyticsEvent,
 	getSSRData,
+	getPrefetchedData,
 }: GetSyncedBlockNodeComponentProps): ((props: SyncedBlockNodeProps) => React.JSX.Element) => {
 	const syncBlockStoreManager = useMemoizedSyncBlockStoreManager(
 		syncBlockProvider as SyncBlockDataProvider,
@@ -52,7 +56,7 @@ export const useMemoizedSyncedBlockNodeComponent = ({
 
 	// Initialize SSR data if available
 	useEffect(() => {
-		if (getSSRData && fg('platform_synced_block_dogfooding')) {
+		if (getSSRData) {
 			const ssrData = getSSRData();
 			if (ssrData && (syncBlockProvider as SyncBlockDataProvider).setSSRData) {
 				(syncBlockProvider as SyncBlockDataProvider).setSSRData(ssrData);
@@ -60,20 +64,41 @@ export const useMemoizedSyncedBlockNodeComponent = ({
 		}
 	}, [getSSRData, syncBlockProvider]);
 
-	// Initial fetch sync block data (will use SSR data as initial cache if available)
+	// Process prefetched data next, if available
+	useEffect(() => {
+		let prefetchedData: SyncBlockPrefetchData | undefined;
+		if (getPrefetchedData) {
+			prefetchedData = getPrefetchedData();
+			syncBlockStoreManager.referenceManager.processPrefetchedData(prefetchedData);
+		}
+	}, [getPrefetchedData, syncBlockStoreManager.referenceManager]);
+
+	// Initial fetch sync block data (will use SSR data as initial cache, or the prefetched data if available)
 	useEffect(() => {
 		syncBlockStoreManager.referenceManager.fetchSyncBlocksData(syncBlockNodes);
 	}, [syncBlockNodes, syncBlockStoreManager.referenceManager]);
 
 	return useCallback(
 		(props: SyncedBlockNodeProps) => (
-			<SyncedBlockNodeComponentRenderer
-				key={props.localId}
-				nodeProps={props}
-				syncBlockStoreManager={syncBlockStoreManager}
-				rendererOptions={syncBlockRendererOptions}
-			/>
+			<ErrorBoundary
+				component={ACTION_SUBJECT.SYNCED_BLOCK}
+				dispatchAnalyticsEvent={fireAnalyticsEvent}
+				fallbackComponent={null}
+			>
+				<SyncBlockActionsProvider
+					fetchSyncBlockSourceInfo={(sourceAri: string) =>
+						syncBlockStoreManager.referenceManager.fetchSyncBlockSourceInfoBySourceAri(sourceAri)
+					}
+				>
+					<SyncedBlockNodeComponentRenderer
+						key={props.localId}
+						nodeProps={props}
+						syncBlockStoreManager={syncBlockStoreManager}
+						rendererOptions={syncBlockRendererOptions}
+					/>
+				</SyncBlockActionsProvider>
+			</ErrorBoundary>
 		),
-		[syncBlockStoreManager, syncBlockRendererOptions],
+		[syncBlockStoreManager, syncBlockRendererOptions, fireAnalyticsEvent],
 	);
 };

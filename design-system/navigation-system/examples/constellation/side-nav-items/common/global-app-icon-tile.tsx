@@ -22,10 +22,10 @@ const styles = cssMap({
 		alignItems: 'center',
 		justifyContent: 'center',
 		// Creates a 24px bounding box
-		marginTop: token('space.025'),
-		marginRight: token('space.025'),
-		marginBottom: token('space.025'),
-		marginLeft: token('space.025'),
+		marginBlockStart: token('space.025'),
+		marginInlineEnd: token('space.025'),
+		marginBlockEnd: token('space.025'),
+		marginInlineStart: token('space.025'),
 	},
 });
 
@@ -34,7 +34,7 @@ const styles = cssMap({
  *
  * Intentionally not exported, just using it for an example at the moment.
  */
-export function GlobalAppIconTile({ logo: Logo }: GlobalAppIconTileProps) {
+export function GlobalAppIconTile({ logo: Logo }: GlobalAppIconTileProps): JSX.Element {
 	return (
 		<div css={styles.root}>
 			<Logo size="xxsmall" label="" appearance="inverse" />

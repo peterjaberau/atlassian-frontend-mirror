@@ -9,13 +9,15 @@ import {
 } from '@atlaskit/editor-common/analytics';
 import { isSSR } from '@atlaskit/editor-common/core-utils';
 import { ErrorBoundary } from '@atlaskit/editor-common/error-boundary';
-import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { logException } from '@atlaskit/editor-common/monitoring';
-import { EditorToolbarProvider, EditorToolbarUIProvider, shouldShowSelectionToolbar } from '@atlaskit/editor-common/toolbar';
+import {
+	EditorToolbarProvider,
+	EditorToolbarUIProvider,
+	shouldShowSelectionToolbar,
+} from '@atlaskit/editor-common/toolbar';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { Popup } from '@atlaskit/editor-common/ui';
-import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
 import {
 	calculateToolbarPositionTrackHead,
 	calculateToolbarPositionOnCellSelection,
@@ -31,8 +33,6 @@ import {
 } from '@atlaskit/editor-toolbar';
 import { ToolbarModelRenderer } from '@atlaskit/editor-toolbar-model';
 import type { RegisterToolbar, RegisterComponent } from '@atlaskit/editor-toolbar-model';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { conditionalHooksFactory } from '@atlaskit/platform-feature-flags-react';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
@@ -40,6 +40,7 @@ import type { ToolbarPlugin } from '../../toolbarPluginType';
 import { SELECTION_TOOLBAR_LABEL } from '../consts';
 
 import { getKeyboardNavigationConfig } from './keyboard-config';
+import type { CalculateToolbarPosition, Position } from './types';
 import { getDomRefFromSelection } from './utils';
 
 const isToolbarComponent = (component: RegisterComponent): component is RegisterToolbar => {
@@ -48,96 +49,38 @@ const isToolbarComponent = (component: RegisterComponent): component is Register
 
 type SelectionToolbarProps = {
 	api?: ExtractInjectionAPI<ToolbarPlugin>;
+	calculateToolbarPosition?: CalculateToolbarPosition;
 	disableSelectionToolbarWhenPinned: boolean;
 	editorView: EditorView;
 	mountPoint: HTMLElement | undefined;
 };
 
-const usePluginState = conditionalHooksFactory(
-	() => expValEquals('platform_editor_toolbar_aifc_patch_3', 'isEnabled', true),
-	(api?: ExtractInjectionAPI<ToolbarPlugin>) => {
-		return useSharedPluginStateWithSelector(
-			api,
-			['connectivity', 'userPreferences', 'toolbar', 'selection', 'userIntent', 'editorViewMode'],
-			(state) => {
-				return {
-					connectivityStateMode: state.connectivityState?.mode,
-					editorToolbarDockingPreference:
-						state.userPreferencesState?.preferences?.toolbarDockingPosition,
-					shouldShowToolbar: state.toolbarState?.shouldShowToolbar,
-					selectedNode: state.toolbarState?.selectedNode,
-					selection: state.selectionState?.selection,
-					currentUserIntent: state.userIntentState?.currentUserIntent,
-					editorViewMode: state.editorViewModeState?.mode,
-				};
-			},
-		);
-	},
-	(api?: ExtractInjectionAPI<ToolbarPlugin>) => {
-		const connectivityStateMode = useSharedPluginStateSelector(api, 'connectivity.mode');
-		const editorToolbarDockingPreference = useSharedPluginStateSelector(
-			api,
-			'userPreferences.preferences.toolbarDockingPosition',
-		);
-		const currentUserIntent = useSharedPluginStateSelector(api, 'userIntent.currentUserIntent');
-		const selection = useSharedPluginStateSelector(api, 'selection.selection');
-		const { shouldShowToolbar, selectedNode } = useSharedPluginStateWithSelector(
-			api,
-			['toolbar'],
-			(state: NamedPluginStatesFromInjectionAPI<ExtractInjectionAPI<ToolbarPlugin>, 'toolbar'>) => {
-				return {
-					shouldShowToolbar: state.toolbarState?.shouldShowToolbar,
-					selectedNode: state.toolbarState?.selectedNode,
-				};
-			},
-		);
+const usePluginState = (api?: ExtractInjectionAPI<ToolbarPlugin>) => {
+	return useSharedPluginStateWithSelector(
+		api,
+		['connectivity', 'userPreferences', 'toolbar', 'selection', 'userIntent', 'editorViewMode'],
+		(state) => {
+			return {
+				connectivityStateMode: state.connectivityState?.mode,
+				editorToolbarDockingPreference:
+					state.userPreferencesState?.preferences?.toolbarDockingPosition,
+				shouldShowToolbar: state.toolbarState?.shouldShowToolbar,
+				selectedNode: state.toolbarState?.selectedNode,
+				selection: state.selectionState?.selection,
+				currentUserIntent: state.userIntentState?.currentUserIntent,
+				editorViewMode: state.editorViewModeState?.mode,
+			};
+		},
+	);
+};
 
-		return {
-			connectivityStateMode,
-			editorToolbarDockingPreference,
-			currentUserIntent,
-			shouldShowToolbar,
-			selection,
-			editorViewMode: undefined,
-			selectedNode,
-		};
-	},
-);
-
-const useOnPositionCalculated = conditionalHooksFactory(
-	() => fg('platform_editor_toolbar_aifc_patch_7'),
-	(editorView: EditorView) => {
-		const onPositionCalculated = useCallback(
-			(position: { left?: number; top?: number }) => {
-				try {
-					const toolbarTitle = SELECTION_TOOLBAR_LABEL;
-
-					// Show special position on cell selection only when editor controls experiment is enabled
-					const isEditorControlsEnabled = expValEquals(
-						'platform_editor_controls',
-						'cohort',
-						'variant1',
-					);
-					const isCellSelection = '$anchorCell' in editorView.state.selection;
-					if (isCellSelection && isEditorControlsEnabled) {
-						return calculateToolbarPositionOnCellSelection(toolbarTitle)(editorView, position);
-					}
-					return calculateToolbarPositionTrackHead(toolbarTitle)(editorView, position);
-				} catch (error: unknown) {
-					logException(error as Error, { location: 'editor-plugin-toolbar/selectionToolbar' });
-					return position;
-				}
-			},
-			[editorView],
-		);
-
-		return onPositionCalculated;
-	},
-	(editorView: EditorView) => {
-		const onPositionCalculated = useCallback(
-			(position: { left?: number; top?: number }) => {
-				const toolbarTitle = SELECTION_TOOLBAR_LABEL;
-
+const useOnPositionCalculated = (
+	editorView: EditorView,
+	cachedCalculateToolbarPosition?: CalculateToolbarPosition,
+) => {
+	const onPositionCalculated = useCallback(
+		(position: Position) => {
+			try {
 				// Show special position on cell selection only when editor controls experiment is enabled
 				const isEditorControlsEnabled = expValEquals(
 					'platform_editor_controls',
@@ -146,16 +89,25 @@ const useOnPositionCalculated = conditionalHooksFactory(
 				);
 				const isCellSelection = '$anchorCell' in editorView.state.selection;
 				if (isCellSelection && isEditorControlsEnabled) {
-					return calculateToolbarPositionOnCellSelection(toolbarTitle)(editorView, position);
+					return calculateToolbarPositionOnCellSelection(SELECTION_TOOLBAR_LABEL)(
+						editorView,
+						position,
+					);
 				}
-				return calculateToolbarPositionTrackHead(toolbarTitle)(editorView, position);
-			},
-			[editorView],
-		);
 
-		return onPositionCalculated;
-	},
-);
+				return cachedCalculateToolbarPosition
+					? cachedCalculateToolbarPosition(editorView, position)
+					: calculateToolbarPositionTrackHead(SELECTION_TOOLBAR_LABEL)(editorView, position);
+			} catch (error: unknown) {
+				logException(error as Error, { location: 'editor-plugin-toolbar/selectionToolbar' });
+				return position;
+			}
+		},
+		[editorView, cachedCalculateToolbarPosition],
+	);
+
+	return onPositionCalculated;
+};
 
 export const SelectionToolbar = ({
 	api,
@@ -169,12 +121,14 @@ export const SelectionToolbar = ({
 		currentUserIntent,
 		shouldShowToolbar,
 		editorViewMode,
-		// @ts-ignore
-		selection,
 	} = usePluginState(api);
 
-	const contextualFormattingEnabled = api?.toolbar?.actions.contextualFormattingMode() ?? 'always-pinned';
-	const selectionToolbarConfigEnabled = shouldShowSelectionToolbar(contextualFormattingEnabled, editorToolbarDockingPreference);
+	const contextualFormattingEnabled =
+		api?.toolbar?.actions.contextualFormattingMode() ?? 'always-pinned';
+	const selectionToolbarConfigEnabled = shouldShowSelectionToolbar(
+		contextualFormattingEnabled,
+		editorToolbarDockingPreference,
+	);
 
 	const intl = useIntl();
 	const components = api?.toolbar?.actions.getComponents();
@@ -186,7 +140,6 @@ export const SelectionToolbar = ({
 
 	const { isDisabled } = useToolbarUI();
 
-	const patch6Enabled = expValEquals('platform_editor_toolbar_aifc_patch_6', 'isEnabled', true);
 	const isOffline = isOfflineMode(connectivityStateMode);
 	const isTextSelection =
 		!editorView.state.selection.empty && editorView.state.selection instanceof TextSelection;
@@ -200,9 +153,7 @@ export const SelectionToolbar = ({
 	const onPositionCalculated = useOnPositionCalculated(editorView);
 
 	if (
-		(expValEquals('platform_editor_toolbar_aifc_template_editor', 'isEnabled', true) &&
-			selectionToolbarConfigEnabled &&
-			disableSelectionToolbarWhenPinned) ||
+		(selectionToolbarConfigEnabled && disableSelectionToolbarWhenPinned) ||
 		!components ||
 		!toolbar
 	) {
@@ -215,12 +166,10 @@ export const SelectionToolbar = ({
 		!shouldShowToolbar ||
 		(currentUserIntent === 'blockMenuOpen' &&
 			expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)) ||
-		(fg('platform_editor_toolbar_aifc_user_intent_fix')
-			? // hide toolbar when user intent is not default, except when it's dragHandleSelected without cell selection
-				currentUserIntent &&
-				currentUserIntent !== 'default' &&
-				!(currentUserIntent === 'dragHandleSelected' && !isCellSelection)
-			: currentUserIntent && currentUserIntent !== 'default') ||
+		// hide toolbar when user intent is not default, except when it's dragHandleSelected without cell selection
+		(currentUserIntent &&
+			currentUserIntent !== 'default' &&
+			!(currentUserIntent === 'dragHandleSelected' && !isCellSelection)) ||
 		isSSR()
 	) {
 		return null;
@@ -236,24 +185,16 @@ export const SelectionToolbar = ({
 			<EditorToolbarProvider
 				editorView={editorView}
 				editorToolbarDockingPreference={editorToolbarDockingPreference}
-				editorViewMode={
-					expValEquals('platform_editor_toolbar_aifc_patch_4', 'isEnabled', true)
-						? (editorViewMode ?? 'edit')
-						: editorViewMode
-				}
+				editorViewMode={editorViewMode ?? 'edit'}
 				isOffline={isOffline}
 			>
 				<EditorToolbarUIProvider
 					api={api}
-					isDisabled={patch6Enabled ? isDisabled : isOffline}
+					isDisabled={isDisabled}
 					fireAnalyticsEvent={(payload: unknown) => {
 						api?.analytics?.actions.fireAnalyticsEvent(payload as AnalyticsEventPayload);
 					}}
-					keyboardNavigation={
-						expValEquals('platform_editor_toolbar_aifc_patch_5', 'isEnabled', true)
-							? keyboardNavigation
-							: undefined
-					}
+					keyboardNavigation={keyboardNavigation}
 				>
 					<ToolbarModelRenderer
 						toolbar={toolbar as RegisterToolbar}
@@ -275,6 +216,7 @@ export const SelectionToolbarWithErrorBoundary = ({
 	editorView,
 	mountPoint,
 	disableSelectionToolbarWhenPinned,
+	calculateToolbarPosition,
 }: SelectionToolbarProps): React.JSX.Element => {
 	return (
 		<ErrorBoundary
@@ -288,6 +230,7 @@ export const SelectionToolbarWithErrorBoundary = ({
 				editorView={editorView}
 				mountPoint={mountPoint}
 				disableSelectionToolbarWhenPinned={disableSelectionToolbarWhenPinned}
+				calculateToolbarPosition={calculateToolbarPosition}
 			/>
 		</ErrorBoundary>
 	);

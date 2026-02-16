@@ -4,6 +4,7 @@ import {
 	SyncBlockInvalidRequestError,
 	SyncBlockLoadingState,
 	SyncBlockNotFound,
+	SyncBlockUnsyncNotFound,
 	SyncBlockWithParagraphAndPanelRenderer,
 	SyncBlockWithPermissionDenied,
 } from './sync-block.fixture';
@@ -44,7 +45,12 @@ snapshot(SyncBlockWithPermissionDenied, {
 });
 
 snapshot(SyncBlockNotFound, {
-	description: 'should render sync block not found error',
+	description: 'should render sync block not found error - delete',
+	mockRequests: mockRequest,
+});
+
+snapshot(SyncBlockUnsyncNotFound, {
+	description: 'should render sync block not found error - unsync',
 	mockRequests: mockRequest,
 });
 

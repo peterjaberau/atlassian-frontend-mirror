@@ -146,6 +146,12 @@ export class DummyRovoExtensionComponent extends React.Component<Props> {
 	}
 }
 
+export class DummyTeamworkGraphComponent extends React.Component<Props> {
+	render(): React.JSX.Element {
+		return <CustomButton text={FabricChannel.teamworkGraph} onClick={this.props.onClick} />;
+	}
+}
+
 class MyButton extends React.Component<Props> {
 	static displayName = 'MyButton';
 	render(): React.JSX.Element {
@@ -176,9 +182,10 @@ const componentChannels = {
 	[FabricChannel.omniChannel]: DummyOmniChannelComponent,
 	[FabricChannel.townsquareHome]: DummyTownsquareHomeComponent,
 	[FabricChannel.rovoExtension]: DummyRovoExtensionComponent,
+	[FabricChannel.teamworkGraph]: DummyTeamworkGraphComponent,
 };
 
-export const createComponentWithAnalytics = (channel: FabricChannel) =>
+export const createComponentWithAnalytics = (channel: FabricChannel): React.ForwardRefExoticComponent<Omit<OwnProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>> =>
 	withAnalyticsEvents({
 		onClick: createAndFireEvent(channel)({
 			action: 'someAction',
@@ -187,7 +194,7 @@ export const createComponentWithAnalytics = (channel: FabricChannel) =>
 		}),
 	})(componentChannels[channel]);
 
-export const createComponentWithAttributesWithAnalytics = (channel: FabricChannel) =>
+export const createComponentWithAttributesWithAnalytics = (channel: FabricChannel): React.ForwardRefExoticComponent<Omit<OwnProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>> =>
 	withAnalyticsEvents({
 		onClick: createAndFireEvent(channel)({
 			action: 'someAction',
@@ -202,7 +209,7 @@ export const createComponentWithAttributesWithAnalytics = (channel: FabricChanne
 		}),
 	})(componentChannels[channel]);
 
-export const createTaggedComponentWithAnalytics = (channel: FabricChannel, tag: string) =>
+export const createTaggedComponentWithAnalytics = (channel: FabricChannel, tag: string): React.ForwardRefExoticComponent<Omit<OwnProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>> =>
 	withAnalyticsEvents({
 		onClick: createAndFireEvent(channel)({
 			action: 'someAction',
@@ -212,7 +219,7 @@ export const createTaggedComponentWithAnalytics = (channel: FabricChannel, tag: 
 		}),
 	})(componentChannels[channel]);
 
-export const IncorrectEventType = (channel: FabricChannel) =>
+export const IncorrectEventType = (channel: FabricChannel): React.ForwardRefExoticComponent<Omit<OwnProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>> =>
 	withAnalyticsEvents({
 		onClick: createAndFireEvent(channel)({
 			action: 'someAction',

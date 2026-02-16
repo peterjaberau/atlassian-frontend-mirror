@@ -60,10 +60,10 @@ const defaultFlagGroupContext = {
 };
 
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
-export const FlagGroupContext = createContext<FlagGroupAPI>(defaultFlagGroupContext);
+export const FlagGroupContext: import("react").Context<FlagGroupAPI> = createContext<FlagGroupAPI>(defaultFlagGroupContext);
 
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
-export function useFlagGroup() {
+export function useFlagGroup(): FlagGroupAPI {
 	return useContext(FlagGroupContext);
 }
 
@@ -126,7 +126,7 @@ const flagGroupContainerStyles = css({
  * - [Examples](https://atlassian.design/components/flag/flag-group/examples)
  * - [Code](https://atlassian.design/components/flag/flag-group/code)
  */
-const FlagGroup = (props: FlagGroupProps) => {
+const FlagGroup = (props: FlagGroupProps): JSX.Element => {
 	const {
 		id,
 		label = 'Flag notifications',

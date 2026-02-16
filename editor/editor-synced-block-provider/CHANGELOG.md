@@ -1,5 +1,377 @@
 # @atlaskit/editor-synced-block-provider
 
+## 3.28.0
+
+### Minor Changes
+
+- [`2d04d83eba130`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2d04d83eba130) -
+  EDITOR-4997 update cache dirty logic to reduce request
+
+## 3.27.2
+
+### Patch Changes
+
+- [`7b605d0a82c41`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b605d0a82c41) -
+  Add some tests + remove pending fetch requests for resourceId if reference blocks deleted
+- Updated dependencies
+
+## 3.27.1
+
+### Patch Changes
+
+- [`764672ccc7992`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/764672ccc7992) -
+  EDITOR-4049 Add support for prefetching of synced blocks data to synced block provider.
+- Updated dependencies
+
+## 3.27.0
+
+### Minor Changes
+
+- [`8433176cb97f5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8433176cb97f5) -
+  Edit at source for an archived page should not redirect and show ask for edit flag
+
+### Patch Changes
+
+- [`328425ff14e85`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/328425ff14e85) -
+  Update synced block to active state on flush
+- Updated dependencies
+
+## 3.26.2
+
+### Patch Changes
+
+- [`ab4e4e442ad49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab4e4e442ad49) -
+  [ux] [EDITOR-3694] Add loading state to bodiedSyncBlock for when saving new block to BE
+- Updated dependencies
+
+## 3.26.1
+
+### Patch Changes
+
+- [`7ba3979b92b42`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ba3979b92b42) -
+  Remove platform_synced_block_dogfooding feature gate
+- Updated dependencies
+
+## 3.26.0
+
+### Minor Changes
+
+- [`a18ce28559c45`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a18ce28559c45) -
+  Get block uses GraphQL endpoint
+- [`bbe398b495d85`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bbe398b495d85) -
+  Use the Rest API for fetching page URL when page is unpublished
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.25.0
+
+### Minor Changes
+
+- [`1ded312f31a41`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ded312f31a41) -
+  Fetch references by blockAri uses GraphQL endpoint
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.24.0
+
+### Minor Changes
+
+- [`79754ae4abb79`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/79754ae4abb79) -
+  Use GraphQL query for batch retrieve blocks
+
+## 3.23.0
+
+### Minor Changes
+
+- [`a4080dd63bfbf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4080dd63bfbf) -
+  Enable graphQL subscriptions in the sync block store manager
+
+### Patch Changes
+
+- [`0023ac8318940`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0023ac8318940) -
+  [ux] Set unpublished as default create state for synced blocks
+- Updated dependencies
+
+## 3.22.0
+
+### Minor Changes
+
+- [`c9e2a2b390abf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c9e2a2b390abf) -
+  Batch retrieve should batch retrieve block calls in renderer
+- [`1d1696511a8a3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1d1696511a8a3) -
+  Do not throw error if no data returned for update references, if noContent is specified
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.21.0
+
+### Minor Changes
+
+- [`5a25a439411b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5a25a439411b3) -
+  Use the GraphQL endpoint for setting references on a document
+- [`7e2af504cc8ad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7e2af504cc8ad) -
+  Use the GraphQL endpoint for create block
+
+### Patch Changes
+
+- [`f00a10013820a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f00a10013820a) -
+  [ux] Update synced block fetch success events to send reference local id instead of source local
+  id
+- Updated dependencies
+
+## 3.20.0
+
+### Minor Changes
+
+- [`9034cc60b8989`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9034cc60b8989) -
+  Use the GraphQL endpoint for delete block
+
+## 3.19.0
+
+### Minor Changes
+
+- [`1e7ebf4e1bf2d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1e7ebf4e1bf2d) -
+  Use the GraphQL endpoint for update block
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.18.0
+
+### Minor Changes
+
+- [`cfea9d4edb5f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cfea9d4edb5f0) -
+  EDITOR-2849 refactor to use unify cache
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.17.0
+
+### Minor Changes
+
+- [`251219994ffd0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/251219994ffd0) -
+  Retrieve NCS step version from the editor actions
+
+### Patch Changes
+
+- [`87775069f24dc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87775069f24dc) -
+  Update update sync block references endpoint to be keepalive
+- Updated dependencies
+
+## 3.16.0
+
+### Minor Changes
+
+- [`ff4d035bb0bda`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ff4d035bb0bda) -
+  EDITOR-2849 fix editor and live page ssr
+
+## 3.15.0
+
+### Minor Changes
+
+- [`04b96fcb2ac43`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/04b96fcb2ac43) -
+  Use existing function to check if SSR
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.14.6
+
+### Patch Changes
+
+- [`faddbf566c913`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/faddbf566c913) -
+  [ux] Add error message in reference sync block when source is unpublished
+- Updated dependencies
+
+## 3.14.5
+
+### Patch Changes
+
+- [`f11ff647ea458`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f11ff647ea458) -
+  [ux] [EDITOR-4521] Implement source deleted reference UI, update block deleted/unsynced reference
+  UI to add delete button, unsynced label and source title/url
+- Updated dependencies
+
+## 3.14.4
+
+### Patch Changes
+
+- [`5ec143ea91476`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5ec143ea91476) -
+  Do not re-convert already converted timestamps
+- [`aa5302b457078`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa5302b457078) -
+  [ux] EDITOR-4763 Ensure initial source sync block data are always registered
+- Updated dependencies
+
+## 3.14.3
+
+### Patch Changes
+
+- [`7702ea47c5329`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7702ea47c5329) -
+  [ux] Show editor flag when unpublished sync block is pasted
+- [`2a9dfb4b326e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a9dfb4b326e6) -
+  EDITOR-4698 add missing analytics for fetch references, graphql subsciption update, reference sync
+  block insert and delete success
+- Updated dependencies
+
+## 3.14.2
+
+### Patch Changes
+
+- [`28434cbe03f1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28434cbe03f1e) -
+  [ux] [EDITOR-2851]
+  - Implement unsync feature for source sync block
+  - Update deletion confirmation modal and reference block UI after source deletion
+
+- Updated dependencies
+
+## 3.14.1
+
+### Patch Changes
+
+- [`838e5da4cc27d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/838e5da4cc27d) -
+  Refactor SyncBlockLabel and BlockServiceAPI provider
+
+## 3.14.0
+
+### Minor Changes
+
+- [`55d9a4080dfa8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/55d9a4080dfa8) -
+  parentAri field for fetch/write providers are mandatory
+
+## 3.13.2
+
+### Patch Changes
+
+- [`87abc5dda86fe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87abc5dda86fe) -
+  [ux] Show last edited time in sync block tooltip
+- Updated dependencies
+
+## 3.13.1
+
+### Patch Changes
+
+- [`ab11bedd7f6e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab11bedd7f6e6) -
+  Fix over logging of source ari not found error
+
+## 3.13.0
+
+### Minor Changes
+
+- [`870c3baec758b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/870c3baec758b) -
+  Enable consumers to use GraphQL subscription for fetching the block data when the block changes
+
+### Patch Changes
+
+- [`5c522f81f181e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c522f81f181e) -
+  [ux] EDITOR-4369 Support synced location for references on Jira in source and reference synced
+  block
+- [`058065aadf69f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/058065aadf69f) -
+  [ux] [EDITOR-2851] Support reference sync block unsyc
+- Updated dependencies
+
+## 3.12.1
+
+### Patch Changes
+
+- [`7f41011a1b0ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f41011a1b0ff) -
+  EDITOR-1665 update sync block experience events to use general experience ids, keep existing error
+  events and add success events
+- Updated dependencies
+
+## 3.12.0
+
+### Minor Changes
+
+- [`3d9abca1c1cd9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d9abca1c1cd9) -
+  The batch retrieve of the blocks must also send document ARI and also the local instance ID of the
+  reference blocks
+
+## 3.11.0
+
+### Minor Changes
+
+- [`7b4cb91fc67a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b4cb91fc67a6) -
+  Do not immediately show error state on initial load of blocks
+
+## 3.10.0
+
+### Minor Changes
+
+- [`7638bd91b6c72`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7638bd91b6c72) -
+  The errors should render correctly when using batch-retrieve to fetch synced blocks
+
+## 3.9.0
+
+### Minor Changes
+
+- [`fe0f9c8de91c3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fe0f9c8de91c3) -
+  The batch retrieve of the blocks must also send document ARI and also the local instance ID of the
+  reference blocks
+
+## 3.8.1
+
+### Patch Changes
+
+- [`7b1f7ff1a2235`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b1f7ff1a2235) -
+  [ux] [EDITOR-4536] Update synced location dropdown UI
+- Updated dependencies
+
+## 3.8.0
+
+### Minor Changes
+
+- [`9b427b1878556`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9b427b1878556) -
+  EDITOR-2850 create resource-id utils and unify the creation and parse
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.0
+
+### Minor Changes
+
+- [`4490bcc4595c4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4490bcc4595c4) -
+  Render some smart links loading states in SSR to match Editor's renderer
+
+## 3.6.1
+
+### Patch Changes
+
+- [`f0124a523d8f1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f0124a523d8f1) -
+  [ux] [EDITOR-2845] Implement synced location for source and reference sync block
+- Updated dependencies
+
+## 3.6.0
+
+### Minor Changes
+
+- [`8100ae00326b4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8100ae00326b4) -
+  EDITOR-2850-add media ssr support for sync blocks
+
+### Patch Changes
+
+- [`fff45a651440a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fff45a651440a) -
+  EDITOR-1665 add experience tracking analytics for sync block save, fetch and delete
+- Updated dependencies
+
+## 3.5.5
+
+### Patch Changes
+
+- [`a36447029e3c3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a36447029e3c3) -
+  Add fetchMediaToken helper function to synced block provider confluence client.
+
 ## 3.5.4
 
 ### Patch Changes

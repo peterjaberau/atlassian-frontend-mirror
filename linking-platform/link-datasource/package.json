@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/link-datasource",
-	"version": "4.32.2",
+	"version": "4.33.3",
 	"description": "UI Components to support linking platform dataset feature",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -113,10 +113,11 @@
 		"@atlaskit/json-ld-types": "workspace:^",
 		"@atlaskit/link-test-helpers": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@faker-js/faker": "root:*",
 		"@testing-library/dom": "root:*",
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"@types/debounce-promise": "root:*",
 		"fetch-mock": "root:*",
@@ -183,16 +184,13 @@
 		"navx-1895-new-logo-design": {
 			"type": "boolean"
 		},
-		"navx-sllv-fix-inline-edit-error": {
+		"navx-1345-issues-modal-jql-submit-fix": {
 			"type": "boolean"
 		},
 		"platform_navx_jira_sllv_rich_text_gate": {
 			"type": "boolean"
 		},
 		"jpd_confluence_date_fields_improvements": {
-			"type": "boolean"
-		},
-		"lp_disable_datasource_table_max_height_restriction": {
 			"type": "boolean"
 		},
 		"platform_navx_sllv_dropdown_escape_and_focus_fix": {

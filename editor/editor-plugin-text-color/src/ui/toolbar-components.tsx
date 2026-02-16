@@ -18,7 +18,6 @@ import {
 } from '@atlaskit/editor-common/toolbar';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { RegisterComponent, ToolbarComponentTypes } from '@atlaskit/editor-toolbar-model';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { TextColorPlugin } from '../textColorPluginType';
 
@@ -64,19 +63,13 @@ export const getToolbarComponents = (
 					...TEXT_COLOR_HIGHLIGHT_MENU,
 					rank: TEXT_COLOR_HIGHLIGHT_MENU_RANK[TEXT_COLOR_HIGHLIGHT_MENU_SECTION.key],
 				},
-				...(expValEquals('platform_editor_toolbar_aifc_responsive', 'isEnabled', true)
-					? [
-							{
-								type: TEXT_COLLAPSED_MENU.type,
-								key: TEXT_COLLAPSED_MENU.key,
-								rank: TEXT_COLLAPSED_MENU_RANK[TEXT_COLOR_HIGHLIGHT_MENU_SECTION.key],
-							},
-						]
-					: []),
+				{
+					type: TEXT_COLLAPSED_MENU.type,
+					key: TEXT_COLLAPSED_MENU.key,
+					rank: TEXT_COLLAPSED_MENU_RANK[TEXT_COLOR_HIGHLIGHT_MENU_SECTION.key],
+				},
 			],
-			component: expValEquals('platform_editor_toolbar_aifc_responsive', 'isEnabled', true)
-				? TextMenuSection
-				: undefined,
+			component: TextMenuSection,
 		},
 		{
 			...TEXT_COLOR_MENU_ITEM,
@@ -90,21 +83,17 @@ export const getToolbarComponents = (
 				<TextColorMenuItem api={api} parents={parents} />
 			),
 		},
-		...(expValEquals('platform_editor_toolbar_aifc_patch_4', 'isEnabled', true)
-			? [
-					{
-						...CLEAR_COLOR_MENU_ITEM,
-						parents: [
-							{
-								...TEXT_COLOR_HIGHLIGHT_MENU_SECTION,
-								rank: TEXT_COLOR_HIGHLIGHT_MENU_SECTION_RANK[CLEAR_COLOR_MENU_ITEM.key],
-							},
-						],
-						component: ({ parents }: { parents: ToolbarComponentTypes }) => {
-							return <RemoveColorMenuItem api={api} parents={parents} />;
-						},
-					},
-				]
-			: []),
+		{
+			...CLEAR_COLOR_MENU_ITEM,
+			parents: [
+				{
+					...TEXT_COLOR_HIGHLIGHT_MENU_SECTION,
+					rank: TEXT_COLOR_HIGHLIGHT_MENU_SECTION_RANK[CLEAR_COLOR_MENU_ITEM.key],
+				},
+			],
+			component: ({ parents }: { parents: ToolbarComponentTypes }) => {
+				return <RemoveColorMenuItem api={api} parents={parents} />;
+			},
+		},
 	];
 };

@@ -1,5 +1,53 @@
 # @atlaskit/tag
 
+## 14.5.0
+
+### Minor Changes
+
+- [`0077e648d508d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0077e648d508d) -
+  [ux] Adds maxWidth optional prop to Tag
+
+## 14.4.0
+
+### Minor Changes
+
+- [`37d704adec380`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/37d704adec380) -
+  [ux] Adds support for other types of avatars on Avatar tag.
+
+## 14.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.1
+
+### Patch Changes
+
+- [`a0e326c1b7fcd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0e326c1b7fcd) -
+  Refactored scaling to use rem units to maintain a 20px computed height for accessibility.
+- Updated dependencies
+
+## 14.3.0
+
+### Minor Changes
+
+- [`3147ae92ea7bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3147ae92ea7bd) -
+  Adding an migration_fallback internal prop so that teams can adopt the Tag API without triggering
+  an immediate visual change.
+
+## 14.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 14.2.4
 
 ### Patch Changes

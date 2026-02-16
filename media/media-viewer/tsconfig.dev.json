@@ -81,9 +81,6 @@
 			"path": "../media-core/tsconfig.app.json"
 		},
 		{
-			"path": "../media-document-viewer/tsconfig.app.json"
-		},
-		{
 			"path": "../media-state/tsconfig.app.json"
 		},
 		{
@@ -124,6 +121,9 @@
 		},
 		{
 			"path": "../../data/ufo-external/tsconfig.app.json"
+		},
+		{
+			"path": "../../accessibility/axe-integration/a11y-jest-testing/tsconfig.app.json"
 		},
 		{
 			"path": "../../platform/feature-flags-test-utils/tsconfig.app.json"

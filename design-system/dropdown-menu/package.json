@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/dropdown-menu",
-	"version": "16.4.1",
+	"version": "16.4.5",
 	"description": "A dropdown menu displays a list of actions or options to a user.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -61,8 +61,9 @@
 		"@atlaskit/section-message": "workspace:^",
 		"@atlaskit/textfield": "workspace:^",
 		"@atlaskit/toggle": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"jest-in-case": "root:*",
 		"raf-stub": "root:*",
@@ -87,6 +88,9 @@
 			"type": "boolean"
 		},
 		"platform-dst-nested-dropdown-menu-role": {
+			"type": "boolean"
+		},
+		"platform_dst_menu_item_focus": {
 			"type": "boolean"
 		}
 	},

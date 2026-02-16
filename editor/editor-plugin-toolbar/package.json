@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-toolbar",
-	"version": "4.0.3",
+	"version": "4.1.16",
 	"description": "Toolbar plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -42,7 +42,6 @@
 		"@atlaskit/editor-toolbar": "workspace:^",
 		"@atlaskit/editor-toolbar-model": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
-		"@atlaskit/platform-feature-flags-react": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@babel/runtime": "root:*",
 		"bind-event-listener": "root:*",
@@ -53,25 +52,7 @@
 		"react": "^18.2.0"
 	},
 	"platform-feature-flags": {
-		"platform_editor_toolbar_aifc_patch_7": {
-			"type": "boolean"
-		},
-		"platform_editor_toolbar_aifc_user_intent_fix": {
-			"type": "boolean"
-		},
-		"platform_editor_toolbar_aifc_placement_config": {
-			"type": "boolean"
-		},
 		"platform_editor_toolbar_aifc_placement_overridden": {
-			"type": "boolean"
-		},
-		"platform_editor_toolbar_aifc_responsive_improve": {
-			"type": "boolean"
-		},
-		"platform_editor_toolbar_aifc_undo_redo_confluence": {
-			"type": "boolean"
-		},
-		"platform_editor_toolbar_aifc_overflow_menu_update": {
 			"type": "boolean"
 		}
 	},

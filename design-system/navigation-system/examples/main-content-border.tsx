@@ -10,15 +10,7 @@ import Heading from '@atlaskit/heading';
 import GrowDiagonalIcon from '@atlaskit/icon/core/grow-diagonal';
 import InboxIcon from '@atlaskit/icon/core/inbox';
 import ShrinkDiagonalIcon from '@atlaskit/icon/core/shrink-diagonal';
-import {
-	LinkMenuItem,
-	Main,
-	MenuList,
-	Root,
-	Search,
-	SideNav,
-	SideNavContent,
-} from '@atlaskit/navigation-system';
+import { Main, Root, Search, SideNav, SideNavContent } from '@atlaskit/navigation-system';
 import { SideNavToggleButton } from '@atlaskit/navigation-system/layout/side-nav';
 import {
 	TopNav,
@@ -34,6 +26,8 @@ import {
 } from '@atlaskit/navigation-system/top-nav-items';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Inline, Stack } from '@atlaskit/primitives';
+import { LinkMenuItem } from '@atlaskit/side-nav-items/link-menu-item';
+import { MenuList } from '@atlaskit/side-nav-items/menu-list';
 import { token } from '@atlaskit/tokens';
 
 // TODO: consider exposing this type properly, but it isn't needed for normal usage
@@ -126,23 +120,23 @@ function MainContentBorderExample({
 	);
 }
 
-export function MainContentBorderThemingEnabledVR() {
+export function MainContentBorderThemingEnabledVR(): JSX.Element {
 	return <MainContentBorderExample isCustomThemeEnabled isSideNavCollapsed={false} />;
 }
 
-export function MainContentBorderThemingDisabledVR() {
+export function MainContentBorderThemingDisabledVR(): JSX.Element {
 	return <MainContentBorderExample isCustomThemeEnabled={false} isSideNavCollapsed={false} />;
 }
 
-export function MainContentBorderThemingEnabledSideNavCollapsedVR() {
+export function MainContentBorderThemingEnabledSideNavCollapsedVR(): JSX.Element {
 	return <MainContentBorderExample isCustomThemeEnabled isSideNavCollapsed />;
 }
 
-export function MainContentBorderThemingDisabledSideNavCollapsedVR() {
+export function MainContentBorderThemingDisabledSideNavCollapsedVR(): JSX.Element {
 	return <MainContentBorderExample isCustomThemeEnabled={false} isSideNavCollapsed />;
 }
 
-export function MainContentBorderThemingEnabledFullScreenVR() {
+export function MainContentBorderThemingEnabledFullScreenVR(): JSX.Element {
 	return (
 		<MainContentBorderExample isCustomThemeEnabled isSideNavCollapsed={false} defaultIsFullScreen />
 	);

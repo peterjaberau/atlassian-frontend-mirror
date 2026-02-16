@@ -1,5 +1,4 @@
 import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 /* eslint-disable @atlaskit/design-system/ensure-design-token-usage */
 import { token } from '@atlaskit/tokens';
@@ -23,13 +22,13 @@ export const akEditorCustomIconSize = 20;
 export const akEditorSelectedBorderColor = token('color.border.selected');
 export const akEditorSelectedBorderSize = 1;
 export const akEditorSelectedBorderBoldSize = 2;
-export const akEditorSelectedBorder = `${akEditorSelectedBorderSize}px solid ${token(
+export const akEditorSelectedBorder: string = `${akEditorSelectedBorderSize}px solid ${token(
 	'color.border.selected',
 )}`;
-export const akEditorSelectedBoxShadow = `0 0 0 ${akEditorSelectedBorderSize}px ${token(
+export const akEditorSelectedBoxShadow: string = `0 0 0 ${akEditorSelectedBorderSize}px ${token(
 	'color.border.selected',
 )}`;
-export const akEditorSelectedBoldBoxShadow = `0 0 0 ${akEditorSelectedBorderBoldSize}px ${token('color.border.selected')}`;
+export const akEditorSelectedBoldBoxShadow: string = `0 0 0 ${akEditorSelectedBorderBoldSize}px ${token('color.border.selected')}`;
 
 export const akEditorSelectedBlanketOpacity = 0.3;
 export const akEditorUnitZIndex = 1;
@@ -119,11 +118,8 @@ export const FULL_PAGE_EDITOR_TOOLBAR_HEIGHT = (isToolbarAIFCEnabled?: boolean) 
 	if (
 		// if value is undefined assume this is being called outside of editor where the experiment can be checked
 		isToolbarAIFCEnabled === undefined
-			? (editorExperiment('platform_editor_toolbar_aifc', true) ||
-					fg('platform_editor_ai_aifc_streaming')) &&
-				expValEquals('platform_editor_toolbar_aifc_patch_3', 'isEnabled', true)
-			: isToolbarAIFCEnabled &&
-				expValEquals('platform_editor_toolbar_aifc_patch_3', 'isEnabled', true)
+			? (editorExperiment('platform_editor_toolbar_aifc', true) || fg('platform_editor_ai_aifc_streaming'))
+			: isToolbarAIFCEnabled
 	) {
 		return '44px';
 	}
@@ -193,7 +189,7 @@ export const VIEWPORT_SIZES = {
 // to be updated in ED-10790: this should be variable threshold based on how many buttons enabled on main toolbar
 export const akEditorMobileMaxWidth = 0;
 
-export const getTableCellBackgroundDarkModeColors = [
+export const getTableCellBackgroundDarkModeColors: string = [
 	['White', '#000000'],
 	['Light blue', '#0C294F'],
 	['Light teal', '#0C343B'],

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/navigation-system",
-	"version": "5.26.0",
+	"version": "5.34.0",
 	"description": "The latest navigation system for Atlassian apps.",
 	"repository": "https://bitbucket.org/atlassian/atlassian-frontend-mirror",
 	"author": "Atlassian Pty Ltd",
@@ -114,16 +114,14 @@
 		"@atlaskit/button": "workspace:^",
 		"@atlaskit/css": "workspace:^",
 		"@atlaskit/ds-lib": "workspace:^",
-		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/layering": "workspace:^",
 		"@atlaskit/logo": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/popup": "workspace:^",
 		"@atlaskit/pragmatic-drag-and-drop": "workspace:^",
-		"@atlaskit/pragmatic-drag-and-drop-hitbox": "workspace:^",
-		"@atlaskit/pragmatic-drag-and-drop-react-drop-indicator": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/side-nav-items": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
 		"@atlaskit/visually-hidden": "workspace:^",
@@ -147,6 +145,7 @@
 		"@atlaskit/breadcrumbs": "workspace:^",
 		"@atlaskit/dropdown-menu": "workspace:^",
 		"@atlaskit/form": "workspace:^",
+		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/lozenge": "workspace:^",
 		"@atlaskit/menu": "workspace:^",
@@ -154,6 +153,7 @@
 		"@atlaskit/onboarding": "workspace:^",
 		"@atlaskit/page-header": "workspace:^",
 		"@atlaskit/page-layout": "workspace:^",
+		"@atlaskit/popper": "workspace:^",
 		"@atlaskit/pragmatic-drag-and-drop-auto-scroll": "workspace:^",
 		"@atlaskit/select": "workspace:^",
 		"@atlaskit/skeleton": "workspace:^",
@@ -165,7 +165,7 @@
 		"@atlassian/test-utils": "workspace:^",
 		"@atlassian/testing-library": "workspace:^",
 		"@axe-core/playwright": "root:*",
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"raf-stub": "root:*",
 		"react-dom": "root:*"
@@ -200,9 +200,6 @@
 			"type": "boolean",
 			"referenceOnly": true
 		},
-		"platform_dst_nav4_layering_in_main_slot_fixes": {
-			"type": "boolean"
-		},
 		"platform_dst_nav4_flyoutmenuitem_render_to_parent": {
 			"type": "boolean"
 		},
@@ -213,9 +210,6 @@
 			"type": "boolean"
 		},
 		"platform_dst_button_chevron_sizing": {
-			"type": "boolean"
-		},
-		"platform-dst-buttonmenuitem-selected-state-support": {
 			"type": "boolean"
 		},
 		"platform-dst-nav-app-icon-height-fix": {
@@ -231,9 +225,6 @@
 			"type": "boolean"
 		},
 		"platform-dst-panel-splitter-drag-start-client-x": {
-			"type": "boolean"
-		},
-		"platform-dst-menu-item-description-selected": {
 			"type": "boolean"
 		}
 	},

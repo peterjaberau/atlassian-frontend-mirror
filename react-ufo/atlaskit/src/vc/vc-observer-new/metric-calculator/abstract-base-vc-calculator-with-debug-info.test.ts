@@ -6,6 +6,8 @@ import * as calculateTTVCPercentiles from './percentile-calc';
 import * as getViewportHeight from './utils/get-viewport-height';
 import * as getViewportWidth from './utils/get-viewport-width';
 
+jest.mock('@atlaskit/platform-feature-flags');
+
 // Mock canvas functionality for tests
 jest.mock('./percentile-calc/canvas-heatmap/canvas-pixel', () => ({
 	ViewportCanvas: jest.fn().mockImplementation(() => ({
@@ -17,15 +19,15 @@ jest.mock('./percentile-calc/canvas-heatmap/canvas-pixel', () => ({
 
 // Create a concrete implementation for testing
 class TestVCCalculator extends AbstractVCCalculatorBase {
-	protected isEntryIncluded(entry: VCObserverEntry): boolean {
+	protected isEntryIncluded(): boolean {
 		return true; // For testing purposes
 	}
 
-	protected isVCClean(filteredEntries: ReadonlyArray<VCObserverEntry>): boolean {
+	protected isVCClean(): boolean {
 		return true; // For testing purposes
 	}
 
-	protected getVCCleanStatus(filteredEntries: ReadonlyArray<VCObserverEntry>) {
+	protected getVCCleanStatus() {
 		return { isVCClean: true }; // For testing purposes
 	}
 }
@@ -44,38 +46,42 @@ describe('AbstractVCCalculatorBase WithDebugInfo', () => {
 	});
 
 	it('should calculate metrics when entries are valid', async () => {
-		const mockCalcResult = [
-			{
-				time: 100,
-				viewportPercentage: 90,
-				entries: [
-					{
-						type: 'mutation:element' as VCObserverEntryType,
-						elementName: 'div1',
-						rect: new DOMRect(),
-						visible: true,
-					},
-					{
-						type: 'mutation:element' as VCObserverEntryType,
-						elementName: 'div2',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				],
-			},
-			{
-				time: 200,
-				viewportPercentage: 95,
-				entries: [
-					{
-						type: 'mutation:element' as VCObserverEntryType,
-						elementName: 'div3',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				],
-			},
-		];
+		const mockCalcResult = {
+			entries: [
+				{
+					time: 100,
+					viewportPercentage: 90,
+					entries: [
+						{
+							type: 'mutation:element' as VCObserverEntryType,
+							elementName: 'div1',
+							rect: new DOMRect(),
+							visible: true,
+						},
+						{
+							type: 'mutation:element' as VCObserverEntryType,
+							elementName: 'div2',
+							rect: new DOMRect(),
+							visible: true,
+						},
+					],
+				},
+				{
+					time: 200,
+					viewportPercentage: 95,
+					entries: [
+						{
+							type: 'mutation:element' as VCObserverEntryType,
+							elementName: 'div3',
+							rect: new DOMRect(),
+							visible: true,
+						},
+					],
+				},
+			],
+			// speedIndex is 0 when feature flag is disabled (default in tests)
+			speedIndex: 0,
+		};
 
 		jest
 			.spyOn(calculateTTVCPercentiles, 'calculateTTVCPercentilesWithDebugInfo')
@@ -104,6 +110,7 @@ describe('AbstractVCCalculatorBase WithDebugInfo', () => {
 		expect(result).toEqual({
 			revision: 'test-revision',
 			clean: true,
+			labelStacks: {},
 			'metric:vc90': 100,
 			ratios: {
 				div: 0,

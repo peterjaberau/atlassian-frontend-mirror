@@ -81,9 +81,6 @@
 			"path": "../../media/media-client-react/tsconfig.app.json"
 		},
 		{
-			"path": "../../media/media-core/tsconfig.app.json"
-		},
-		{
 			"path": "../../design-system/popup/tsconfig.app.json"
 		},
 		{
@@ -109,6 +106,9 @@
 		},
 		{
 			"path": "../util-service-support/tsconfig.app.json"
+		},
+		{
+			"path": "../../accessibility/axe-integration/a11y-jest-testing/tsconfig.app.json"
 		},
 		{
 			"path": "../../platform/feature-flags-test-utils/tsconfig.app.json"

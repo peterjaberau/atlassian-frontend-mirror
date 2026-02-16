@@ -674,7 +674,7 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 		this.identifierCount.set(key, { identifier, count: count - 1 });
 	};
 
-	isIdentifierInEditorScope = (identifier: Identifier) => {
+	isIdentifierInEditorScope = (identifier: Identifier): boolean => {
 		const key = this.getIdentifierKey(identifier);
 
 		// rely on has instead of count > 0 because if the user cuts and pastes the same media
@@ -1061,8 +1061,6 @@ export const createPlugin = (
 				if (
 					state.selection instanceof TextSelection ||
 					state.selection instanceof AllSelection ||
-					(!expValEquals('platform_editor_nested_media_selection_fix', 'isEnabled', true) &&
-						state.selection instanceof NodeSelection) ||
 					state.selection instanceof CellSelection
 				) {
 					doc.nodesBetween(state.selection.from, state.selection.to, (node, pos) => {
@@ -1074,10 +1072,7 @@ export const createPlugin = (
 						}
 						return true;
 					});
-				} else if (
-					expValEquals('platform_editor_nested_media_selection_fix', 'isEnabled', true) &&
-					state.selection instanceof NodeSelection
-				) {
+				} else if (state.selection instanceof NodeSelection) {
 					const { node, $from } = state.selection;
 
 					if (node.type === schema.nodes.mediaSingle || node.type === schema.nodes.mediaGroup) {

@@ -100,7 +100,15 @@ export const TRANSFORM_CLEAR_MENU_ITEM = {
 	key: 'transform-clear-menu-item',
 };
 
+export const TRANSFORM_DEFAULT_EXTENSION_SLOT_MENU_ITEM = {
+	key: 'transform-default-extension-slot-menu-item',
+};
+
 // Block actions
+
+export const BLOCK_ACTIONS_FEATURED_EXTENSION_SLOT_MENU_ITEM = {
+	key: 'block-actions-featured-extension-slot-menu-item',
+};
 
 export const BLOCK_ACTIONS_MENU_SECTION = {
 	key: 'block-actions-menu-section',
@@ -137,3 +145,12 @@ export const DELETE_MENU_SECTION = {
 export const DELETE_MENU_ITEM = {
 	key: 'delete-menu-item',
 };
+
+// Experience tracking test IDs
+// Used by experience tracking to detect menu action clicks
+
+export const BLOCK_MENU_ACTION_TEST_ID = {
+	MOVE_UP: 'block-menu-move-up',
+	MOVE_DOWN: 'block-menu-move-down',
+	DELETE: 'block-menu-delete',
+} as const;

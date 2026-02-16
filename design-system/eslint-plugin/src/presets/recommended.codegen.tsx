@@ -1,6 +1,6 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::52a31bc6cdeb7a9818a0e225d21c88f2>>
+ * @codegen <<SignedSource::70131b79da4231aaa59e2822b38790c1>>
  * @codegenCommand yarn workspace @atlaskit/eslint-plugin-design-system codegen
  */
 import type { ESLint } from 'eslint';
@@ -9,6 +9,7 @@ const rules: ESLint.ConfigData = {
 	plugins: ['@atlaskit/design-system'],
 	rules: {
 		'@atlaskit/design-system/consistent-css-prop-usage': 'error',
+		'@atlaskit/design-system/ensure-avatar-tag-avatar-props': 'error',
 		'@atlaskit/design-system/ensure-design-token-usage': 'error',
 		'@atlaskit/design-system/icon-label': 'warn',
 		'@atlaskit/design-system/no-banned-imports': 'error',
@@ -59,6 +60,9 @@ const rules: ESLint.ConfigData = {
 		'@atlaskit/design-system/use-popup-label': 'warn',
 		'@atlaskit/design-system/use-primitives-text': 'warn',
 		'@atlaskit/design-system/use-should-render-to-parent': 'warn',
+		'@atlaskit/design-system/use-side-nav-items-package': 'warn',
+		'@atlaskit/design-system/use-simple-field': 'warn',
+		'@atlaskit/design-system/use-simple-form': 'warn',
 		'@atlaskit/design-system/use-tag-group-label': 'warn',
 		'@atlaskit/design-system/use-tokens-typography': 'warn',
 		'@atlaskit/design-system/use-visually-hidden': 'error',

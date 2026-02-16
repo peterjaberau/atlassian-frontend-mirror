@@ -45,7 +45,7 @@ var themeContrastModes = ['more', 'no-preference', 'auto'];
  *
  * These ids must be kebab case
  */
-var themeIds = exports.themeIds = ['light-increased-contrast', 'light', 'light-future', 'dark', 'dark-future', 'dark-increased-contrast', 'legacy-light', 'legacy-dark', 'spacing', 'shape', 'typography', 'typography-adg3', 'typography-modernized', 'typography-refreshed'];
+var themeIds = exports.themeIds = ['light-increased-contrast', 'light', 'light-future', 'dark', 'dark-future', 'dark-increased-contrast', 'spacing', 'shape', 'typography'];
 /**
  * Theme override ids: the equivalent of themeIds for theme overrides.
  * Theme overrides are temporary and there may not be any defined at times.
@@ -131,24 +131,6 @@ var themeConfig = {
     extends: 'dark',
     increasesContrastFor: 'dark'
   },
-  'atlassian-legacy-light': {
-    id: 'legacy-light',
-    displayName: 'Light Theme (legacy)',
-    palette: 'legacyPalette',
-    attributes: {
-      type: 'color',
-      mode: 'light'
-    }
-  },
-  'atlassian-legacy-dark': {
-    id: 'legacy-dark',
-    displayName: 'Dark Theme (legacy)',
-    palette: 'legacyPalette',
-    attributes: {
-      type: 'color',
-      mode: 'dark'
-    }
-  },
   'atlassian-spacing': {
     id: 'spacing',
     displayName: 'Atlassian Spacing',
@@ -165,36 +147,12 @@ var themeConfig = {
       type: 'typography'
     }
   },
-  'atlassian-typography-adg3': {
-    id: 'typography-adg3',
-    displayName: 'ADG3 Typography',
-    palette: 'typographyPalette',
-    attributes: {
-      type: 'typography'
-    }
-  },
   'atlassian-shape': {
     id: 'shape',
     displayName: 'Shape',
     palette: 'shapePalette',
     attributes: {
       type: 'shape'
-    }
-  },
-  'atlassian-typography-modernized': {
-    id: 'typography-modernized',
-    displayName: 'Atlassian Typography (Modernized)',
-    palette: 'typographyPalette',
-    attributes: {
-      type: 'typography'
-    }
-  },
-  'atlassian-typography-refreshed': {
-    id: 'typography-refreshed',
-    displayName: 'Atlassian Typography (Refreshed)',
-    palette: 'typographyPalette',
-    attributes: {
-      type: 'typography'
     }
   }
 };
@@ -227,12 +185,7 @@ var themeStateDefaults = exports.themeStateDefaults = {
     return undefined;
   },
   spacing: 'spacing',
-  typography: function typography() {
-    if ((0, _platformFeatureFlags.fg)('platform-disable-default-typography')) {
-      return undefined;
-    }
-    return 'typography';
-  },
+  typography: 'typography',
   UNSAFE_themeOptions: undefined
 };
 

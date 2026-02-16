@@ -15,7 +15,7 @@ import {
 	ToolTipContent,
 } from '@atlaskit/editor-common/keymaps';
 import { toolbarInsertBlockMessages as messages } from '@atlaskit/editor-common/messages';
-import { useEditorToolbar } from '@atlaskit/editor-common/toolbar';
+import { TOOLBAR_BUTTON_TEST_ID, useEditorToolbar } from '@atlaskit/editor-common/toolbar';
 import type {
 	ExtractInjectionAPI,
 	Command,
@@ -28,7 +28,6 @@ import { akEditorMenuZIndex } from '@atlaskit/editor-shared-styles';
 import type { Breakpoint } from '@atlaskit/editor-toolbar';
 import { ToolbarButton, ToolbarTooltip, AddIcon, useToolbarUI } from '@atlaskit/editor-toolbar';
 import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { InsertBlockPlugin } from '../../insertBlockPluginType';
 import type { ToolbarInsertBlockButtonsConfig } from '../../types';
@@ -167,7 +166,11 @@ export const InsertButton = ({
 				break;
 			case 'media':
 				if (showMediaPicker) {
-					api?.core?.actions.execute(api?.mediaInsert?.commands.showMediaInsertPopup());
+					if (fg('platform_editor_media_insert_check')) {
+						api?.mediaInsert?.commands.showMediaInsertPopup ? api?.core?.actions.execute(api?.mediaInsert?.commands.showMediaInsertPopup()) : showMediaPicker?.();
+					} else {
+						api?.core?.actions.execute(api?.mediaInsert?.commands.showMediaInsertPopup());
+					}
 				}
 				break;
 			case 'mention':
@@ -188,11 +191,6 @@ export const InsertButton = ({
 				break;
 			case 'horizontalrule':
 				api?.rule?.actions.insertHorizontalRule(inputMethod)(state, dispatch);
-				break;
-			case 'macro':
-				if (!fg('platform_editor_refactor_view_more')) {
-					api?.core?.actions.execute(api?.quickInsert?.commands.openElementBrowserModal);
-				}
 				break;
 			case 'date':
 				api?.core?.actions.execute(
@@ -278,14 +276,10 @@ export const InsertButton = ({
 			)}
 			<ToolbarTooltip
 				content={
-					expValEquals('platform_editor_toolbar_aifc_patch_6', 'isEnabled', true) ? (
-						<ToolTipContent
-							description={formatMessage(messages.insertMenu)}
-							keymap={insertElements}
-						/>
-					) : (
-						formatMessage(messages.insertMenu)
-					)
+					<ToolTipContent
+						description={formatMessage(messages.insertMenu)}
+						keymap={insertElements}
+					/>
 				}
 			>
 				<ToolbarButton
@@ -295,6 +289,7 @@ export const InsertButton = ({
 					onClick={onClick}
 					isSelected={insertMenuOpen}
 					isDisabled={!isTypeAheadAllowed || isDisabled}
+					testId={TOOLBAR_BUTTON_TEST_ID.INSERT}
 				/>
 			</ToolbarTooltip>
 		</>

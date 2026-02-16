@@ -8,6 +8,7 @@ import {
 	type EditorState,
 	type Transaction,
 } from '@atlaskit/editor-prosemirror/state';
+import { type Mapping } from '@atlaskit/editor-prosemirror/transform';
 import { fg } from '@atlaskit/platform-feature-flags';
 import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
@@ -20,6 +21,7 @@ import type {
 	TriggerByNode,
 } from './blockControlsPluginType';
 import { handleKeyDownWithPreservedSelection } from './editor-commands/handle-key-down-with-preserved-selection';
+import { mapPreservedSelection } from './editor-commands/map-preserved-selection';
 import { moveNode } from './editor-commands/move-node';
 import { moveNodeWithBlockMenu } from './editor-commands/move-node-with-block-menu';
 import { moveToLayout } from './editor-commands/move-to-layout';
@@ -120,10 +122,17 @@ export const blockControlsPlugin: BlockControlsPlugin = ({ api }) => ({
 
 				const currMeta = tr.getMeta(key);
 				const currentUserIntent = api?.userIntent?.sharedState.currentState()?.currentUserIntent;
+				const isMenuCurrentlyOpen = api?.blockControls?.sharedState.currentState()?.isMenuOpen;
+
 				if (options?.closeMenu) {
 					tr.setMeta(key, { ...currMeta, closeMenu: true });
 					if (currentUserIntent === 'blockMenuOpen') {
 						api?.userIntent?.commands.setCurrentUserIntent('default')({ tr });
+					}
+
+					// When closing the menu, restart the active session timer
+					if (isMenuCurrentlyOpen && fg('platform_editor_ease_of_use_metrics')) {
+						api?.metrics?.commands.startActiveSessionTimer()({ tr });
 					}
 
 					return tr;
@@ -135,6 +144,12 @@ export const blockControlsPlugin: BlockControlsPlugin = ({ api }) => ({
 						api?.userIntent?.commands.setCurrentUserIntent('default')({ tr });
 					}
 					tr.setMeta(key, { ...currMeta, closeMenu: true });
+
+					// When closing the menu, restart the active session timer
+					if (isMenuCurrentlyOpen && fg('platform_editor_ease_of_use_metrics')) {
+						api?.metrics?.commands.startActiveSessionTimer()({ tr });
+					}
+
 					return tr;
 				}
 
@@ -169,14 +184,24 @@ export const blockControlsPlugin: BlockControlsPlugin = ({ api }) => ({
 					currentUserIntent === 'blockMenuOpen'
 				) {
 					const state = api?.blockControls.sharedState.currentState();
-					if (
-						state?.isSelectedViaDragHandle &&
-						fg('platform_editor_toolbar_aifc_user_intent_fix')
-					) {
+					if (state?.isSelectedViaDragHandle) {
 						api?.userIntent?.commands.setCurrentUserIntent('dragHandleSelected')({ tr });
 					} else {
 						// Toggled from drag handle
 						api?.userIntent?.commands.setCurrentUserIntent('default')({ tr });
+					}
+
+					// When closing the menu, restart the active session timer
+					if (fg('platform_editor_ease_of_use_metrics')) {
+						api?.metrics?.commands.startActiveSessionTimer()({ tr });
+					}
+				} else if (!isMenuCurrentlyOpen) {
+					// When opening the menu, pause the active session timer
+					if (fg('platform_editor_ease_of_use_metrics')) {
+						api?.metrics?.commands.handleIntentToStartEdit({
+							shouldStartTimer: false,
+							shouldPersistActiveSession: true,
+						})({ tr });
 					}
 				}
 
@@ -263,6 +288,7 @@ export const blockControlsPlugin: BlockControlsPlugin = ({ api }) => ({
 				const currMeta = tr.getMeta(key);
 				return tr.setMeta(key, { ...currMeta, isSelectedViaDragHandle });
 			},
+		mapPreservedSelection: (mapping: Mapping) => mapPreservedSelection(mapping),
 		moveNodeWithBlockMenu: (direction: DIRECTION.UP | DIRECTION.DOWN) =>
 			moveNodeWithBlockMenu(api, direction),
 		handleKeyDownWithPreservedSelection: handleKeyDownWithPreservedSelection(api),

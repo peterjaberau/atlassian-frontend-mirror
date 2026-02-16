@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-block-controls",
-	"version": "8.0.7",
+	"version": "8.3.2",
 	"description": "Block controls plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -131,9 +131,6 @@
 		"platform_editor_fix_widget_destroy": {
 			"type": "boolean"
 		},
-		"platform_editor_ai_generic_prep_for_aifc": {
-			"type": "boolean"
-		},
 		"dst-a11y__replace-anchor-with-link__editor-jenga": {
 			"type": "boolean"
 		},
@@ -143,9 +140,6 @@
 		"platform_editor_content_mode_button_mvp": {
 			"type": "boolean"
 		},
-		"platform_editor_toolbar_aifc_user_intent_fix": {
-			"type": "boolean"
-		},
 		"platform_editor_table_sticky_header_patch_6": {
 			"type": "boolean"
 		},
@@ -153,6 +147,12 @@
 			"type": "boolean"
 		},
 		"platform_editor_native_anchor_patch_2": {
+			"type": "boolean"
+		},
+		"platform_synced_block_patch_2": {
+			"type": "boolean"
+		},
+		"platform_editor_selection_sync_fix": {
 			"type": "boolean"
 		}
 	}

@@ -3,7 +3,7 @@ import React from 'react';
 
 import { code, md } from '@atlaskit/docs';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { N20, N30 } from '@atlaskit/theme/colors';
+import { N20 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import { Editor } from '../src';
@@ -204,7 +204,7 @@ class SplitExample extends React.Component<{ initialAdf: object }> {
 						padding: token('space.100', '8px'),
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						backgroundColor: N20,
-						border: `${token('border.width')} solid ${N30}`,
+						border: `${token('border.width')} solid ${token('color.border.accent.gray')}`,
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						flex: 1,
 					}}
@@ -230,7 +230,8 @@ class SplitExample extends React.Component<{ initialAdf: object }> {
 	}
 }
 
-export default md`
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const _default_1: any = md`
 # Annotations
 
 ## Introduction
@@ -252,7 +253,7 @@ ${(
 			padding: token('space.100', '8px'),
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			backgroundColor: N20,
-			border: `${token('border.width')} solid ${N30}`,
+			border: `${token('border.width')} solid ${token('color.border.accent.gray')}`,
 		}}
 	>
 		{inlineCommentEditor(initialExample)}
@@ -386,3 +387,4 @@ It is unmounted when exiting a region of text with an annotation.
 
 * [ADF change proposal](https://product-fabric.atlassian.net/wiki/spaces/E/pages/853377081/ADF+Change+38+Annotation+mark)
 `;
+export default _default_1;

@@ -1,5 +1,96 @@
 # @atlaskit/editor-plugin-text-formatting
 
+## 7.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.7
+
+### Patch Changes
+
+- [`38dee2c85c456`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38dee2c85c456) -
+  [ux] [EDITOR-4486] render tooltips for ToolbarDropdownMenu using new TooltipComponent prop behind
+  platform_editor_hide_toolbar_tooltips_fix
+- Updated dependencies
+
+## 7.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.5
+
+### Patch Changes
+
+- [`653c0c803b286`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/653c0c803b286) -
+  EDITOR-4620 Clean up platform_editor_toolbar_aifc_patch_6
+- Updated dependencies
+
+## 7.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.3
+
+### Patch Changes
+
+- [`3d0b3f8b4d802`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d0b3f8b4d802) -
+  Remove platform_editor_toolbar_aifc_responsive experiment
+- Updated dependencies
+
+## 7.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.2.0
 
 ### Minor Changes

@@ -1,3 +1,5 @@
+import { context } from '@opentelemetry/api';
+
 import { fg } from '@atlaskit/platform-feature-flags';
 
 import { startLighthouseObserver } from '../additional-payload';
@@ -9,7 +11,11 @@ import {
 	sinkExperimentalHandler,
 } from '../create-experimental-interaction-metrics-payload';
 import { sinkExtraSearchPageInteractionHandler } from '../create-extra-search-page-interaction-payload';
-import { setupHiddenTimingCapture } from '../hidden-timing';
+import {
+	setContextManager,
+	UFOContextManager,
+} from '../experience-trace-id-context/context-manager';
+import { setupHiddenTimingCapture, setupThrottleDetection } from '../hidden-timing';
 import {
 	interactionExtraMetrics,
 	type InteractionMetrics,
@@ -19,6 +25,11 @@ import {
 } from '../interaction-metrics';
 import { getPerformanceObserver } from '../interactions-performance-observer';
 import { initialiseMemoryObserver, initialisePressureObserver } from '../machine-utilisation';
+import {
+	sinkTerminalErrorHandler,
+	type TerminalErrorContext,
+	type TerminalErrorData,
+} from '../set-terminal-error';
 
 import scheduleIdleCallback from './schedule-idle-callback';
 
@@ -138,6 +149,28 @@ function sinkPostInteractionLog(
 	});
 }
 
+function sinkTerminalErrors(
+	instance: GenericAnalyticWebClientInstance,
+	createTerminalErrorPayload: (errorData: TerminalErrorData, context: TerminalErrorContext) => any,
+) {
+	sinkTerminalErrorHandler((errorData: TerminalErrorData, context: TerminalErrorContext) => {
+		scheduleIdleCallback(() => {
+			const payload = createTerminalErrorPayload(errorData, context);
+			if (payload) {
+				if (fg('enable_ufo_devtools_api_for_extra_events')) {
+					const devToolObserver = (globalThis as unknown as WindowWithUfoDevToolExtension)
+						.__ufo_devtool_onUfoPayload;
+
+					if (typeof devToolObserver === 'function') {
+						devToolObserver?.(payload);
+					}
+				}
+				instance.sendOperationalEvent(payload);
+			}
+		});
+	});
+}
+
 function sinkInteractionExtraMetrics(
 	instance: GenericAnalyticWebClientInstance,
 	createInteractionExtraLogPayload: (
@@ -231,6 +264,16 @@ export function init(
 
 	setUFOConfig(config);
 
+	if (fg('platform_ufo_enable_otel_context_manager')) {
+		// Configure global OTel context manager
+		const contextManager = new UFOContextManager();
+		// set the contextmanager somewhere we can reference it later
+		setContextManager(contextManager);
+		// Register the context manager with the global OTel API
+		contextManager.enable();
+		context.setGlobalContextManager(contextManager);
+	}
+
 	if (config.vc?.enabled) {
 		const vcOptions = {
 			heatmapSize: config.vc.heatmapSize,
@@ -253,6 +296,10 @@ export function init(
 	setupHiddenTimingCapture();
 	startLighthouseObserver();
 
+	if (fg('platform_ufo_is_tab_throttled')) {
+		setupThrottleDetection();
+	}
+
 	initialized = true;
 
 	if (typeof PerformanceObserver !== 'undefined') {
@@ -273,17 +320,24 @@ export function init(
 		import(
 			/* webpackChunkName: "create-interaction-extra-metrics-payload" */ '../create-interaction-extra-metrics-payload'
 		),
+		import(
+			/* webpackChunkName: "create-terminal-error-payload@atlaskit-internal_terminal_errors" */ '../create-terminal-error-payload'
+		),
 	]).then(
 		([
 			awc,
 			payloadPackage,
 			createPostInteractionLogPayloadPackage,
 			createInteractionExtraMetricsPayloadPackage,
+			createTerminalErrorPayloadPackage,
 		]) => {
 			if ((awc as GenericAnalyticWebClientPromise).getAnalyticsWebClientPromise) {
 				(awc as GenericAnalyticWebClientPromise).getAnalyticsWebClientPromise().then((client) => {
 					const instance = client.getInstance();
 					sinkInteraction(instance, payloadPackage);
+					if (config?.terminalErrors?.enabled && fg('platform_ufo_enable_terminal_errors')) {
+						sinkTerminalErrors(instance, createTerminalErrorPayloadPackage.default);
+					}
 					if (config?.experimentalInteractionMetrics?.enabled) {
 						sinkExperimentalInteractionMetrics(instance, payloadPackage);
 					}
@@ -302,6 +356,12 @@ export function init(
 				});
 			} else if ((awc as GenericAnalyticWebClientInstance).sendOperationalEvent) {
 				sinkInteraction(awc as GenericAnalyticWebClientInstance, payloadPackage);
+				if (config?.terminalErrors?.enabled && fg('platform_ufo_enable_terminal_errors')) {
+					sinkTerminalErrors(
+						awc as GenericAnalyticWebClientInstance,
+						createTerminalErrorPayloadPackage.default,
+					);
+				}
 				if (config?.experimentalInteractionMetrics?.enabled) {
 					sinkExperimentalInteractionMetrics(
 						awc as GenericAnalyticWebClientInstance,

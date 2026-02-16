@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/reactions",
-	"version": "33.8.6",
+	"version": "33.8.12",
 	"description": "Reactions component",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -71,11 +71,11 @@
 		"@atlaskit/editor-test-helpers": "workspace:^",
 		"@atlaskit/elements-test-helpers": "workspace:^",
 		"@atlaskit/util-data-test": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@testing-library/dom": "root:*",
 		"@testing-library/jest-dom": "root:*",
 		"@testing-library/react": "root:*",
-		"@testing-library/react-hooks": "root:*",
 		"@testing-library/user-event": "root:*",
 		"dotenv": "root:*",
 		"es6-promise": "root:*",
@@ -132,6 +132,9 @@
 			"type": "boolean"
 		},
 		"platform-a11y-remove-autofocus-prop": {
+			"type": "boolean"
+		},
+		"jfp_a11y_team_comment_actions_semantic": {
 			"type": "boolean"
 		}
 	},

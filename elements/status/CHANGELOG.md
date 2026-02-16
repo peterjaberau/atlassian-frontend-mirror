@@ -1,5 +1,38 @@
 # @atlaskit/status
 
+## 3.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.2
+
+### Patch Changes
+
+- [`0e641407bbbf8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0e641407bbbf8) -
+  Cleanup `editor_a11y_arrow_key_status_colour_palette` feature flag
+
+## 3.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.0
+
+### Minor Changes
+
+- [`a05a8d9786e66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a05a8d9786e66) -
+  [https://hello.jira.atlassian.cloud/browse/EDITOR-4327](EDITOR-4327) - clean up
+  editor_a11y_arrow_key_status_colour_palette
+
 ## 3.0.27
 
 ### Patch Changes

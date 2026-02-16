@@ -1,5 +1,81 @@
 # @atlaskit/editor-plugin-status
 
+## 8.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.3
+
+### Patch Changes
+
+- [`baf7b89a7b895`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/baf7b89a7b895) -
+  Give colour picker menu an accessible label
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- [`8eca3ae04714e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8eca3ae04714e) -
+  Fixed mixed HTML/Editor content copy/paste issue on Status node.
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.1.0
 
 ### Minor Changes

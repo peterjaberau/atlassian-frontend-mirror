@@ -3,7 +3,7 @@ import type React from 'react';
 import { type IntlShape } from 'react-intl-next';
 
 import { type AnalyticsEventPayload, type CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
-import { type ConversationStarter } from '@atlaskit/rovo-agent-components';
+import { type ConversationStarter } from '@atlaskit/rovo-agent-components/ui/AgentConversationStarters';
 import type {
 	AnalyticsEventAttributes,
 	FireEventType,
@@ -84,7 +84,7 @@ export interface RovoAgent {
 	name: string;
 	description: string | null;
 	system_prompt_template?: string | null;
-	creator_type: 'SYSTEM' | 'CUSTOMER' | 'THIRD_PARTY' | 'FORGE';
+	creator_type: 'SYSTEM' | 'CUSTOMER' | 'THIRD_PARTY' | 'FORGE' | 'ROVO_DEV';
 	creator?: string | null;
 	visibility?: 'PUBLIC' | 'PRIVATE' | null;
 	is_default: boolean;
@@ -115,7 +115,7 @@ export type RovoAgentCardClientResult = {
 };
 
 export interface RovoAgentCreatorInfo {
-	type: 'CUSTOMER' | 'SYSTEM' | 'THIRD_PARTY' | 'FORGE';
+	type: 'CUSTOMER' | 'SYSTEM' | 'THIRD_PARTY' | 'FORGE' | 'OOTB';
 	name?: string;
 	profileLink?: string;
 	id?: string;
@@ -228,6 +228,7 @@ export interface ProfileCardTriggerProps {
 	showDelay?: number;
 	hideDelay?: number;
 	hideAgentMoreActions?: boolean;
+	hideAiDisclaimer?: boolean;
 }
 
 export interface ProfileCardTriggerState {
@@ -414,6 +415,8 @@ export type AgentProfileCardProps = {
 	onDeleteAgent?: (agentId: string) => { restore: () => void };
 	/** Hide the Agent more actions dropdown when true */
 	hideMoreActions?: boolean;
+	/** Hide the AI disclaimer. Defaults to false (disclaimer is shown by default). */
+	hideAiDisclaimer?: boolean;
 } & AgentActionsType;
 
 export type StatusType = 'active' | 'inactive' | 'closed';
@@ -574,38 +577,22 @@ export interface ProfileClient {
 	getProfile: (
 		cloudId: string,
 		userId: string,
-		analytics?: (event: AnalyticsEventPayload) => void,
-		analyticsNext?: FireEventType,
+		analytics?: FireEventType,
 	) => Promise<ProfileCardClientData>;
-	getTeamProfile: (
-		teamId: string,
-		orgId?: string,
-		fireAnalytics?: (event: AnalyticsEventPayload) => void,
-		fireAnalyticsNext?: FireEventType,
-	) => Promise<Team>;
+	getTeamProfile: (teamId: string, orgId?: string, fireAnalytics?: FireEventType) => Promise<Team>;
 	getReportingLines: (userId: string) => Promise<TeamCentralReportingLinesData>;
 	shouldShowGiveKudos: () => Promise<boolean>;
 	getTeamCentralBaseUrl: (teamCentralScopes?: TeamCentralScopes) => Promise<string | undefined>;
 	getRovoAgentProfile: (
 		id: AgentIdType,
-		fireAnalytics?: (event: AnalyticsEventPayload) => void,
-		fireAnalyticsNext?: FireEventType,
+		fireAnalytics?: FireEventType,
 	) => Promise<RovoAgentCardClientResult>;
-	getRovoAgentPermissions: (
-		id: string,
-		fireAnalytics?: (event: AnalyticsEventPayload) => void,
-		fireAnalyticsNext?: FireEventType,
-	) => Promise<AgentPermissions>;
-	deleteAgent: (
-		id: string,
-		fireAnalytics?: (event: AnalyticsEventPayload) => void,
-		fireAnalyticsNext?: FireEventType,
-	) => Promise<void>;
+	getRovoAgentPermissions: (id: string, fireAnalytics?: FireEventType) => Promise<AgentPermissions>;
+	deleteAgent: (id: string, fireAnalytics?: FireEventType) => Promise<void>;
 	setFavouriteAgent: (
 		id: string,
 		isFavourite: boolean,
-		fireAnalytics?: (event: AnalyticsEventPayload) => void,
-		fireAnalyticsNext?: FireEventType,
+		fireAnalytics?: FireEventType,
 	) => Promise<void>;
 }
 
@@ -631,8 +618,10 @@ export type TeamProfileCardErrorType = {
 	reason: 'default' | 'NotFound' | 'TEAMS_FORBIDDEN';
 } | null;
 
-export interface ProfileClientOptions
-	extends Omit<TeamCentralCardClientOptions, 'gatewayGraphqlUrl'> {
+export interface ProfileClientOptions extends Omit<
+	TeamCentralCardClientOptions,
+	'gatewayGraphqlUrl'
+> {
 	gatewayGraphqlUrl?: string;
 	url?: string;
 	cacheSize?: number;

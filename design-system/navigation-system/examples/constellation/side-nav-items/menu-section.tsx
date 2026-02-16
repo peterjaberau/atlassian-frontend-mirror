@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { IconButton } from '@atlaskit/button/new';
-import RoadmapsPlanIcon from '@atlaskit/icon-lab/core/roadmaps-plan';
+import PlanIcon from '@atlaskit/icon-lab/core/plan';
 import AddIcon from '@atlaskit/icon/core/add';
 import AlignTextLeftIcon from '@atlaskit/icon/core/align-text-left';
 import AngleBracketsIcon from '@atlaskit/icon/core/angle-brackets';
@@ -9,19 +9,16 @@ import ChartBarIcon from '@atlaskit/icon/core/chart-bar';
 import InboxIcon from '@atlaskit/icon/core/inbox';
 import MoreIcon from '@atlaskit/icon/core/show-more-horizontal';
 import { SideNavContent } from '@atlaskit/navigation-system/layout/side-nav';
-import { ContainerAvatar } from '@atlaskit/navigation-system/side-nav-items/container-avatar';
+import { Inline } from '@atlaskit/primitives/compiled';
+import { ContainerAvatar } from '@atlaskit/side-nav-items/container-avatar';
 import {
 	ExpandableMenuItem,
 	ExpandableMenuItemContent,
 	ExpandableMenuItemTrigger,
-} from '@atlaskit/navigation-system/side-nav-items/expandable-menu-item';
-import { LinkMenuItem } from '@atlaskit/navigation-system/side-nav-items/link-menu-item';
-import { MenuList } from '@atlaskit/navigation-system/side-nav-items/menu-list';
-import {
-	MenuSection,
-	MenuSectionHeading,
-} from '@atlaskit/navigation-system/side-nav-items/menu-section';
-import { Inline } from '@atlaskit/primitives/compiled';
+} from '@atlaskit/side-nav-items/expandable-menu-item';
+import { LinkMenuItem } from '@atlaskit/side-nav-items/link-menu-item';
+import { MenuList } from '@atlaskit/side-nav-items/menu-list';
+import { MenuSection, MenuSectionHeading } from '@atlaskit/side-nav-items/menu-section';
 
 import CDIcon from '../../images/cd.svg';
 import KoalaIcon from '../../images/koala.svg';
@@ -104,7 +101,7 @@ export function MenuSectionExample(): React.JSX.Element {
 
 						<LinkMenuItem
 							href={exampleHref}
-							elemBefore={<RoadmapsPlanIcon label="" color="currentColor" spacing="spacious" />}
+							elemBefore={<PlanIcon label="" color="currentColor" spacing="spacious" />}
 						>
 							Plans
 						</LinkMenuItem>

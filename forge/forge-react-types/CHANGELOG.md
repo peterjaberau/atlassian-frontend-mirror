@@ -1,5 +1,90 @@
 # @atlaskit/forge-react-types
 
+## 0.61.0
+
+### Minor Changes
+
+- [`50d654b213b1b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50d654b213b1b) -
+  Export types for Global, GlobalMain, GlobalSidebar
+
+## 0.60.0
+
+### Minor Changes
+
+- [`cc1ec16a6b6f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cc1ec16a6b6f3) -
+  Add type codegen support for global components
+- [`cc1ec16a6b6f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cc1ec16a6b6f3) -
+  Export Global component prop types
+
+## 0.59.0
+
+### Minor Changes
+
+- [`e5e1ada56ae7f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e5e1ada56ae7f) -
+  New component AtlassianIcon added.
+
+## 0.58.0
+
+### Minor Changes
+
+- [`8f4d9a7764877`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f4d9a7764877) -
+  Pass through height and width props to UI Kit Frame
+
+## 0.57.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.57.0
+
+### Minor Changes
+
+- [`853671f92994c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/853671f92994c) -
+  Adding AtlassianTile component
+
+## 0.56.2
+
+### Patch Changes
+
+- [`6ed2f9f23e3dc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6ed2f9f23e3dc) -
+  Replace migration glyphs with new icon
+
+## 0.56.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.56.0
+
+### Minor Changes
+
+- [`a7751359d45b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a7751359d45b6) -
+  Add fullscreen size for uikit modal component
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.55.0
+
+### Minor Changes
+
+- [`f9c6c17de4114`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f9c6c17de4114) -
+  Cleaning up platform_migrate_to_native_box and removing codegen Box
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.54.0
+
+### Minor Changes
+
+- [`28a295dd4bf91`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28a295dd4bf91) -
+  Updated types for charts to include new colorPalette prop.
+
 ## 0.53.0
 
 ### Minor Changes

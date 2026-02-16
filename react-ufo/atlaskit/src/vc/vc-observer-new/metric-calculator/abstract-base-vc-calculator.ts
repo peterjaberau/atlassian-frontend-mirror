@@ -36,6 +36,12 @@ type EnhancedVcLogEntry = {
 	entries: EnhancedViewportEntryData[];
 };
 
+// Helper function for reporting ratios
+function roundDecimal(value: number, decimals: number = 3): number {
+  const factor = Math.pow(10, decimals);
+  return Math.round(value * factor) / factor;
+}
+
 export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 	private revisionNo: string;
 	constructor(revisionNo: string) {
@@ -85,7 +91,7 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 
 		for (const [elementName, rect] of elementRects) {
 			const elementArea = rect.width * rect.height;
-			ratios[elementName] = elementArea / totalViewportArea;
+			ratios[elementName] = roundDecimal(elementArea / totalViewportArea);
 		}
 
 		return ratios;
@@ -103,7 +109,7 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 						segment: entry.data.labelStacks.segment,
 						labelStack: entry.data.labelStacks.labelStack,
 					};
-				} else if (fg('platform_ufo_add_segment_names_to_dom_offenders')) {
+				} else {
 					labelStacks[entry.data.elementName] = entry.data.labelStacks.labelStack;
 				}
 			}
@@ -129,7 +135,8 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 	): Promise<CalculateTTVCResult> {
 		const percentiles = [25, 50, 75, 80, 85, 90, 95, 98, 99, 100];
 		const viewportEntries = this.filterViewportEntries(filteredEntries);
-		const vcLogs = await calculateTTVCPercentilesWithDebugInfo({
+		const shouldCalculateSpeedIndex = fg('platform_ufo_ttvc_v4_speed_index');
+		const { entries: vcLogs, speedIndex } = await calculateTTVCPercentilesWithDebugInfo({
 			viewport: {
 				width: getViewportWidth(),
 				height: getViewportHeight(),
@@ -137,6 +144,7 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 			startTime,
 			stopTime,
 			orderedEntries: viewportEntries,
+			calculateSpeedIndex: shouldCalculateSpeedIndex,
 		});
 
 		const vcDetails: RevisionPayloadVCDetails = {};
@@ -164,7 +172,7 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 
 				// Check if this entry matches any checkpoint percentiles
 				if (viewportPercentage >= percentiles[percentileIndex]) {
-					const elementNames = entries.map((e: ViewportEntryData) => e.elementName);
+					const elementNames = [...new Set(entries.map((e: ViewportEntryData) => e.elementName))];
 
 					// Process all matching percentiles in one go
 					while (
@@ -213,18 +221,12 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 		// If 3p metric enabled - calculate the debug details
 		const shouldCalculate3p = include3p && fg('platform_ufo_enable_ttai_with_3p');
 		// Only calculate enhanced debug details if devtool callbacks exist
-		let shouldCalculateDebugDetails =
-			(!isPostInteraction || shouldCalculate3p) &&
-			(typeof window?.__ufo_devtool_onVCRevisionReady__ === 'function' ||
-				typeof window?.__on_ufo_vc_debug_data_ready === 'function');
 
-		if (fg('platform_ufo_fix_post_interaction_check_vc_debug')) {
-			shouldCalculateDebugDetails =
+		const shouldCalculateDebugDetails =
 				!isPostInteraction &&
 				(typeof window?.__ufo_devtool_onVCRevisionReady__ === 'function' ||
 					typeof window?.__on_ufo_vc_debug_data_ready === 'function' ||
 					typeof window?.__ufo_devtool_vc_3p_debug_data === 'function');
-		}
 
 		if (shouldCalculateDebugDetails && allEntries && vcLogs) {
 			// Pre-sort vcLogs by time for efficient lookups
@@ -361,6 +363,7 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 		return {
 			vcDetails,
 			ssrRatio,
+			speedIndex,
 		};
 	}
 
@@ -397,7 +400,7 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 			};
 		}
 
-		const { vcDetails, ssrRatio } = await this.calculateWithDebugInfo(
+		const { vcDetails, ssrRatio, speedIndex } = await this.calculateWithDebugInfo(
 			filteredEntries,
 			startTime,
 			stopTime,
@@ -427,9 +430,13 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 			result.ssrRatio = ssrRatio;
 		}
 
-		if (isPostInteraction || fg('platform_ufo_add_segment_names_to_dom_offenders')) {
-			result.labelStacks = this.getLabelStacks(filteredEntries, isPostInteraction);
+		// speedIndex is only calculated when platform_ufo_ttvc_v4_speed_index is enabled,
+		// so we only include it in the result when it has a meaningful value (> 0)
+		if (speedIndex > 0) {
+			result.speedIndex = speedIndex;
 		}
+
+		result.labelStacks = this.getLabelStacks(filteredEntries, isPostInteraction);
 
 		return result;
 	}

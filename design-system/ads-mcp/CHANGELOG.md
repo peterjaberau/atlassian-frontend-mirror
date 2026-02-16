@@ -1,5 +1,66 @@
 # @atlaskit/ads-mcp
 
+## 0.15.0
+
+### Minor Changes
+
+- [`1a24c2cadbbd8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1a24c2cadbbd8) -
+  Include icon labs icons in the MCP's icon tool.
+
+## 0.14.0
+
+### Minor Changes
+
+- [`9450f7060eda0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9450f7060eda0) -
+  Created "lint rule" tool that documents lint rules in ADS MCP. It sources its content from the
+  structured docs.
+
+## 0.13.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.13.8
+
+### Patch Changes
+
+- [`52fd42ed97a9d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52fd42ed97a9d) -
+  Rework migration guidance for `@atlaskit/onboarding`.
+
+## 0.13.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.13.6
+
+### Patch Changes
+
+- [`a51be92772dd1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a51be92772dd1) -
+  Improve Spotlight migration guides.
+
+## 0.13.5
+
+### Patch Changes
+
+- [`6da0cd3dc1b0f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6da0cd3dc1b0f) -
+  Improve i18n mcp for better detection on existing patterns and save tokens
+
+## 0.13.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.13.3
+
+### Patch Changes
+
+- [`5a1b4e5c8ff80`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5a1b4e5c8ff80) -
+  Remove eslint disable in i18n mcp guide
+
 ## 0.13.2
 
 ### Patch Changes

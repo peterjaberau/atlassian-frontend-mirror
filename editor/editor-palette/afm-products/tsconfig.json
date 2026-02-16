@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.products.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"declaration": true,
 		"target": "es5",
@@ -24,9 +24,6 @@
 		"../src/**/stories/**/*"
 	],
 	"references": [
-		{
-			"path": "../../tmp-editor-statsig/afm-products/tsconfig.json"
-		},
 		{
 			"path": "../../../design-system/tokens/afm-products/tsconfig.json"
 		}

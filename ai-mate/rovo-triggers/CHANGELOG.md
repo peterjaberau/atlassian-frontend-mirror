@@ -1,5 +1,90 @@
 # @atlaskit/rovo-triggers
 
+## 5.13.0
+
+### Minor Changes
+
+- [`bd27129c7de57`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd27129c7de57) -
+  Add preselectEmptyConversation option to message-send pub-sub event, use it to trigger solution
+  architect chat
+
+## 5.12.0
+
+### Minor Changes
+
+- [`dab1b367f67f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dab1b367f67f6) -
+  Pass the conversation ID through to message action components, and remove an unused `messageId`
+  type inside the Jira workflow custom message component
+
+## 5.11.0
+
+### Minor Changes
+
+- [`fc63a95670a7c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fc63a95670a7c) -
+  Fix postMessage origin options
+
+## 5.10.0
+
+### Minor Changes
+
+- [`15228c9272ac3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/15228c9272ac3) -
+  Added overrideAutoSend param to insert-prompt payload to allow for overriding default auto-send
+  behavior for prompts
+
+## 5.9.0
+
+### Minor Changes
+
+- [`f91239ef9383c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f91239ef9383c) -
+  [ux] Update the workflow wizard UI action component to render a redirection button when outside of
+  context.
+
+## 5.8.0
+
+### Minor Changes
+
+- [`7b27558330c14`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b27558330c14) -
+  Adds a pub-sub event to trigger a conversation action from outside Rovo
+
+## 5.7.0
+
+### Minor Changes
+
+- [`7bc2893010341`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7bc2893010341) -
+  auto add subpath exports and sort them
+
+## 5.6.1
+
+### Patch Changes
+
+- [`4a11592a1a45a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4a11592a1a45a) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+
+## 5.6.0
+
+### Minor Changes
+
+- [`4ed112b530268`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4ed112b530268) -
+  Run lint autofix to address existing lint violations and make internal import statements more
+  specific (bypass barrel files) to optimize dependency graph.
+- [`ec61a217ca99b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ec61a217ca99b) -
+  Rovo chat insert urls follow ups
+
+## 5.5.0
+
+### Minor Changes
+
+- [`744ed096e08c8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/744ed096e08c8) -
+  Add in missing subpath export
+
+## 5.4.0
+
+### Minor Changes
+
+- [`92866a25d8694`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/92866a25d8694) -
+  Added new subpath exports to enable direct imports from source modules instead of root barrel
+  file.
+
 ## 5.3.1
 
 ### Patch Changes

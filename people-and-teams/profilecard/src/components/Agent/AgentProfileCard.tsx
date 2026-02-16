@@ -2,23 +2,21 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { useIntl } from 'react-intl-next';
 
-import { type AnalyticsEventPayload, useAnalyticsEvents } from '@atlaskit/analytics-next';
 import { cssMap } from '@atlaskit/css';
+import InformationCircleIcon from '@atlaskit/icon/core/information-circle';
+import Link from '@atlaskit/link';
 import { fg } from '@atlaskit/platform-feature-flags';
-import { Box, Stack } from '@atlaskit/primitives/compiled';
-import {
-	AgentAvatar,
-	AgentBanner,
-	AgentProfileCreator,
-	AgentProfileInfo,
-	AgentStarCount,
-	type ConversationStarter,
-} from '@atlaskit/rovo-agent-components';
+import { Box, Flex, Stack, Text } from '@atlaskit/primitives/compiled';
+import { AgentBanner } from '@atlaskit/rovo-agent-components/ui/agent-avatar/GeneratedAvatar';
+import { AgentStarCount } from '@atlaskit/rovo-agent-components/ui/agent-profile-info/AgentStarCount';
+import { AgentAvatar } from '@atlaskit/rovo-agent-components/ui/AgentAvatar';
+import { type ConversationStarter } from '@atlaskit/rovo-agent-components/ui/AgentConversationStarters';
+import { AgentProfileCreator, AgentProfileInfo } from '@atlaskit/rovo-agent-components/ui/AgentProfileInfo';
 import { useAnalyticsEvents as useAnalyticsEventsNext } from '@atlaskit/teams-app-internal-analytics';
 import { token } from '@atlaskit/tokens';
 
 import { type AgentProfileCardProps } from '../../types';
-import { fireEvent, PACKAGE_META_DATA, profileCardRendered } from '../../util/analytics';
+import { PACKAGE_META_DATA } from '../../util/analytics';
 import { getPageTime } from '../../util/performance';
 import { LoadingState } from '../common/LoadingState';
 import { ErrorMessage } from '../Error';
@@ -50,6 +48,15 @@ const styles = cssMap({
 	conversationStartersWrapper: {
 		paddingInline: token('space.150'),
 	},
+	disclosureWrapperRefresh: {
+		paddingBlockStart: token('space.150'),
+		paddingBlockEnd: token('space.150'),
+		paddingInline: token('space.200'),
+		gap: token('space.050'),
+	},
+	disclosureWrapper: {
+		paddingBlockEnd: token('space.150'),
+	},
 });
 
 const AgentProfileCard = ({
@@ -64,6 +71,7 @@ const AgentProfileCard = ({
 	addFlag,
 	onDeleteAgent,
 	hideMoreActions,
+	hideAiDisclaimer = false,
 }: AgentProfileCardProps): React.JSX.Element => {
 	const {
 		onEditAgent,
@@ -80,7 +88,7 @@ const AgentProfileCard = ({
 	const [isStarred, setIsStarred] = useState(false);
 	const [starCount, setStarCount] = useState<number | undefined>();
 	const { formatMessage } = useIntl();
-	const { fireEvent: fireAnalyticsNext } = useAnalyticsEventsNext();
+	const { fireEvent } = useAnalyticsEventsNext();
 
 	const userDefinedConversationStarters: ConversationStarter[] | undefined =
 		agent?.user_defined_conversation_starters?.map((starter) => {
@@ -95,25 +103,10 @@ const AgentProfileCard = ({
 		setStarCount(agent?.favourite_count);
 	}, [agent?.favourite, agent?.favourite_count]);
 
-	const { createAnalyticsEvent } = useAnalyticsEvents();
-
-	const fireAnalytics = useCallback(
-		(payload: AnalyticsEventPayload) => {
-			if (createAnalyticsEvent) {
-				fireEvent(createAnalyticsEvent, payload);
-			}
-		},
-		[createAnalyticsEvent],
-	);
 	const handleSetFavourite = useCallback(async () => {
 		if (agent?.id) {
 			try {
-				await resourceClient.setFavouriteAgent(
-					agent.id,
-					!isStarred,
-					fireAnalytics,
-					fireAnalyticsNext,
-				);
+				await resourceClient.setFavouriteAgent(agent.id, !isStarred, fireEvent);
 				if (isStarred) {
 					setStarCount(starCount ? starCount - 1 : 0);
 				} else {
@@ -122,7 +115,7 @@ const AgentProfileCard = ({
 				setIsStarred(!isStarred);
 			} catch {}
 		}
-	}, [agent?.id, fireAnalytics, fireAnalyticsNext, isStarred, resourceClient, starCount]);
+	}, [agent?.id, fireEvent, isStarred, resourceClient, starCount]);
 
 	const handleOnDelete = useCallback(async () => {
 		if (agent && onDeleteAgent) {
@@ -130,7 +123,7 @@ const AgentProfileCard = ({
 			const { restore } = onDeleteAgent(agent.id);
 
 			try {
-				await resourceClient.deleteAgent(agent.id, fireAnalytics, fireAnalyticsNext);
+				await resourceClient.deleteAgent(agent.id, fireEvent);
 
 				addFlag?.({
 					title: formatMessage(messages.agentDeletedSuccessFlagTitle),
@@ -152,37 +145,21 @@ const AgentProfileCard = ({
 				});
 			}
 		}
-	}, [
-		addFlag,
-		agent,
-		formatMessage,
-		onDeleteAgent,
-		resourceClient,
-		fireAnalytics,
-		fireAnalyticsNext,
-	]);
+	}, [addFlag, agent, formatMessage, onDeleteAgent, resourceClient, fireEvent]);
 
 	useEffect(() => {
 		if (!isLoading && agent) {
-			if (fg('ptc-enable-profile-card-analytics-refactor')) {
-				fireAnalyticsNext(`ui.rovoAgentProfilecard.rendered.content`, {
-					...PACKAGE_META_DATA,
-					firedAt: Math.round(getPageTime()),
-				});
-			} else {
-				fireAnalytics(profileCardRendered('agent', 'content'));
-			}
+			fireEvent(`ui.rovoAgentProfilecard.rendered.content`, {
+				...PACKAGE_META_DATA,
+				firedAt: Math.round(getPageTime()),
+			});
 		}
-	}, [agent, fireAnalytics, isLoading, fireAnalyticsNext]);
+	}, [agent, fireEvent, isLoading]);
 
 	if (isLoading) {
 		return (
 			<AgentProfileCardWrapper>
-				<LoadingState
-					profileType="agent"
-					fireAnalytics={fireAnalytics}
-					fireAnalyticsNext={fireAnalyticsNext}
-				/>
+				<LoadingState profileType="agent" fireAnalytics={fireEvent} />
 			</AgentProfileCardWrapper>
 		);
 	}
@@ -190,14 +167,12 @@ const AgentProfileCard = ({
 	if (hasError || !agent) {
 		return (
 			<AgentProfileCardWrapper>
-				<ErrorMessage
-					fireAnalyticsNext={fireAnalyticsNext}
-					errorType={errorType}
-					fireAnalytics={fireAnalytics}
-				/>
+				<ErrorMessage errorType={errorType} fireAnalytics={fireEvent} />
 			</AgentProfileCardWrapper>
 		);
 	}
+
+	const isRovoDev = agent.creator_type === 'ROVO_DEV';
 
 	return (
 		<AgentProfileCardWrapper>
@@ -207,6 +182,7 @@ const AgentProfileCard = ({
 					agentNamedId={agent.external_config_reference ?? agent.named_id}
 					height={fg('rovo_agent_empty_state_refresh') ? 48 : 96}
 					agentIdentityAccountId={agent.identity_account_id}
+					isRovoDev={isRovoDev && fg('rovo_dev_themed_identity_card')}
 				/>
 				<Box xcss={styles.avatarStyles}>
 					<AgentAvatar
@@ -214,6 +190,7 @@ const AgentProfileCard = ({
 						agentNamedId={agent.external_config_reference ?? agent.named_id}
 						agentIdentityAccountId={agent.identity_account_id}
 						size={fg('rovo_agent_empty_state_refresh') ? 'large' : 'xlarge'}
+						isRovoDev={isRovoDev && fg('rovo_dev_themed_identity_card')}
 						isForgeAgent={agent.creator_type === 'FORGE' || agent.creator_type === 'THIRD_PARTY'}
 						forgeAgentIconUrl={agent.icon}
 					/>
@@ -232,6 +209,7 @@ const AgentProfileCard = ({
 							agentName={agent.name}
 							isStarred={isStarred}
 							onStarToggle={handleSetFavourite}
+							showStarButton={!(isRovoDev && fg('rovo_dev_themed_identity_card'))}
 							isHidden={agent.visibility === 'PRIVATE'}
 							creatorRender={
 								agent.creatorInfo?.type && (
@@ -254,38 +232,69 @@ const AgentProfileCard = ({
 							agentDescription={agent.description}
 						/>
 					</Box>
-					<Box
-						xcss={fg('rovo_agent_empty_state_refresh') ? styles.conversationStartersWrapper : null}
-					>
-						<ConversationStarters
-							isAgentDefault={agent.is_default}
-							userDefinedConversationStarters={userDefinedConversationStarters}
-							onConversationStarterClick={(conversationStarter: ConversationStarter) => {
-								onConversationStartersClick
-									? onConversationStartersClick(conversationStarter)
-									: onConversationStarter({
-											agentId: agent.id,
-											prompt: conversationStarter.message,
-										});
-							}}
-						/>
-					</Box>
+					{!hideAiDisclaimer && fg('rovo_display_ai_disclaimer_on_agent_profile_card') && (
+						<Flex
+							alignItems="start"
+							direction="column"
+							gap="space.050"
+							xcss={
+								fg('rovo_agent_empty_state_refresh')
+									? styles.disclosureWrapperRefresh
+									: styles.disclosureWrapper
+							}
+						>
+							<Link
+								href="https://www.atlassian.com/trust/atlassian-intelligence"
+								target="_blank"
+								rel="noopener noreferrer"
+								appearance="subtle"
+							>
+								<InformationCircleIcon color={token('color.icon.subtlest')} label="" size="small" />
+								{` `}
+								<Text size="small" color="color.text.subtlest">
+									{formatMessage(messages.aiDisclaimer)}
+								</Text>
+							</Link>
+						</Flex>
+					)}
+					{!(isRovoDev && fg('rovo_dev_themed_identity_card')) && (
+						<Box
+							xcss={
+								fg('rovo_agent_empty_state_refresh') ? styles.conversationStartersWrapper : null
+							}
+						>
+							<ConversationStarters
+								isAgentDefault={agent.is_default}
+								userDefinedConversationStarters={userDefinedConversationStarters}
+								onConversationStarterClick={(conversationStarter: ConversationStarter) => {
+									onConversationStartersClick
+										? onConversationStartersClick(conversationStarter)
+										: onConversationStarter({
+												agentId: agent.id,
+												prompt: conversationStarter.message,
+											});
+								}}
+							/>
+						</Box>
+					)}
 				</Stack>
-				<AgentActions
-					agent={agent}
-					onEditAgent={() => onEditAgent(agent.id)}
-					onCopyAgent={() => onCopyAgent(agent.id)}
-					onDuplicateAgent={() => onDuplicateAgent(agent.id)}
-					onDeleteAgent={handleOnDelete}
-					onChatClick={
-						onChatClick
-							? (event: React.MouseEvent) => onChatClick(event)
-							: () => onOpenChatFullScreen(agent.id, agent.name)
-					}
-					resourceClient={resourceClient}
-					onViewFullProfileClick={() => onViewFullProfile(agent.id)}
-					hideMoreActions={hideMoreActions}
-				/>
+				{!(isRovoDev && fg('rovo_dev_themed_identity_card')) && (
+					<AgentActions
+						agent={agent}
+						onEditAgent={() => onEditAgent(agent.id)}
+						onCopyAgent={() => onCopyAgent(agent.id)}
+						onDuplicateAgent={() => onDuplicateAgent(agent.id)}
+						onDeleteAgent={handleOnDelete}
+						onChatClick={
+							onChatClick
+								? (event: React.MouseEvent) => onChatClick(event)
+								: () => onOpenChatFullScreen(agent.id, agent.name)
+						}
+						resourceClient={resourceClient}
+						onViewFullProfileClick={() => onViewFullProfile(agent.id)}
+						hideMoreActions={hideMoreActions}
+					/>
+				)}
 			</Box>
 		</AgentProfileCardWrapper>
 	);

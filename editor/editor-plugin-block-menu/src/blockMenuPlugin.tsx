@@ -5,13 +5,10 @@ import type { NodeType } from '@atlaskit/editor-prosemirror/model';
 import type { BlockMenuPlugin, RegisterBlockMenuComponent } from './blockMenuPluginType';
 import { createBlockMenuRegistry } from './editor-actions';
 import { isTransformToTargetDisabled } from './editor-actions/isTransformToTargetDisabled';
-import { formatNode } from './editor-commands/formatNode';
 import { transformNode } from './editor-commands/transformNode';
-import type {
-	FormatNodeAnalyticsAttrs,
-	FormatNodeTargetType,
-	TransformNodeMetadata,
-} from './editor-commands/transforms/types';
+import type { TransformNodeMetadata } from './editor-commands/transforms/types';
+import { getBlockMenuExperiencesPlugin } from './pm-plugins/experiences/block-menu-experiences';
+import { keymapPlugin } from './pm-plugins/keymap';
 import { blockMenuPluginKey, createPlugin } from './pm-plugins/main';
 import BlockMenu from './ui/block-menu';
 import { getBlockMenuComponents } from './ui/block-menu-components';
@@ -22,6 +19,10 @@ export const blockMenuPlugin: BlockMenuPlugin = ({ api, config }) => {
 	const registry = createBlockMenuRegistry();
 	registry.register(getBlockMenuComponents({ api, config }));
 
+	const refs: {
+		popupsMountPoint?: HTMLElement;
+	} = {};
+
 	return {
 		name: 'blockMenu',
 		pmPlugins() {
@@ -29,6 +30,19 @@ export const blockMenuPlugin: BlockMenuPlugin = ({ api, config }) => {
 				{
 					name: 'blockMenuPlugin',
 					plugin: () => createPlugin(api),
+				},
+				{
+					name: 'blockMenuKeymap',
+					plugin: () => keymapPlugin(api, config),
+				},
+				{
+					name: 'blockMenuExperiences',
+					plugin: () =>
+						getBlockMenuExperiencesPlugin({
+							refs,
+							dispatchAnalyticsEvent: (payload) =>
+								api?.analytics?.actions?.fireAnalyticsEvent(payload),
+						}),
 				},
 			];
 		},
@@ -62,9 +76,6 @@ export const blockMenuPlugin: BlockMenuPlugin = ({ api, config }) => {
 			},
 		},
 		commands: {
-			formatNode: (targetType: FormatNodeTargetType, analyticsAttrs?: FormatNodeAnalyticsAttrs) => {
-				return formatNode(api)(targetType, analyticsAttrs);
-			},
 			transformNode: (targetType: NodeType, metadata?: TransformNodeMetadata) => {
 				return transformNode(api)(targetType, metadata);
 			},
@@ -95,8 +106,10 @@ export const blockMenuPlugin: BlockMenuPlugin = ({ api, config }) => {
 			popupsBoundariesElement,
 			popupsScrollableElement,
 		}) {
+			refs.popupsMountPoint = popupsMountPoint || undefined;
+
 			return (
-				<BlockMenuProvider api={api}>
+				<BlockMenuProvider api={api} editorView={editorView}>
 					<BlockMenu
 						editorView={editorView}
 						api={api}

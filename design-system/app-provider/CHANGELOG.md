@@ -1,5 +1,61 @@
 # @atlaskit/app-provider
 
+## 4.1.0
+
+### Minor Changes
+
+- [`233c7dede572a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/233c7dede572a) -
+  Fixes a bug with `AppProvider` where under certain conditions, can cause an infinite loop
+  switching between light/dark modes.
+
+  This was happening because of this check:
+  `const isRootThemeProvider = isInsideAppProvider && !isInsideThemeProvider;`
+
+  When an `AppProvider` has `UNSAFE_isThemingDisabled`, it avoids mounting it's root
+  `ThemeProvider`. However, any subsequently nested `ThemeProvider`s would become the root theme
+  provider of `AppProvider`, which uninintentionally enables global theming functionality.
+
+  The fix is to allow `ThemeProvider` to detect when a wrapping `AppProvider` has theming disabled,
+  which allows it to accurately determine if it is the root theme provider before enabling global
+  theming.
+
+## 4.0.0
+
+### Major Changes
+
+- [`2abd451d54eb2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2abd451d54eb2) -
+  Removes atlassian-legacy-light/dark color themes from the tokens package. These themes are unused
+  and non-functional in terms of color contrast. As a result some primitive components may recieve
+  modern fallback color values in some scenarios, however these are inline with the latest token
+  themes.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.3
+
+### Patch Changes
+
+- [`e40fc5834a899`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e40fc5834a899) -
+  Further iteration of subtree theming implementation behind feature gate. Removing unnecessary
+  subtree theming container `div` for top-level theme providers.
+
+## 3.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.1
+
+### Patch Changes
+
+- [`d9d9cbc1507f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d9d9cbc1507f6) -
+  Internal change how default theme settings are shared between `@atlaskit/tokens` and
+  `@atlaskit/app-provider`.
+- Updated dependencies
+
 ## 3.3.0
 
 ### Minor Changes

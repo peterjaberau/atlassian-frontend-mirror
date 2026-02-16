@@ -20,7 +20,8 @@
 		"./__fixtures__/**/*",
 		"./__generated__/**/*",
 		"./mocks/**/*",
-		"./__mocks__/**/*",
+		"**/__mocks__/**/*",
+		"**/__mocks__/**/*.json",
 		"**/mock.*",
 		"**/codemods/**/*.ts",
 		"**/codemods/**/*.tsx",
@@ -39,6 +40,12 @@
 	"references": [
 		{
 			"path": "./tsconfig.app.json"
+		},
+		{
+			"path": "../../../build/test-tooling/gemini-visual-regression/tsconfig.app.json"
+		},
+		{
+			"path": "../../editor/adf-schema/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/button/tsconfig.app.json"

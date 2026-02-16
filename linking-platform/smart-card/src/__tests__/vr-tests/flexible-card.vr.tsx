@@ -208,6 +208,7 @@ snapshot(FlexibleUiElementLozenge, {
 	description: 'FlexibleUiElementLozenge',
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		platform_navx_sl_lozenge_max_width: [true, false],
 	},
 	variants: [
 		{
@@ -220,6 +221,7 @@ snapshot(FlexibleUiElementLozenge, {
 	waitForReactLazy: true,
 });
 snapshot(FlexibleUiElementBadge, {
+	drawsOutsideBounds: true,
 	ignoredErrors: [
 		{
 			pattern: /Can't perform a React state update on a component that hasn't mounted yet/,
@@ -254,14 +256,12 @@ snapshot(FlexibleUiElementMedia, {
 snapshot(FlexibleUiElementTeamMemberCount, {
 	featureFlags: {
 		'platform-component-visual-refresh': true,
-		'platform-linking-team-member-count-component': true,
 	},
 	waitForReactLazy: true,
 });
 snapshot(FlexibleUiElementUserAttributes, {
 	featureFlags: {
 		'platform-component-visual-refresh': true,
-		'platform-linking-user-attributes-component': true,
 	},
 	waitForReactLazy: true,
 });

@@ -45,13 +45,22 @@
 			"path": "../../design-system/button/tsconfig.app.json"
 		},
 		{
+			"path": "../../design-system/css/tsconfig.app.json"
+		},
+		{
 			"path": "../../editor/editor-prosemirror/tsconfig.app.json"
+		},
+		{
+			"path": "../../elements/emoji/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/form/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/icon/tsconfig.app.json"
+		},
+		{
+			"path": "../../design-system/icon-lab/tsconfig.app.json"
 		},
 		{
 			"path": "../jql-ast/tsconfig.app.json"
@@ -94,6 +103,9 @@
 		},
 		{
 			"path": "../../design-system/tooltip/tsconfig.app.json"
+		},
+		{
+			"path": "../../townsquare/townsquare-emoji-provider/tsconfig.app.json"
 		}
 	]
 }

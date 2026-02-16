@@ -2,7 +2,7 @@ const pad = (n: number) => {
 	return n < 10 ? `0${n}` : n;
 };
 
-export const isInvalidInput = (seconds: number) => {
+export const isInvalidInput = (seconds: number): boolean => {
 	return isNaN(seconds) || seconds === Infinity || seconds < 0;
 };
 
@@ -27,7 +27,7 @@ export const secondsToTime = (
 	};
 };
 
-export const formatDuration = (seconds: number) => {
+export const formatDuration = (seconds: number): string => {
 	if (isInvalidInput(seconds)) {
 		return '0:00';
 	}

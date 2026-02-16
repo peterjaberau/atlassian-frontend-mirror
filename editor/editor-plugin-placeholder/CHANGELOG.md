@@ -1,5 +1,102 @@
 # @atlaskit/editor-plugin-placeholder
 
+## 7.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.4
+
+### Patch Changes
+
+- [`4a4392c5bdf9d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4a4392c5bdf9d) -
+  [EDITOR-4807] fg cleanup platform_editor_placeholder_plugin_tidying
+- Updated dependencies
+
+## 7.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.1
+
+### Patch Changes
+
+- [`5c6dee8d82e9e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c6dee8d82e9e) -
+  Updated adf placeholder to inject zero-width-space character at the start of the placeholder
+  decoration. This is needed to stop the browser caret from getting confused when its placed between
+  and editable and non-editable element
+- Updated dependencies
+
+## 7.2.0
+
+### Minor Changes
+
+- [`333b858014e54`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/333b858014e54) -
+  Move content placeholder behind title_on_transition flag
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.1
+
+### Patch Changes
+
+- [`38c83ce57623b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38c83ce57623b) -
+  [ux] [EDITOR-3853] Update copy for sync block placeholder and copy flag
+- Updated dependencies
+
 ## 7.1.0
 
 ### Minor Changes

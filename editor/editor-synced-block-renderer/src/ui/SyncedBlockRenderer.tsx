@@ -1,6 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import type { DocNode } from '@atlaskit/adf-schema';
+import { isSSR } from '@atlaskit/editor-common/core-utils';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { SyncedBlockPlugin } from '@atlaskit/editor-plugin-synced-block';
@@ -8,6 +9,7 @@ import {
 	SyncBlockError,
 	type UseFetchSyncBlockDataResult,
 } from '@atlaskit/editor-synced-block-provider';
+import type { MediaSSR } from '@atlaskit/renderer';
 
 import type { SyncedBlockRendererOptions } from '../types';
 
@@ -17,41 +19,93 @@ import { SyncedBlockLoadingState } from './SyncedBlockLoadingState';
 
 export type SyncedBlockRendererProps = {
 	api?: ExtractInjectionAPI<SyncedBlockPlugin>;
-	syncBlockRendererOptions: SyncedBlockRendererOptions | undefined;
-	useFetchSyncBlockData: () => UseFetchSyncBlockDataResult;
+	syncBlockFetchResult: UseFetchSyncBlockDataResult;
+	syncBlockRendererOptions?: SyncedBlockRendererOptions;
 };
 
 const SyncedBlockRendererComponent = ({
-	useFetchSyncBlockData,
 	syncBlockRendererOptions,
+	syncBlockFetchResult,
 	api,
 }: SyncedBlockRendererProps): React.JSX.Element => {
-	const { syncBlockInstance, providerFactory, isLoading, reloadData } = useFetchSyncBlockData();
-	const { isInternetOffline } = useSharedPluginStateWithSelector(
+	const { isLoading, providerFactory, reloadData, ssrProviders, syncBlockInstance } =
+		syncBlockFetchResult;
+
+	const rendererOptions = useMemo(() => {
+		if (
+			!isSSR() ||
+			syncBlockRendererOptions?.media?.ssr || // already has ssr config
+			!ssrProviders?.media?.viewMediaClientConfig
+		) {
+			return syncBlockRendererOptions;
+		}
+
+		const mediaSSR = {
+			mode: 'server' as const,
+			config: ssrProviders?.media.viewMediaClientConfig,
+		} as MediaSSR;
+
+		return {
+			...syncBlockRendererOptions,
+			media: {
+				...(syncBlockRendererOptions?.media || {}),
+				ssr: mediaSSR,
+			},
+		};
+	}, [syncBlockRendererOptions, ssrProviders]);
+
+	const { isCollabOffline } = useSharedPluginStateWithSelector(
 		api,
 		['connectivity'],
 		({ connectivityState }) => ({
-			isInternetOffline: connectivityState?.mode === 'collab-offline'
-		})
+			isCollabOffline: connectivityState?.mode === 'collab-offline',
+		}),
 	);
 
-	if (isInternetOffline) {
-		return (
-			<SyncedBlockErrorComponent error={SyncBlockError.Offline} />
-		);
+	// Show offline error only when collaboration is offline and not in SSR mode
+	// In SSR, we should always attempt to render content
+	if (isCollabOffline && !isSSR()) {
+		return <SyncedBlockErrorComponent error={{ type: SyncBlockError.Offline }} />;
 	}
 
 	if (!syncBlockInstance) {
 		return <SyncedBlockLoadingState />;
 	}
 
-	if (syncBlockInstance.error || !syncBlockInstance.data) {
+	// In SSR, if server returned error, we should render loading state instead of error state
+	// since  FE will do another fetch and render the error state or proper data then
+	if (isSSR() && syncBlockInstance.error) {
+		return <SyncedBlockLoadingState />;
+	}
+
+	if (
+		syncBlockInstance.error ||
+		!syncBlockInstance.data ||
+		syncBlockInstance.data.status === 'deleted'
+	) {
 		return (
 			<SyncedBlockErrorComponent
-				error={syncBlockInstance.error ?? SyncBlockError.Errored}
+				error={
+					syncBlockInstance.error ??
+					(syncBlockInstance?.data?.status === 'deleted'
+						? { type: SyncBlockError.NotFound }
+						: { type: SyncBlockError.Errored })
+				}
 				resourceId={syncBlockInstance.resourceId}
 				onRetry={reloadData}
 				isLoading={isLoading}
+				fireAnalyticsEvent={api?.analytics?.actions.fireAnalyticsEvent}
+			/>
+		);
+	}
+
+	// Check for unpublished status
+	if (syncBlockInstance.data?.status === 'unpublished') {
+		return (
+			<SyncedBlockErrorComponent
+				error={{ type: SyncBlockError.Unpublished }}
+				resourceId={syncBlockInstance.resourceId}
+				sourceURL={syncBlockInstance.data?.sourceURL}
 				fireAnalyticsEvent={api?.analytics?.actions.fireAnalyticsEvent}
 			/>
 		);
@@ -67,7 +121,7 @@ const SyncedBlockRendererComponent = ({
 		<AKRendererWrapper
 			doc={syncBlockDoc}
 			dataProviders={providerFactory}
-			options={syncBlockRendererOptions}
+			options={rendererOptions}
 		/>
 	);
 };

@@ -18,9 +18,9 @@ export const topNavMountedVar = '--n_tNvM';
  */
 export const sideNavLiveWidthVar = '--n_sNvlw';
 
-export const sideNavPanelSplitterId = Symbol('SideNav PanelSplitter');
-export const asidePanelSplitterId = Symbol('Aside PanelSplitter');
-export const panelPanelSplitterId = Symbol('Panel PanelSplitter');
+export const sideNavPanelSplitterId: unique symbol = Symbol('SideNav PanelSplitter');
+export const asidePanelSplitterId: unique symbol = Symbol('Aside PanelSplitter');
+export const panelPanelSplitterId: unique symbol = Symbol('Panel PanelSplitter');
 
 // We aren't using template literals here because Compiled can't compiled them in platform ATM.
 export const contentHeightWhenFixed = `calc(100vh - var(--n_bnrM, 0px) - var(--n_tNvM, 0px))`;
@@ -48,15 +48,24 @@ export const UNSAFE_MAIN_INLINE_END_FOR_LEGACY_PAGES_ONLY = `calc(var(${UNSAFE_a
  * For globally defined values such as flag, modal, etc, we can continue to
  * rely on accessing them through global means.
  */
-export const localSlotLayers = {
+export const localSlotLayers: {
+	sideNavPanelSplitterFHS: number;
+    topBar: number;
+    banner: number;
+    bannerFHS: number;
+    topNavFHS: number;
+    sideNav: number;
+    panelSmallViewports: number;
+} = {
+	// The side nav panel splitter is layered above the top nav when FHS and 'platform-dst-side-nav-layering-fixes' is enabled.
+	// It has the same z-index value, but is rendered after the top nav in the DOM so is stacked above.
+	sideNavPanelSplitterFHS: 4,
 	topBar: 4,
 	banner: 4,
-	// With the FHS layering refactors, the banner and top nav have a lower z-index to allow layers from the side nav to overlay them.
-	// When they all have equal z-index values, the DOM order determines the layering - meaning the side nav will be layered above the rest.
-	// But, when the top bar contains an open layer, it needs to be layered above the side nav, so has a higher value.
-	topNavFHSWithOpenLayer: 3,
-	bannerFHS: 2,
-	topNavFHS: 2,
+	// When FHS and 'platform-dst-side-nav-layering-fixes' is enabled, the side nav is layered below the top nav,
+	// but above the panel
+	bannerFHS: 3,
+	topNavFHS: 3,
 	sideNav: 2,
 	panelSmallViewports: 1,
 };

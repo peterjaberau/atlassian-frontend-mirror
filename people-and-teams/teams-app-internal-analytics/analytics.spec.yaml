@@ -72,6 +72,18 @@ shared:
     packageVersion:
       type: string
       description: version of the package the event was fired from
+  NewUserProfileAttribute: &NewUserProfileAttribute
+    isNewUserProfile:
+      type: boolean
+      required: false
+      description: whether this event is fired from the new user profile page
+  UserProfileViewedTabAttribute: &UserProfileViewedTabAttribute
+    tab:
+      type: string
+      required: false
+      description:
+        the user profile tab where the viewed event was fired (overview, hierarchy, goals, projects,
+        kudos)
   AgentProfileCardActionsAttributes: &AgentProfileCardActionsAttributes
     agentId:
       type: string
@@ -1380,6 +1392,14 @@ events:
       type: operational
       attributes:
         <<: *ExperienceMetadata
+  - userProfile_projectsAndGoals taskStart:
+      type: operational
+      attributes:
+        <<: [*ExperienceMetadata, *UserProfileViewedTabAttribute]
+  - userProfile_projectsAndGoals taskSuccess:
+      type: operational
+      attributes:
+        <<: [*ExperienceMetadata, *UserProfileViewedTabAttribute]
   - teamsPermissionsRequest failed:
       type: operational
       attributes:
@@ -2154,6 +2174,7 @@ events:
           type: string
           required: false
           description: the workspace uuid
+        <<: [*NewUserProfileAttribute, *UserProfileViewedTabAttribute]
   - ProfileProjectsLink clicked:
       type: ui
       description: fired when the profile projects link is clicked
@@ -2161,6 +2182,7 @@ events:
         entryIndex:
           type: number
           description: the index
+        <<: [*NewUserProfileAttribute, *UserProfileViewedTabAttribute]
   - ProfileGoalsLink clicked:
       type: ui
       description: fired when the profile goals link is clicked
@@ -2168,6 +2190,7 @@ events:
         entryIndex:
           type: number
           description: the index
+        <<: [*NewUserProfileAttribute, *UserProfileViewedTabAttribute]
   - button clicked (followTeamProjectsGoalsButton):
       type: ui
       description: fired when the follow team projects and goals button is clicked
@@ -2194,6 +2217,7 @@ events:
         isEmpty:
           type: boolean
           description: whether the profile kudos is empty
+        <<: [*NewUserProfileAttribute, *UserProfileViewedTabAttribute]
   - ProfileKudosTab clicked:
       type: ui
       description: fired when the profile kudos tab is clicked
@@ -2244,6 +2268,7 @@ events:
           type: string
           required: false
           description: the workspace uuid
+        <<: [*NewUserProfileAttribute, *UserProfileViewedTabAttribute]
   - ui viewed:
       type: ui
       description: fired when the reporting lines chart is viewed - used for Atlas MAU
@@ -2374,6 +2399,8 @@ events:
   - button clicked (profileHeaderMediaPickerUpload):
       type: ui
       description: fired when the media picker upload button is clicked
+      attributes:
+        <<: *NewUserProfileAttribute
   - button clicked (profileHeaderRemove):
       type: ui
       description: fired when the remove header image button is clicked
@@ -2403,12 +2430,17 @@ events:
         hasUploadedAvatar:
           type: boolean
           description: whether the avatar has been uploaded
+        <<: *NewUserProfileAttribute
   - button clicked (changeProfilePhoto):
       type: ui
       description: fired when the change profile photo button is clicked
+      attributes:
+        <<: *NewUserProfileAttribute
   - button clicked (createInitialsAvatar):
       type: ui
       description: fired when the create initials avatar button is clicked
+      attributes:
+        <<: *NewUserProfileAttribute
   - avatarInitialsPicker opened:
       type: track
       description: fired when the avatar initials picker is opened
@@ -2416,6 +2448,7 @@ events:
         hasUploadedAvatar:
           type: boolean
           description: whether the avatar has been uploaded
+        <<: *NewUserProfileAttribute
   - uploadAvatar failed:
       type: track
       description: fired when the upload avatar action is failed
@@ -2479,6 +2512,7 @@ events:
         nonEmptyFields:
           type: string
           description: the non empty fields
+        <<: *NewUserProfileAttribute
   - privacyPolicyLink clicked:
       type: ui
       description: fired when the privacy policy link is clicked
@@ -2493,6 +2527,7 @@ events:
           type: boolean
           required: false
           description: whether the team profile item is powered by TWG
+        <<: *NewUserProfileAttribute
   - showMore clicked:
       type: ui
       description: fired when the show more button is clicked
@@ -2505,6 +2540,7 @@ events:
           type: boolean
           required: false
           description: whether the search query is present
+        <<: *NewUserProfileAttribute
   - teamCreateDialogTriggerButton clicked:
       type: ui
       description: fired when the team create dialog trigger button is clicked
@@ -2512,15 +2548,20 @@ events:
         trigger:
           type: string
           description: the trigger
+        <<: *NewUserProfileAttribute
   - button clicked (manageAccountButton):
       type: ui
       description: fired when the manage account button is clicked
+      attributes:
+        <<: *NewUserProfileAttribute
   - button clicked (manageAccessButton):
       type: ui
       description: fired when the manage access button is clicked
   - userProfileScreenLoad failed:
       type: track
       description: fired when the user profile screen load fails
+      attributes:
+        <<: *NewUserProfileAttribute
   - userProfileScreen viewed:
       type: screen
       description: fired when the user profile screen is viewed
@@ -2528,6 +2569,7 @@ events:
         isCurrentUser:
           type: boolean
           description: whether the user is the current user
+        <<: [*NewUserProfileAttribute, *UserProfileViewedTabAttribute]
   - viewAllWork clicked:
       type: ui
       description: fired when the view all work button is clicked
@@ -2535,6 +2577,7 @@ events:
         location:
           type: string
           description: the location
+        <<: *NewUserProfileAttribute
   - moreWork clicked:
       type: ui
       description: fired when the more work button is clicked
@@ -2542,6 +2585,7 @@ events:
         numItemsDisplayed:
           type: number
           description: the number of items displayed
+        <<: *NewUserProfileAttribute
   - activityEntry clicked:
       type: ui
       description: fired when the activity entry is clicked
@@ -2552,6 +2596,7 @@ events:
         entryIndex:
           type: number
           description: the index
+        <<: *NewUserProfileAttribute
   - placesLink clicked:
       type: ui
       description: fired when the places link is clicked
@@ -2559,6 +2604,7 @@ events:
         type:
           type: string
           description: the type of the place
+        <<: *NewUserProfileAttribute
   - ViewedTeamProfileFromRequestToJoinNotification viewed:
       type: track
       description: fired when the team profile is viewed from the request to join notification
@@ -3117,6 +3163,7 @@ events:
         teamsCount:
           type: number
           description: how many teams
+        <<: *NewUserProfileAttribute
   - teamAgentsPanel viewed:
       type: screen
       description: fired when team agents panel is viewed
@@ -3251,3 +3298,27 @@ events:
         error:
           type: string
           description: The error that was thrown
+  - requestedContainers tryAgain:
+      type: track
+      description: Fired when the user tries to add requested containers again
+      attributes:
+        containers:
+          type: []
+          description: The containers that the user tried to add
+        teamId:
+          type: string
+          description: The id of the team
+  - requestedContainers failed:
+      type: track
+      description: Fired when the user fails to add requested containers
+      attributes:
+        containers:
+          type: []
+          description: The containers that the user tried to add
+        teamId:
+          type: string
+          description: The id of the team
+        tryAgainCount:
+          required: false
+          type: number
+          description: The number of times the user has tried to add requested containers

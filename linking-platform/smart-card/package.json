@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/smart-card",
-	"version": "43.20.2",
+	"version": "43.24.5",
 	"description": "Smart card component",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -64,6 +64,8 @@
 		"@atlaskit/platform-feature-flags-react": "workspace:^",
 		"@atlaskit/popup": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-ufo": "workspace:^",
+		"@atlaskit/rovo-triggers": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
 		"@atlaskit/select": "workspace:^",
 		"@atlaskit/spinner": "workspace:^",
@@ -101,7 +103,6 @@
 		"@atlaskit/analytics-listeners": "workspace:^",
 		"@atlaskit/css-reset": "workspace:^",
 		"@atlaskit/media-test-helpers": "workspace:^",
-		"@atlaskit/react-ufo": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
 		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/analytics-tooling": "workspace:^",
@@ -110,7 +111,7 @@
 		"@atlassian/testing-library": "workspace:^",
 		"@testing-library/dom": "root:*",
 		"@testing-library/jest-dom": "root:*",
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"@types/facepaint": "root:*",
 		"@types/lorem-ipsum": "root:*",
@@ -195,15 +196,6 @@
 		"platform_editor_content_mode_button_mvp": {
 			"type": "boolean"
 		},
-		"prompt_whiteboard_competitor_link_gate": {
-			"type": "boolean"
-		},
-		"platform-linking-team-member-count-component": {
-			"type": "boolean"
-		},
-		"platform-linking-user-attributes-component": {
-			"type": "boolean"
-		},
 		"product-terminology-refresh": {
 			"type": "boolean"
 		},
@@ -225,16 +217,10 @@
 		"expose-product-details-from-smart-card": {
 			"type": "boolean"
 		},
-		"navx-2479-sl-fix-inilne-card-show-connect-button": {
-			"type": "boolean"
-		},
 		"townsquare-same-tab-alignment-gcko-849": {
 			"type": "boolean"
 		},
 		"navx-2478-sl-fix-hover-card-unresolved-view": {
-			"type": "boolean"
-		},
-		"platform-linking-smart-card-layered-link-a11y": {
 			"type": "boolean"
 		},
 		"platform_navx_flex_card_status_dropdown_a11y_fix": {
@@ -243,19 +229,13 @@
 		"platform_navx_sl_a11y_embed_modal": {
 			"type": "boolean"
 		},
+		"platform_navx_sl_lozenge_max_width": {
+			"type": "boolean"
+		},
 		"platform_navx_send_context_to_ugs_for_rel_links": {
 			"type": "boolean"
 		},
-		"navx-2827-eslint-object-translation-smart-links": {
-			"type": "boolean"
-		},
-		"navx-2816-a11y-fix-smart-links-headings": {
-			"type": "boolean"
-		},
-		"navx-2811-smart-link-a11y-image-alt": {
-			"type": "boolean"
-		},
-		"navx-2185-smart-link-preview-modal-icon-role": {
+		"navx-2565-inline-card-error-state-underline": {
 			"type": "boolean"
 		}
 	},

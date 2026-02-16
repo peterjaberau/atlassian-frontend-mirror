@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react';
 
 import type { WrappedComponentProps } from 'react-intl-next';
-import { useIntl, injectIntl } from 'react-intl-next';
+import { injectIntl, useIntl } from 'react-intl-next';
 
+import { getDocument } from '@atlaskit/browser-apis';
 import {
 	ACTION,
 	ACTION_SUBJECT,
 	EVENT_TYPE,
 	type BlockMenuEventPayload,
 } from '@atlaskit/editor-common/analytics';
+import { BLOCK_MENU_ACTION_TEST_ID } from '@atlaskit/editor-common/block-menu';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { blockMenuMessages as messages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
@@ -20,6 +22,7 @@ import type { BlockMenuPlugin } from '../blockMenuPluginType';
 
 import { useBlockMenu } from './block-menu-provider';
 import { BLOCK_MENU_ITEM_NAME } from './consts';
+import { fixBlockMenuPositionAndScroll } from './utils/fixBlockMenuPositionAndScroll';
 
 type Props = {
 	api: ExtractInjectionAPI<BlockMenuPlugin> | undefined;
@@ -27,7 +30,8 @@ type Props = {
 
 const MoveDownDropdownItemContent = ({ api }: Props & WrappedComponentProps) => {
 	const { formatMessage } = useIntl();
-	const { moveUpRef, moveDownRef } = useBlockMenu();
+	const { moveUpRef, moveDownRef, getFirstSelectedDomNode } = useBlockMenu();
+
 	const { canMoveDown } = useSharedPluginStateWithSelector(
 		api,
 		['blockControls'],
@@ -38,11 +42,14 @@ const MoveDownDropdownItemContent = ({ api }: Props & WrappedComponentProps) => 
 		},
 	);
 
+	// Maybe don't need this
 	useEffect(() => {
+		const doc = getDocument();
 		if (
 			!canMoveDown &&
 			moveDownRef.current &&
-			moveDownRef.current === document.activeElement &&
+			doc &&
+			moveDownRef.current === doc.activeElement &&
 			moveUpRef.current
 		) {
 			moveUpRef.current.focus();
@@ -60,17 +67,23 @@ const MoveDownDropdownItemContent = ({ api }: Props & WrappedComponentProps) => 
 				eventType: EVENT_TYPE.UI,
 			};
 			api?.analytics?.actions?.attachAnalyticsEvent(payload)(tr);
-
 			api?.blockControls?.commands?.moveNodeWithBlockMenu(DIRECTION.DOWN)({ tr });
 			return tr;
 		});
+
+		requestAnimationFrame(() => {
+			const newFirstNode = getFirstSelectedDomNode();
+			fixBlockMenuPositionAndScroll(newFirstNode);
+		});
 	};
+
 	return (
 		<ToolbarDropdownItem
 			triggerRef={moveDownRef}
 			onClick={handleClick}
 			elemBefore={<ArrowDownIcon label="" />}
 			isDisabled={!canMoveDown}
+			testId={BLOCK_MENU_ACTION_TEST_ID.MOVE_DOWN}
 		>
 			{formatMessage(messages.moveDownBlock)}
 		</ToolbarDropdownItem>

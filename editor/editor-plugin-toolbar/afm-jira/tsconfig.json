@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.jira.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"target": "es5",
 		"outDir": "../../../../../jira/tsDist/@atlaskit__editor-plugin-toolbar/app",
@@ -50,9 +50,6 @@
 		},
 		{
 			"path": "../../../platform/feature-flags/afm-jira/tsconfig.json"
-		},
-		{
-			"path": "../../../platform/feature-flags-react/afm-jira/tsconfig.json"
 		},
 		{
 			"path": "../../tmp-editor-statsig/afm-jira/tsconfig.json"

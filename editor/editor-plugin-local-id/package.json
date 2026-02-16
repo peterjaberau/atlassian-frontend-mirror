@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-local-id",
-	"version": "5.0.0",
+	"version": "5.1.9",
 	"description": "LocalId plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -32,6 +32,7 @@
 	},
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
+		"@atlaskit/editor-plugin-limited-mode": "workspace:^",
 		"@atlaskit/editor-prosemirror": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
@@ -85,13 +86,10 @@
 		"platform_editor_use_localid_dedupe": {
 			"type": "boolean"
 		},
-		"platform_editor_ai_local_id_short": {
-			"type": "boolean"
-		},
-		"platform_editor_ai_aifc_avoid_initial_localId": {
-			"type": "boolean"
-		},
 		"platform_editor_localid_improvements": {
+			"type": "boolean"
+		},
+		"platform_editor_ai_aifc_localid_error_reporting": {
 			"type": "boolean"
 		}
 	}

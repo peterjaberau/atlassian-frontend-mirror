@@ -5,7 +5,8 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import {
 	getDefaultEnvironment,
 	StdioClientTransport,
-} from '@modelcontextprotocol/sdk/client/stdio';
+	/* eslint-disable-next-line import/extensions -- MCP SDK requires .js extensions for ESM imports */
+} from '@modelcontextprotocol/sdk/client/stdio.js';
 
 import { coreIconMetadata as allIcons } from '@atlaskit/icon/metadata';
 import { tokens as allTokens } from '@atlaskit/tokens/token-metadata';
@@ -84,6 +85,13 @@ describe('ADS MCP Server E2E', () => {
 		const listedTools = (await client.listTools()).tools;
 		expect(listedTools).not.toEqual(
 			expect.arrayContaining([expect.objectContaining({ name: 'ads_get_all_icons' })]),
+		);
+	});
+
+	it('Lists the ads_get_lint_rules tool with feature flags enabled', async () => {
+		const listedTools = (await client.listTools()).tools;
+		expect(listedTools).toEqual(
+			expect.arrayContaining([expect.objectContaining({ name: 'ads_get_lint_rules' })]),
 		);
 	});
 
@@ -201,6 +209,67 @@ describe('ADS MCP Server E2E', () => {
 		expect(markdown).toContain('Keywords');
 		expect(markdown).toContain('Import statement:');
 		expect(markdown).toContain('Sizes:');
+		expect(markdown.length).toBeGreaterThan(100); // Should have substantial content
+
+		// Should not be valid JSON (since it's markdown)
+		expect(() => JSON.parse(markdown)).toThrow();
+	});
+
+	it('Returns markdown with Icon Lab import path for ads_get_icons when searching for an Icon Lab icon with feature flags enabled', async () => {
+		const result = (
+			await client.callTool({
+				name: 'ads_get_icons',
+				arguments: {
+					terms: ['PlanIcon'],
+					limit: 1,
+					exactName: true,
+				},
+			})
+		).content as { text: string }[];
+
+		expect(result).toHaveLength(1);
+		const markdown = result[0].text;
+		expect(markdown).toContain('@atlaskit/icon-lab/core/plan');
+		expect(markdown).toMatch(/import PlanIcon from '@atlaskit\/icon-lab\/core\/plan'/);
+	});
+
+	it('Returns markdown content for ads_get_lint_rules tool with feature flags enabled', async () => {
+		const result = (
+			await client.callTool({
+				name: 'ads_get_lint_rules',
+				arguments: {
+					terms: ['icon-label'],
+					limit: 1,
+					exactName: true,
+				},
+			})
+		).content as { text: string }[];
+
+		expect(result).toHaveLength(1);
+		const markdown = result[0].text;
+
+		// Validate markdown structure - should contain rule heading and content
+		expect(markdown).toContain('# icon-label');
+		expect(markdown).toContain('Icon labels');
+		expect(markdown.length).toBeGreaterThan(50);
+
+		// Should not be valid JSON (since it's markdown)
+		expect(() => JSON.parse(markdown)).toThrow();
+	});
+
+	it('Returns all lint rules as markdown when no search terms provided for ads_get_lint_rules tool with feature flags enabled', async () => {
+		const result = (
+			await client.callTool({
+				name: 'ads_get_lint_rules',
+				arguments: {},
+			})
+		).content as { text: string }[];
+
+		expect(result).toHaveLength(1);
+		const markdown = result[0].text;
+
+		// Should contain multiple rules (at least one)
+		expect(markdown).toContain('#');
 		expect(markdown.length).toBeGreaterThan(100); // Should have substantial content
 
 		// Should not be valid JSON (since it's markdown)

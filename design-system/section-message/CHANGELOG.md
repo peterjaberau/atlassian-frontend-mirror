@@ -1,5 +1,31 @@
 # @atlaskit/section-message
 
+## 8.12.4
+
+### Patch Changes
+
+- [`629119f34f212`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/629119f34f212) -
+  Updated border radius behind a feature gate.
+- Updated dependencies
+
+## 8.12.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.12.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.12.0
 
 ### Minor Changes

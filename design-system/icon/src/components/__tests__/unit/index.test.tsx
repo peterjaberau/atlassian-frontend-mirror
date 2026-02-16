@@ -1,11 +1,11 @@
+import fs from 'fs';
+import path from 'path';
+
 import React from 'react';
+
 import { render, screen } from '@testing-library/react';
 
-import path from 'path';
-import fs from 'fs';
-import { size } from '../../..';
 import BookIcon from '../../../../glyph/book';
-import { size as defaultSize } from '../../..';
 import metadata from '../../../metadata';
 import metadataCore from '../../../metadata-core';
 
@@ -426,12 +426,6 @@ describe('@atlaskit/icon', () => {
 			// If we were to auto-generate this list, then renaming, adding or removing would NOT
 			// break any tests and thus not hint the developer at what kind of change they are making
 		});
-
-		describe('bundle', () => {
-			it('has size export', () => {
-				expect(defaultSize).toEqual(size);
-			});
-		});
 	});
 
 	describe('new icon exports', () => {
@@ -448,12 +442,6 @@ describe('@atlaskit/icon', () => {
 			);
 
 			expect(actualPaths.sort()).toEqual(expectedPaths.sort());
-		});
-	});
-
-	describe('bundle', () => {
-		it('has size export', () => {
-			expect(defaultSize).toEqual(size);
 		});
 	});
 
@@ -478,21 +466,6 @@ describe('@atlaskit/icon', () => {
 				expect(screen.getByRole('img')).toBeInTheDocument();
 				expect(Icon).toBeInstanceOf(Function);
 			});
-
-			const oldNames = metadataCore[key].oldName;
-			if (oldNames) {
-				oldNames.forEach((oldName) => {
-					it(`should be possible to create the ${oldName} -> ${key} migration icon component`, async () => {
-						const componentName = key === oldName ? key : `${key}--${oldName.replace('/', '-')}`;
-						const component = await import(`../../../../core/migration/${componentName}`);
-
-						const Icon = component.default;
-						render(<Icon label={Icon.name} />);
-						expect(screen.getByRole('img')).toBeInTheDocument();
-						expect(Icon).toBeInstanceOf(Function);
-					});
-				});
-			}
 		});
 	});
 

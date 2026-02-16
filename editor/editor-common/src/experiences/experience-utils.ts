@@ -46,7 +46,6 @@ export const popupWithNestedElement = (
 	return node.querySelector(`:scope > [data-editor-popup="true"] ${nestedElementQuery}`);
 };
 
-
 /**
  * Searches for the popup container element relative to the provided editor view element.
  *
@@ -59,4 +58,17 @@ export const getPopupContainerFromEditorView = (editorViewEl?: HTMLElement | nul
 		':scope > [data-testid="plugins-components-wrapper"]',
 	) as HTMLElement | null;
 	return pluginsComponentsWrapper || undefined;
+};
+
+/**
+ * Checks if a node matches or contains the node given by the provided query css selector
+ *
+ * @param query - CSS selector string
+ * @returns true if node matches or contains query or false otherwise
+ */
+export const getNodeQuery = (query: string) => (node?: Node | null) => {
+	if (!node || !(node instanceof Element)) {
+		return false;
+	}
+	return node.matches(query) || node.querySelector(query) !== null;
 };

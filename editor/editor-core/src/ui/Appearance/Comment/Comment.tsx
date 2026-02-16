@@ -24,8 +24,6 @@ import type { MediaPlugin } from '@atlaskit/editor-plugins/media';
 import type { PrimaryToolbarPlugin } from '@atlaskit/editor-plugins/primary-toolbar';
 import type { ToolbarPlugin } from '@atlaskit/editor-plugins/toolbar';
 import { akEditorMobileBreakoutPoint } from '@atlaskit/editor-shared-styles';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import type { EditorAppearanceComponentProps } from '../../../types';
@@ -210,16 +208,13 @@ export const CommentEditorWithIntl = (props: ComponentProps) => {
 			css={[
 				mainToolbarCustomComponentsSlotStyleNew,
 				isTwoLineToolbarEnabled && mainToolbarCustomComponentsSlotStyleTwoLineToolbarNew,
-				isToolbarAIFCEnabled &&
-					fg('platform_editor_toolbar_aifc_responsive_improve') &&
-					mainToolbarCustomComponentsSlotStylePaddingOverride,
+				isToolbarAIFCEnabled && mainToolbarCustomComponentsSlotStylePaddingOverride,
 			]}
 		>
 			{customPrimaryToolbarComponents as React.ReactNode}
 		</div>
 	);
 
-	const patch6Enabled = expValEquals('platform_editor_toolbar_aifc_patch_6', 'isEnabled', true);
 
 	return (
 		<WithFlash animate={maxContentSizeReached}>
@@ -243,41 +238,26 @@ export const CommentEditorWithIntl = (props: ComponentProps) => {
 						isNewToolbarEnabled={isToolbarAIFCEnabled}
 					>
 						{isToolbarAIFCEnabled ? (
-							fg('platform_editor_toolbar_aifc_patch_7') ? (
-								<ToolbarArrowKeyNavigationProvider
+							<ToolbarArrowKeyNavigationProvider
+								editorView={editorView}
+								childComponentSelector={"[data-testid='ak-editor-main-toolbar']"}
+								isShortcutToFocusToolbar={isShortcutToFocusToolbar}
+								handleEscape={handleEscape}
+								editorAppearance={appearance}
+								useStickyToolbar={useStickyToolbar}
+								intl={intl}
+							>
+								<CommentToolbar
+									editorAPI={editorAPI}
 									editorView={editorView}
-									childComponentSelector={"[data-testid='ak-editor-main-toolbar']"}
-									isShortcutToFocusToolbar={isShortcutToFocusToolbar}
-									handleEscape={handleEscape}
 									editorAppearance={appearance}
-									useStickyToolbar={useStickyToolbar}
-									intl={intl}
-								>
-									<CommentToolbar
-										editorAPI={editorAPI}
-										editorView={editorView}
-										editorAppearance={appearance}
-										disabled={patch6Enabled ? !!disabled : undefined}
-										popupsBoundariesElement={popupsBoundariesElement}
-										popupsScrollableElement={popupsScrollableElement}
-										popupsMountPoint={popupsMountPoint}
-									/>
-									{customPrimaryToolbarComponents ? customToolbarSlot : null}
-								</ToolbarArrowKeyNavigationProvider>
-							) : (
-								<React.Fragment>
-									<CommentToolbar
-										editorAPI={editorAPI}
-										editorView={editorView}
-										editorAppearance={appearance}
-										disabled={patch6Enabled ? !!disabled : undefined}
-										popupsBoundariesElement={popupsBoundariesElement}
-										popupsScrollableElement={popupsScrollableElement}
-										popupsMountPoint={popupsMountPoint}
-									/>
-									{customPrimaryToolbarComponents ? customToolbarSlot : null}
-								</React.Fragment>
-							)
+									disabled={!!disabled}
+									popupsBoundariesElement={popupsBoundariesElement}
+									popupsScrollableElement={popupsScrollableElement}
+									popupsMountPoint={popupsMountPoint}
+								/>
+								{customPrimaryToolbarComponents ? customToolbarSlot : null}
+							</ToolbarArrowKeyNavigationProvider>
 						) : (
 							<ToolbarArrowKeyNavigationProvider
 								editorView={editorView}

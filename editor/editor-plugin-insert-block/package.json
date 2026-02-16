@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-insert-block",
-	"version": "8.2.0",
+	"version": "8.6.0",
 	"description": "Insert block plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -32,6 +32,7 @@
 		".": "./src/index.ts"
 	},
 	"dependencies": {
+		"@atlaskit/browser-apis": "workspace:^",
 		"@atlaskit/editor-plugin-analytics": "workspace:^",
 		"@atlaskit/editor-plugin-block-type": "workspace:^",
 		"@atlaskit/editor-plugin-code-block": "workspace:^",
@@ -83,7 +84,7 @@
 		"react-intl-next": "*"
 	},
 	"devDependencies": {
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"@types/react-virtualized": "root:*"
 	},
 	"techstack": {
@@ -123,28 +124,19 @@
 		}
 	},
 	"platform-feature-flags": {
-		"platform_editor_toolbar_aifc_ga_blockers": {
-			"type": "boolean"
-		},
 		"platform_editor_toolbar_responsive_fixes": {
 			"type": "boolean"
 		},
 		"platform_editor_ease_of_use_metrics": {
 			"type": "boolean"
 		},
-		"platform_editor_refactor_view_more": {
-			"type": "boolean"
-		},
-		"confluence-whiteboards-quick-insert-eligible": {
-			"type": "boolean"
-		},
-		"confluence-whiteboards-quick-insert-l10n-eligible": {
-			"type": "boolean"
-		},
-		"platform_editor_toolbar_aifc_undo_redo_confluence": {
-			"type": "boolean"
-		},
 		"platform_editor_nov_a11y_fixes": {
+			"type": "boolean"
+		},
+		"platform_editor_media_insert_check": {
+			"type": "boolean"
+		},
+		"platform_editor_experience_tracking_toolbar_button": {
 			"type": "boolean"
 		}
 	}

@@ -28,15 +28,8 @@ import {
 	OVERFLOW_MENU_RANK,
 } from '@atlaskit/editor-common/toolbar';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import {
-	PrimaryToolbar as PrimaryToolbarBase,
-	Show,
-	Toolbar,
-	type BreakpointPreset,
-} from '@atlaskit/editor-toolbar';
+import { Show, Toolbar, type BreakpointPreset } from '@atlaskit/editor-toolbar';
 import { type RegisterComponent, type ToolbarComponentTypes } from '@atlaskit/editor-toolbar-model';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { ToolbarPlugin } from '../toolbarPluginType';
 
@@ -58,11 +51,7 @@ const getInlineTextToolbarComponents = () => {
 					<Toolbar
 						label={SELECTION_TOOLBAR_LABEL}
 						actionSubjectId={ACTION_SUBJECT_ID.SELECTION_TOOLBAR}
-						testId={
-							expValEquals('platform_editor_toolbar_aifc_patch_5', 'isEnabled', true)
-								? 'editor-floating-toolbar'
-								: undefined
-						}
+						testId={'editor-floating-toolbar'}
 					>
 						{children}
 					</Toolbar>
@@ -77,15 +66,9 @@ const getPrimaryToolbarComponents = (breakpointPreset?: BreakpointPreset) => {
 		{
 			type: 'toolbar',
 			key: TOOLBARS.PRIMARY_TOOLBAR,
-			component: expValEquals('platform_editor_toolbar_aifc_responsive', 'isEnabled', true)
-				? ({ children }) => (
-						<PrimaryToolbar breakpointPreset={breakpointPreset}>{children}</PrimaryToolbar>
-					)
-				: ({ children }) => (
-						<PrimaryToolbarBase label="Primary Toolbar" testId="primary-toolbar">
-							{children}
-						</PrimaryToolbarBase>
-					),
+			component: ({ children }) => (
+				<PrimaryToolbar breakpointPreset={breakpointPreset}>{children}</PrimaryToolbar>
+			),
 		},
 	] as RegisterComponent[];
 };
@@ -93,7 +76,6 @@ const getPrimaryToolbarComponents = (breakpointPreset?: BreakpointPreset) => {
 export const getToolbarComponents = (
 	contextualFormattingEnabled: ContextualFormattingEnabledOptions,
 	api?: ExtractInjectionAPI<ToolbarPlugin>,
-	disableSelectionToolbar?: boolean,
 	breakpointPreset?: BreakpointPreset,
 ): RegisterComponent[] => {
 	const components: RegisterComponent[] = [
@@ -108,30 +90,12 @@ export const getToolbarComponents = (
 				},
 			],
 			component: ({ children, parents }) => {
-				if (expValEquals('platform_editor_toolbar_aifc_responsive', 'isEnabled', true)) {
-					return (
-						<Show above="md">
-							<Section
-								parents={parents}
-								api={api}
-								disableSelectionToolbar={disableSelectionToolbar}
-								testId="text-section"
-							>
-								{children}
-							</Section>
-						</Show>
-					);
-				}
-
 				return (
-					<Section
-						parents={parents}
-						api={api}
-						disableSelectionToolbar={disableSelectionToolbar}
-						testId="text-section"
-					>
-						{children}
-					</Section>
+					<Show above="md">
+						<Section parents={parents} api={api} testId="text-section">
+							{children}
+						</Section>
+					</Show>
 				);
 			},
 		},
@@ -152,91 +116,65 @@ export const getToolbarComponents = (
 				children: React.ReactNode;
 				parents: ToolbarComponentTypes;
 			}) => {
-				if (expValEquals('platform_editor_toolbar_aifc_responsive', 'isEnabled', true)) {
-					return (
-						<Show above="md">
-							<Section
-								parents={parents}
-								api={api}
-								disableSelectionToolbar={disableSelectionToolbar}
-								testId="text-section"
-							>
-								{children}
-							</Section>
-						</Show>
-					);
-				}
-
 				return (
-					<Section
-						parents={parents}
-						api={api}
-						disableSelectionToolbar={disableSelectionToolbar}
-						testId="text-section"
-					>
-						{children}
-					</Section>
+					<Show above="md">
+						<Section parents={parents} api={api} testId="text-section">
+							{children}
+						</Section>
+					</Show>
 				);
 			},
 		},
-		...(expValEquals('platform_editor_toolbar_aifc_responsive', 'isEnabled', true)
-			? ([
-					{
-						type: TEXT_SECTION_COLLAPSED.type,
-						key: TEXT_SECTION_COLLAPSED.key,
-						parents: [
-							{
-								type: 'toolbar' as const,
-								key: TOOLBARS.PRIMARY_TOOLBAR,
-								rank: TOOLBAR_RANK[TEXT_SECTION_COLLAPSED.key],
-							},
 
-							expValEquals('platform_editor_toolbar_aifc_responsive', 'isEnabled', true) && {
-								type: 'toolbar',
-								key: TOOLBARS.INLINE_TEXT_TOOLBAR,
-								rank: TOOLBAR_RANK[TEXT_SECTION_COLLAPSED.key],
-							},
-						],
-						component: ({ children, parents }) => {
-							return (
-								<Show below="md">
-									<Section
-										parents={parents}
-										api={api}
-										disableSelectionToolbar={disableSelectionToolbar}
-										testId="text-section"
-									>
-										{children}
-									</Section>
-								</Show>
-							);
-						},
-					},
-					{
-						type: TEXT_COLLAPSED_GROUP.type,
-						key: TEXT_COLLAPSED_GROUP.key,
-						parents: [
-							{
-								type: TEXT_SECTION_COLLAPSED.type,
-								key: TEXT_SECTION_COLLAPSED.key,
-								rank: 100,
-							},
-						],
-					},
-					{
-						type: TEXT_COLLAPSED_MENU.type,
-						key: TEXT_COLLAPSED_MENU.key,
-						parents: [
-							{
-								type: TEXT_COLLAPSED_GROUP.type,
-								key: TEXT_COLLAPSED_GROUP.key,
-								rank: 100,
-							},
-						],
-						component: TextCollapsedMenu,
-					},
-				] as RegisterComponent[])
-			: []),
+		{
+			type: TEXT_SECTION_COLLAPSED.type,
+			key: TEXT_SECTION_COLLAPSED.key,
+			parents: [
+				{
+					type: 'toolbar' as const,
+					key: TOOLBARS.PRIMARY_TOOLBAR,
+					rank: TOOLBAR_RANK[TEXT_SECTION_COLLAPSED.key],
+				},
+
+				{
+					type: 'toolbar',
+					key: TOOLBARS.INLINE_TEXT_TOOLBAR,
+					rank: TOOLBAR_RANK[TEXT_SECTION_COLLAPSED.key],
+				},
+			],
+			component: ({ children, parents }) => {
+				return (
+					<Show below="md">
+						<Section parents={parents} api={api} testId="text-section">
+							{children}
+						</Section>
+					</Show>
+				);
+			},
+		},
+		{
+			type: TEXT_COLLAPSED_GROUP.type,
+			key: TEXT_COLLAPSED_GROUP.key,
+			parents: [
+				{
+					type: TEXT_SECTION_COLLAPSED.type,
+					key: TEXT_SECTION_COLLAPSED.key,
+					rank: 100,
+				},
+			],
+		},
+		{
+			type: TEXT_COLLAPSED_MENU.type,
+			key: TEXT_COLLAPSED_MENU.key,
+			parents: [
+				{
+					type: TEXT_COLLAPSED_GROUP.type,
+					key: TEXT_COLLAPSED_GROUP.key,
+					rank: 100,
+				},
+			],
+			component: TextCollapsedMenu,
+		},
 
 		{
 			type: INSERT_BLOCK_SECTION.type,
@@ -322,22 +260,18 @@ export const getToolbarComponents = (
 				return <OverflowMenu>{children}</OverflowMenu>;
 			},
 		},
-		...(fg('platform_editor_toolbar_aifc_overflow_menu_update')
-			? [
-					{
-						type: OVERFLOW_EXTENSIONS_MENU_SECTION.type,
-						key: OVERFLOW_EXTENSIONS_MENU_SECTION.key,
-						parents: [
-							{
-								type: OVERFLOW_MENU.type,
-								key: OVERFLOW_MENU.key,
-								rank: OVERFLOW_MENU_RANK[OVERFLOW_EXTENSIONS_MENU_SECTION.key],
-							},
-						],
-						component: OverflowMenuSection,
-					},
-				]
-			: []),
+		{
+			type: OVERFLOW_EXTENSIONS_MENU_SECTION.type,
+			key: OVERFLOW_EXTENSIONS_MENU_SECTION.key,
+			parents: [
+				{
+					type: OVERFLOW_MENU.type,
+					key: OVERFLOW_MENU.key,
+					rank: OVERFLOW_MENU_RANK[OVERFLOW_EXTENSIONS_MENU_SECTION.key],
+				},
+			],
+			component: OverflowMenuSection,
+		},
 		{
 			type: PIN_SECTION.type,
 			key: PIN_SECTION.key,
@@ -348,20 +282,18 @@ export const getToolbarComponents = (
 					rank: TOOLBAR_RANK[PIN_SECTION.key],
 				},
 			],
-			component: fg('platform_editor_toolbar_aifc_undo_redo_confluence')
-				? ({ children, parents }) => {
-						return (
-							<Section
-								testId="pin-section"
-								parents={parents}
-								api={api}
-								showSeparatorInFullPagePrimaryToolbar
-							>
-								{children}
-							</Section>
-						);
-					}
-				: undefined,
+			component: ({ children, parents }) => {
+				return (
+					<Section
+						testId="pin-section"
+						parents={parents}
+						api={api}
+						showSeparatorInFullPagePrimaryToolbar
+					>
+						{children}
+					</Section>
+				);
+			},
 		},
 	];
 
@@ -407,49 +339,42 @@ export const getToolbarComponents = (
 		},
 	);
 
-	if (fg('platform_editor_toolbar_aifc_placement_config')) {
-		switch (contextualFormattingEnabled) {
-			case 'always-inline':
-				components.unshift(...getInlineTextToolbarComponents());
-				break;
-			case 'always-pinned':
-				components.unshift(...getPrimaryToolbarComponents(breakpointPreset));
-				break;
-			case 'controlled':
-				components.unshift(...getInlineTextToolbarComponents());
-				components.unshift(...getPrimaryToolbarComponents(breakpointPreset));
-				break;
-		}
-	} else {
-		components.unshift(...getInlineTextToolbarComponents());
-		components.unshift(...getPrimaryToolbarComponents(breakpointPreset));
+	switch (contextualFormattingEnabled) {
+		case 'always-inline':
+			components.unshift(...getInlineTextToolbarComponents());
+			break;
+		case 'always-pinned':
+			components.unshift(...getPrimaryToolbarComponents(breakpointPreset));
+			break;
+		case 'controlled':
+			components.unshift(...getInlineTextToolbarComponents());
+			components.unshift(...getPrimaryToolbarComponents(breakpointPreset));
+			break;
 	}
 
-	if (fg('platform_editor_toolbar_aifc_undo_redo_confluence')) {
-		components.push({
-			type: TRACK_CHANGES_SECTION.type,
-			key: TRACK_CHANGES_SECTION.key,
-			parents: [
-				{
-					type: 'toolbar',
-					key: TOOLBARS.PRIMARY_TOOLBAR,
-					rank: TOOLBAR_RANK[TRACK_CHANGES_SECTION.key],
-				},
-			],
-			component: ({ children, parents }) => {
-				return (
-					<Section
-						testId="track-changes-section"
-						parents={parents}
-						api={api}
-						showSeparatorInFullPagePrimaryToolbar
-					>
-						{children}
-					</Section>
-				);
+	components.push({
+		type: TRACK_CHANGES_SECTION.type,
+		key: TRACK_CHANGES_SECTION.key,
+		parents: [
+			{
+				type: 'toolbar',
+				key: TOOLBARS.PRIMARY_TOOLBAR,
+				rank: TOOLBAR_RANK[TRACK_CHANGES_SECTION.key],
 			},
-		});
-	}
+		],
+		component: ({ children, parents }) => {
+			return (
+				<Section
+					testId="track-changes-section"
+					parents={parents}
+					api={api}
+					showSeparatorInFullPagePrimaryToolbar
+				>
+					{children}
+				</Section>
+			);
+		},
+	});
 
 	return components;
 };

@@ -98,7 +98,7 @@ const TokenPropsTable = ({
 	required?: boolean;
 	defaultValue?: any;
 	deprecated?: boolean;
-}) => {
+}): JSX.Element => {
 	return (
 		<div css={styles.container}>
 			<table css={styles.table}>
@@ -112,7 +112,7 @@ const TokenPropsTable = ({
 				<tbody>
 					<tr>
 						<th scope="row">
-							<Text size="UNSAFE_small" weight="bold" color="color.text.subtlest">
+							<Text size="small" weight="bold" color="color.text.subtlest">
 								Description
 							</Text>
 						</th>
@@ -121,7 +121,7 @@ const TokenPropsTable = ({
 					{defaultValue !== undefined && (
 						<tr>
 							<th scope="row">
-								<Text size="UNSAFE_small" weight="bold" color="color.text.subtlest">
+								<Text size="small" weight="bold" color="color.text.subtlest">
 									Default
 								</Text>
 							</th>
@@ -132,7 +132,7 @@ const TokenPropsTable = ({
 					)}
 					<tr>
 						<th>
-							<Text size="UNSAFE_small" weight="bold" color="color.text.subtlest">
+							<Text size="small" weight="bold" color="color.text.subtlest">
 								Type
 							</Text>
 						</th>

@@ -13,12 +13,12 @@ export const EXPERIENCE_FAILURE_REASON = {
 	/**
 	 * Target element could not be found when starting DOM mutation observation
 	 */
-	DOM_MUTATION_TARGET_NOT_FOUND: 'dom-mutation-target-not-found',
+	DOM_MUTATION_TARGET_NOT_FOUND: 'domMutationTargetNotFound',
 
 	/**
 	 * Error occurred during DOM mutation check execution
 	 */
-	DOM_MUTATION_CHECK_ERROR: 'dom-mutation-check-error',
+	DOM_MUTATION_CHECK_ERROR: 'domMutationCheckError',
 } as const;
 
 /**
@@ -45,3 +45,11 @@ export const EXPERIENCE_ABORT_REASON = {
  * instrumentation, then the sample rate can be tuned up to a safe threshold.
  */
 export const DEFAULT_EXPERIENCE_SAMPLE_RATE = 0.001;
+
+export const EXPERIENCE_ID = {
+	ASYNC_OPERATION: 'asyncOperation',
+	MENU_ACTION: 'menuAction',
+	MENU_OPEN: 'menuOpen',
+	TOOLBAR_ACTION: 'toolbarAction',
+	TOOLBAR_OPEN: 'toolbarOpen',
+} as const;

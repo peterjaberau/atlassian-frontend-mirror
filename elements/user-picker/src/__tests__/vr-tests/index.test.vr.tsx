@@ -20,6 +20,8 @@ import SimpleMultiWithExternalUsersWithTooltip from '../../../examples/simple-mu
 import SingleUserPickerWithAutoFocus from '../../../examples/single-with-auto-focus';
 import SingleUserPickerWithAgentHexagonAvatar from '../../../examples/35-agent-hexagon-avatar';
 import UserPickerWithIcon from '../../../examples/36-user-picker-with-icon';
+import MultiWithDefaultValuesWithSelectedOfficialTeams from '../../../examples/37-multi-with-default-values-with-selected-official-teams-and-admin-groups';
+import SingleWithDefaultValuesWithSelectedOfficialTeamSelected from '../../../examples/38-single-with-default-values-with-official-team-selected';
 
 snapshot(SingleUserPickerWithAutoFocus, {
 	drawsOutsideBounds: true,
@@ -95,7 +97,8 @@ snapshot(SingleUserPickerWithAgentHexagonAvatar, {
 
 snapshot(UserPickerWithIcon, {
 	drawsOutsideBounds: true,
-	featureFlags: {	
-		atlaskit_user_picker_support_icon: true,
-	},
 });
+
+snapshot(MultiWithDefaultValuesWithSelectedOfficialTeams);
+
+snapshot(SingleWithDefaultValuesWithSelectedOfficialTeamSelected);

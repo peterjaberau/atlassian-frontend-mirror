@@ -2,18 +2,17 @@ import React, { useState } from 'react';
 
 import { defineMessages, useIntl } from 'react-intl-next';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import { isFedRamp } from '@atlaskit/atlassian-context';
 import { IconButton } from '@atlaskit/button/new';
 import { cssMap, cx } from '@atlaskit/css';
 import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
-import FeatureGates from '@atlaskit/feature-gate-js-client';
 import CrossIcon from '@atlaskit/icon/core/cross';
 import LinkExternalIcon from '@atlaskit/icon/core/link-external';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
 import Link from '@atlaskit/link';
 import { fg } from '@atlaskit/platform-feature-flags';
 import { Anchor, Box, Flex, Inline, Stack, Text } from '@atlaskit/primitives/compiled';
-import { useAnalyticsEvents as useAnalyticsEventsNext } from '@atlaskit/teams-app-internal-analytics';
+import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics';
 import { token } from '@atlaskit/tokens';
 import Tooltip from '@atlaskit/tooltip';
 
@@ -21,9 +20,7 @@ import { type ContainerSubTypes, type ContainerTypes } from '../../../common/typ
 import { ContainerIcon } from '../../../common/ui/container-icon';
 import { Separator } from '../../../common/ui/separator';
 import { TeamLinkCardActions } from '../../../common/ui/team-link-card-actions';
-import { AnalyticsAction, usePeopleAndTeamAnalytics } from '../../../common/utils/analytics';
 import { getContainerProperties } from '../../../common/utils/get-container-properties';
-import { getIsExperimentEnabled } from '../../../common/utils/get-is-experiment-enabled';
 import { getDomainFromLinkUri } from '../../../common/utils/get-link-domain';
 
 import { TeamLinkCardTitle } from './team-link-card-title';
@@ -163,7 +160,6 @@ export const TeamLinkCard = ({
 	isReadOnly,
 	hideSubTextIcon,
 }: TeamLinkCardProps): React.JSX.Element => {
-	const { createAnalyticsEvent } = useAnalyticsEvents();
 	const { description, icon, containerTypeText } = getContainerProperties({
 		containerType,
 		iconSize: 'medium',
@@ -176,16 +172,11 @@ export const TeamLinkCard = ({
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [showKeyboardFocus, setShowKeyboardFocus] = useState(false);
 	const { formatMessage } = useIntl();
-	const { fireUIEvent } = usePeopleAndTeamAnalytics();
-	const { fireEvent } = useAnalyticsEventsNext();
-	const isTeamLensInHomeEnabled: boolean = getIsExperimentEnabled('team_lens_in_atlassian_home');
-	const isNewTeamProfilePageEnabled = FeatureGates.getExperimentValue(
-		'new_team_profile',
-		'isEnabled',
-		false,
-	);
+	const { fireEvent } = useAnalyticsEvents();
+
+	const isNewTeamProfilePageEnabled = !isFedRamp() || fg('new_team_profile_fedramp');
 	const isOpenWebLinkInNewTabEnabled =
-		containerType === 'WebLink' && (isNewTeamProfilePageEnabled || isTeamLensInHomeEnabled);
+		containerType === 'WebLink' && isNewTeamProfilePageEnabled;
 
 	const handleMouseEnter = () => {
 		if (isReadOnly) {
@@ -244,16 +235,7 @@ export const TeamLinkCard = ({
 				? { containerSelected: { ...baseAttributes, linkDomain: getDomainFromLinkUri(link) } }
 				: { containerSelected: baseAttributes };
 
-		if (fg('ptc-enable-teams-public-analytics-refactor')) {
-			fireEvent('ui.container.clicked.teamContainer', attributes);
-		} else {
-			fireUIEvent(createAnalyticsEvent, {
-				action: AnalyticsAction.CLICKED,
-				actionSubject: 'container',
-				actionSubjectId: 'teamContainer',
-				attributes,
-			});
-		}
+		fireEvent('ui.container.clicked.teamContainer', attributes);
 
 		if (openInNewTab || isOpenWebLinkInNewTabEnabled) {
 			e.preventDefault();
@@ -285,7 +267,7 @@ export const TeamLinkCard = ({
 						<Anchor
 							xcss={cx(
 								styles.anchor,
-								isTeamLensInHomeEnabled && styles.anchorNoUnderline,
+								styles.anchorNoUnderline,
 								isOpenWebLinkInNewTabEnabled && styles.anchorWithExternalLinkIcon,
 							)}
 							href={link || '#'}
@@ -295,7 +277,7 @@ export const TeamLinkCard = ({
 						>
 							<Stack>
 								<TeamLinkCardTitle
-									isTeamLensInHomeEnabled={isTeamLensInHomeEnabled}
+									isTeamLensInHomeEnabled
 									isOpenWebLinkInNewTabEnabled={isOpenWebLinkInNewTabEnabled}
 									link={link || '#'}
 									handleLinkClick={handleLinkClick}
@@ -304,7 +286,7 @@ export const TeamLinkCard = ({
 								<Flex gap="space.050" alignItems="center">
 									{!hideSubTextIcon ? icon : null}
 									<Inline space="space.050" alignBlock="center">
-										{isNewTeamProfilePageEnabled || isTeamLensInHomeEnabled ? (
+										{isNewTeamProfilePageEnabled ? (
 											renderContainerTypeTextWithSeparator(containerTypeText, description)
 										) : (
 											<>
@@ -356,7 +338,7 @@ export const TeamLinkCard = ({
 							<Link href={link || '#'} appearance="subtle" onClick={handleLinkClick}>
 								<Stack>
 									<TeamLinkCardTitle
-										isTeamLensInHomeEnabled={isTeamLensInHomeEnabled}
+										isTeamLensInHomeEnabled
 										isOpenWebLinkInNewTabEnabled={isOpenWebLinkInNewTabEnabled}
 										link={link || '#'}
 										handleLinkClick={handleLinkClick}
@@ -365,7 +347,7 @@ export const TeamLinkCard = ({
 									<Flex gap="space.050" alignItems="center">
 										{!hideSubTextIcon ? icon : null}
 										<Inline space="space.050" alignBlock="center">
-											{isNewTeamProfilePageEnabled || isTeamLensInHomeEnabled ? (
+											{isNewTeamProfilePageEnabled ? (
 												renderContainerTypeTextWithSeparator(containerTypeText, description)
 											) : (
 												<>
@@ -394,20 +376,9 @@ export const TeamLinkCard = ({
 											e.preventDefault();
 											e.stopPropagation();
 											onDisconnectButtonClick();
-											if (fg('ptc-enable-teams-public-analytics-refactor')) {
-												fireEvent('ui.button.clicked.containerUnlinkButton', {
-													containerSelected: { container: containerType, containerId },
-												});
-											} else {
-												fireUIEvent(createAnalyticsEvent, {
-													action: AnalyticsAction.CLICKED,
-													actionSubject: 'button',
-													actionSubjectId: 'containerUnlinkButton',
-													attributes: {
-														containerSelected: { container: containerType, containerId },
-													},
-												});
-											}
+											fireEvent('ui.button.clicked.containerUnlinkButton', {
+												containerSelected: { container: containerType, containerId },
+											});
 										}}
 									/>
 								</Tooltip>
@@ -438,20 +409,9 @@ export const TeamLinkCard = ({
 												e.preventDefault();
 												e.stopPropagation();
 												onEditLinkClick?.();
-												if (fg('ptc-enable-teams-public-analytics-refactor')) {
-													fireEvent('ui.button.clicked.containerEditLinkButton', {
-														containerSelected: { container: containerType, containerId },
-													});
-												} else {
-													fireUIEvent(createAnalyticsEvent, {
-														action: AnalyticsAction.CLICKED,
-														actionSubject: 'button',
-														actionSubjectId: 'containerEditLinkButton',
-														attributes: {
-															containerSelected: { container: containerType, containerId },
-														},
-													});
-												}
+												fireEvent('ui.button.clicked.containerEditLinkButton', {
+													containerSelected: { container: containerType, containerId },
+												});
 											}}
 										>
 											{formatMessage(messages.editLink)}
@@ -461,20 +421,9 @@ export const TeamLinkCard = ({
 												e.preventDefault();
 												e.stopPropagation();
 												onDisconnectButtonClick();
-												if (fg('ptc-enable-teams-public-analytics-refactor')) {
-													fireEvent('ui.button.clicked.containerUnlinkButton', {
-														containerSelected: { container: containerType, containerId },
-													});
-												} else {
-													fireUIEvent(createAnalyticsEvent, {
-														action: AnalyticsAction.CLICKED,
-														actionSubject: 'button',
-														actionSubjectId: 'containerUnlinkButton',
-														attributes: {
-															containerSelected: { container: containerType, containerId },
-														},
-													});
-												}
+												fireEvent('ui.button.clicked.containerUnlinkButton', {
+													containerSelected: { container: containerType, containerId },
+												});
 											}}
 										>
 											{formatMessage(messages.removeLink)}

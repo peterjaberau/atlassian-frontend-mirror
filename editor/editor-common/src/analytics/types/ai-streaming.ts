@@ -5,7 +5,13 @@ type AILocalIdNotFoundErrorAEP = OperationalAEP<
 	ACTION.LOCAL_ID_NOT_FOUND,
 	ACTION_SUBJECT.AI_STREAMING,
 	ACTION_SUBJECT_ID.EXPERIENCE_APPLICATION,
-	{ docSize: number | undefined; localIdLength: number }
+	{
+		docSize: number | undefined;
+		localIdLength: number;
+		localIdStatus: string;
+		localIdStatusSize: number;
+		scrubbedLocalId: string;
+	}
 >;
 
 type AIStreamingNoDocChangeAEP = OperationalAEP<
@@ -13,10 +19,10 @@ type AIStreamingNoDocChangeAEP = OperationalAEP<
 	ACTION_SUBJECT.AI_STREAMING,
 	ACTION_SUBJECT_ID.EXPERIENCE_APPLICATION,
 	{
-		// Disable for now #hot-122604
-		// command: Record<string, unknown> | undefined;
+		command: string;
 		isSameDoc: boolean;
 		isSameDocIgnoreAttrs: boolean;
+		traceId: string | undefined;
 	}
 >;
 

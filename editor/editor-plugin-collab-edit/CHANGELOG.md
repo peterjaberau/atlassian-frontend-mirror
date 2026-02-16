@@ -1,5 +1,70 @@
 # @atlaskit/editor-plugin-collab-edit
 
+## 8.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.8
+
+### Patch Changes
+
+- [`99854c8e0ae49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/99854c8e0ae49) -
+  update pm-plugins utils.ts to use design tokens
+
+## 8.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.5
+
+### Patch Changes
+
+- [`d771f5e84f24b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d771f5e84f24b) -
+  Cleanup fg platform_editor_inorganic_batchattrsstep_localid
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- [`7080196995b11`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7080196995b11) -
+  Cleaning up FG platform_editor_ai_generic_prep_for_aifc
+- Updated dependencies
+
 ## 8.0.0
 
 ### Patch Changes

@@ -8,6 +8,7 @@
  */
 
 import {
+	onboardingJiraSpotlight,
 	onboardingMultiStep,
 	onboardingSingleStep,
 	onboardingWithMotion,
@@ -15,6 +16,7 @@ import {
 import type { MigrationRegistry } from './types';
 
 export const migrationRegistry: MigrationRegistry = {
+	[onboardingJiraSpotlight.id]: onboardingJiraSpotlight,
 	[onboardingSingleStep.id]: onboardingSingleStep,
 	[onboardingMultiStep.id]: onboardingMultiStep,
 	[onboardingWithMotion.id]: onboardingWithMotion,
@@ -31,8 +33,7 @@ export const getAvailableMigrationIds = (): string[] => {
  * Get a formatted list of available migrations with descriptions
  * Useful for tool descriptions and help text
  */
-export const getAvailableMigrationsDescription = (): string => {
+export const getAvailableMigrationsDescription = (): string[] => {
 	return Object.values(migrationRegistry)
 		.map((m) => `- "${m.id}": ${m.description}`)
-		.join('\n');
 };

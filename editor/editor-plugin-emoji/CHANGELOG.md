@@ -1,5 +1,82 @@
 # @atlaskit/editor-plugin-emoji
 
+## 8.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.8
+
+### Patch Changes
+
+- [`508384bef9a9b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/508384bef9a9b) -
+  [ux] [EDITOR-4774] add title attribute to emoji container element so that tooltips appear on hover
+  in the editor
+- Updated dependencies
+
+## 8.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.6
+
+### Patch Changes
+
+- [`b30e41f7bbb3b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b30e41f7bbb3b) -
+  Cleanup platform_editor_wait_for_space_after_ascii_emoji
+- Updated dependencies
+
+## 8.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.1.0
 
 ### Minor Changes

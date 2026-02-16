@@ -1,5 +1,316 @@
 # @atlaskit/renderer
 
+## 126.8.6
+
+### Patch Changes
+
+- [`5e40ae78124a4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e40ae78124a4) -
+  [ux] Fix expand in reference synced blocks being cut off in renderer
+
+## 126.8.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.8.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.8.3
+
+### Patch Changes
+
+- [`f6576ad3159f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f6576ad3159f2) -
+  EDITOR-4928 - Inline Bodied Extension: Use Statsig dynamic config instead of hardcoding checking
+
+## 126.8.2
+
+### Patch Changes
+
+- [`7ba3979b92b42`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ba3979b92b42) -
+  Remove platform_synced_block_dogfooding feature gate
+- Updated dependencies
+
+## 126.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.8.0
+
+### Minor Changes
+
+- [`41941e55fa9b1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/41941e55fa9b1) -
+  [ux] Block link scroll behavior now expands collapsed parent expand/nestedExpand nodes before
+  scrolling. New feature gate `platform_editor_expand_on_scroll_to_block` controls this behavior:
+  - When enabled: Expands parent expand nodes before scrolling (new behavior with better UX)
+  - When disabled: Simple scroll without expand handling (safe fallback to original behavior)
+
+  This ensures the "Copy link to block" feature works correctly when the target block is inside a
+  collapsed expand.
+
+### Patch Changes
+
+- [`b296c8dca4192`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b296c8dca4192) -
+  EDITOR-4991 add new value to renderer context to track nested renderer type, used in analytics
+  event to track what renderer we are in for synced blocks
+- Updated dependencies
+
+## 126.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.7.0
+
+### Minor Changes
+
+- [`c6437bbb1f7c9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c6437bbb1f7c9) -
+  Feature gate clean up
+
+## 126.6.5
+
+### Patch Changes
+
+- [`9da7abaf781fa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9da7abaf781fa) -
+  [ux] clean up platform_editor_text_highlight_padding
+- Updated dependencies
+
+## 126.6.4
+
+### Patch Changes
+
+- [`d20e0e448e8b7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d20e0e448e8b7) -
+  Cleanup experiment for style changes to prevent the numbered column from growing too big
+- Updated dependencies
+
+## 126.6.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.6.1
+
+### Patch Changes
+
+- [`5ca694e67a86f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5ca694e67a86f) -
+  Use React key properly and fix React warning
+- Updated dependencies
+
+## 126.6.0
+
+### Minor Changes
+
+- [`b807f548e1c99`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b807f548e1c99) -
+  Update defult renderer line-height to fix hydration mismatch with inline extensions
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.5.1
+
+### Patch Changes
+
+- [`1c91357f0c2e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1c91357f0c2e8) -
+  Confcloud-83420: Fixed edge cases, unskipped tests
+
+## 126.5.0
+
+### Minor Changes
+
+- [`d88e2cfa7371b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d88e2cfa7371b) -
+  [ux] fix copy heading link button a11y behaviours by only having one button, that is outside the
+  heading element
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.4.0
+
+### Minor Changes
+
+- [`26a5ec6dab84e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/26a5ec6dab84e) -
+  Adjust vertical spacing for inline extensions in the renderer
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.3.0
+
+### Minor Changes
+
+- [`110cf61eebfdd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/110cf61eebfdd) -
+  [ux] Cleanup prompt_whiteboard_competitor_link_gate
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.2.5
+
+### Patch Changes
+
+- [`4547a732e1d15`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4547a732e1d15) -
+  add comment for block card ssr gate logic
+
+## 126.2.4
+
+### Patch Changes
+
+- [`16e318bcceb16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/16e318bcceb16) -
+  [ux] EDITOR-4603 - Inline Bodied Extension: Can not create inline comments on merged text nodes
+
+## 126.2.3
+
+### Patch Changes
+
+- [`dac15aa628811`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dac15aa628811) -
+  [ux] fix wrapped media/embed link is displayed out of border in synced block
+- Updated dependencies
+
+## 126.2.2
+
+### Patch Changes
+
+- [`a90e1c030d692`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a90e1c030d692) -
+  Fix display of inline insert excerpt macro width in Confluence
+- [`5c3f8d87c2290`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c3f8d87c2290) -
+  Cleanup general AIFC bug fix feature gate
+- Updated dependencies
+
+## 126.2.1
+
+### Patch Changes
+
+- [`a218bead9e6a7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a218bead9e6a7) -
+  EDITOR-4542 Make isTableWithFixedColumnWidthsOptionEnabled an editor prop instead of using FG
+  value
+- Updated dependencies
+
+## 126.2.0
+
+### Minor Changes
+
+- [`6e018ece82be1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e018ece82be1) -
+  Cleaned two ADF experiments but ADF prompt will still be enabled only when
+  platform_editor_ai_adf_prompts_in_all_products is turned on.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.1.4
+
+### Patch Changes
+
+- [`64f80db3e663a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64f80db3e663a) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+- Updated dependencies
+
+## 126.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.1.2
+
+### Patch Changes
+
+- [`7080196995b11`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7080196995b11) -
+  Cleaning up FG platform_editor_ai_generic_prep_for_aifc
+- Updated dependencies
+
+## 126.1.1
+
+### Patch Changes
+
+- [`7f41011a1b0ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f41011a1b0ff) -
+  EDITOR-1665 update sync block experience events to use general experience ids, keep existing error
+  events and add success events
+- Updated dependencies
+
+## 126.1.0
+
+### Minor Changes
+
+- [`7386aea2dbc51`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7386aea2dbc51) -
+  [ux] EDITOR-4611 - Inline Bodied Extension: Implement inlined bodied extension style
+
+## 126.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.0.0
+
+### Major Changes
+
+- [`87c877957a81a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87c877957a81a) -
+  EDITOR-4544 - Inline Bodied Extension: merge inlined extensions with adjacent textblocks
+
+### Patch Changes
+
+- Updated dependencies
+
+## 125.4.1
+
+### Patch Changes
+
+- [`3bc6a51231706`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3bc6a51231706) -
+  [ux] Add 6px top margin to source and reference sync block
+
+## 125.4.0
+
+### Minor Changes
+
+- [`5852113f7c414`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5852113f7c414) -
+  Updates expand content rendering with inline comments to support lazy loading
+
+### Patch Changes
+
+- [`fff45a651440a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fff45a651440a) -
+  EDITOR-1665 add experience tracking analytics for sync block save, fetch and delete
+- Updated dependencies
+
+## 125.3.2
+
+### Patch Changes
+
+- [`8a3fc4137f1b4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8a3fc4137f1b4) -
+  [ux] [EDITOR-3850] disable sticky headers for tables in expands in the renderer
+- Updated dependencies
+
+## 125.3.1
+
+### Patch Changes
+
+- [`b5aad0477b7bb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b5aad0477b7bb) -
+  EDITOR-3433: Fix missing task item id when using progressive renderer.
+- Updated dependencies
+
 ## 125.3.0
 
 ### Minor Changes

@@ -1,3 +1,4 @@
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 import React from 'react';
 import { act, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -16,6 +17,7 @@ import { RENDER_REACTIONPICKER_TESTID } from './ReactionPicker';
 import { RENDER_REACTION_TESTID } from './Reaction';
 import { RENDER_MODAL_TESTID } from './ReactionsDialog';
 import { RENDER_SELECTOR_TESTID } from './Selector';
+import { ffTest } from '@atlassian/feature-flags-test-utils';
 import { RENDER_SHOWMORE_TESTID } from './ShowMore';
 import { RENDER_REACTIONPICKERPANEL_TESTID } from './ReactionPicker';
 import { RENDER_SUMMARY_BUTTON_TESTID } from './ReactionSummaryButton';
@@ -33,6 +35,11 @@ jest.mock('../shared/constants', () => ({
 	...jest.requireActual('../shared/constants'),
 	SAMPLING_RATE_REACTIONS_RENDERED_EXP: 1,
 }));
+
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
 
 describe('@atlaskit/reactions/components/Reactions', () => {
 	const mockOnReactionsClick = jest.fn();
@@ -346,6 +353,30 @@ describe('@atlaskit/reactions/components/Reactions', () => {
 		const popperPortal = screen.getByTestId(RENDER_REACTIONPICKERPANEL_TESTID).parentElement;
 		expect(popperPortal).toHaveStyle({ zIndex: 700 });
 		expect(popper).toHaveStyle({ zIndex: 700 });
+	});
+
+	ffTest.on('jfp_a11y_team_comment_actions_semantic', 'with gate ON', () => {
+		it('should render reactions with <ul> and <li>', async () => {
+			renderReactions();
+
+			const list = await screen.findByRole('list');
+			expect(list).toBeInTheDocument();
+
+			const items = await screen.findAllByRole('listitem');
+			expect(items.length).toEqual(reactions.length);
+		});
+	});
+
+	ffTest.off('jfp_a11y_team_comment_actions_semantic', 'with gate OFF', () => {
+		it('should not render reactions with <ul> and <li>', async () => {
+			renderReactions();
+
+			const list = await screen.queryByRole('list');
+			expect(list).not.toBeInTheDocument();
+
+			const items = await screen.queryAllByRole('listitem');
+			expect(items.length).not.toEqual(reactions.length);
+		});
 	});
 
 	describe('with analytics', () => {

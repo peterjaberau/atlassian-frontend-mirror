@@ -70,6 +70,7 @@ import type { EditorNextProps } from '../types/editor-props';
 import { createFeatureFlagsFromProps } from '../utils/feature-flags-from-props';
 import { getNodesCount } from '../utils/getNodesCount';
 import { getNodesVisibleInViewport } from '../utils/getNodesVisibleInViewport';
+import { isChromeless } from '../utils/is-chromeless';
 import { isFullPage } from '../utils/is-full-page';
 import { RenderTracking } from '../utils/performance/components/RenderTracking';
 import measurements from '../utils/performance/measure-enum';
@@ -676,7 +677,7 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 												return '50000+';
 										}
 									})(),
-								}
+							  }
 							: {};
 
 						dispatchAnalyticsEvent({
@@ -745,7 +746,15 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 					(__livePage ||
 						expValEquals('platform_editor_no_cursor_on_edit_page_init', 'isEnabled', true)) &&
 					!isEmptyDocument(editorView.state.doc);
+
 				if (!liveDocWithContent) {
+					focusTimeoutId.current = handleEditorFocus(editorView);
+				}
+
+				if (
+					isChromeless(props.editorProps.appearance) &&
+					expValEquals('platform_editor_focus_on_chromeless_editor', 'isEnabled', true)
+				) {
 					focusTimeoutId.current = handleEditorFocus(editorView);
 				}
 
@@ -759,7 +768,14 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 				}
 			}
 		}
-	}, [editorView, shouldFocus, __livePage, mitigateScrollJump, disabled]);
+	}, [
+		editorView,
+		shouldFocus,
+		__livePage,
+		mitigateScrollJump,
+		disabled,
+		props.editorProps.appearance,
+	]);
 
 	const scrollElement = React.useRef<Element | null>();
 	const possibleListeners = React.useRef([] as [event: string, handler: () => void][]);
@@ -894,6 +910,8 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 		],
 	);
 
+	const isPageAppearance = isFullPage(nextAppearance) || nextAppearance === 'max';
+
 	const createEditor = useCallback(
 		(assistiveLabel?: string, assistiveDescribedBy?: string) => {
 			return (
@@ -911,7 +929,10 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 						key="ProseMirror"
 						ref={handleEditorViewRef}
 						aria-label={
-							assistiveLabel || props.intl.formatMessage(editorMessages.editorAssistiveLabel)
+							assistiveLabel ||
+							(isPageAppearance && fg('platform_editor_a11y_9262')
+								? props.intl.formatMessage(editorMessages.fullPageEditorAssistiveLabel)
+								: props.intl.formatMessage(editorMessages.editorAssistiveLabel))
 						}
 						// setting aria-multiline to true when not mobile appearance.
 						//  because somehow mobile tests are failing when it set.
@@ -924,6 +945,16 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 						aria-describedby={assistiveDescribedBy}
 						data-editor-id={editorId.current}
 						data-vc-ignore-if-no-layout-shift={true}
+						data-ssr-placeholder={
+							expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
+								? 'editor-view'
+								: undefined
+						}
+						data-ssr-placeholder-replace={
+							expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
+								? 'editor-view'
+								: undefined
+						}
 						// eslint-disable-next-line react/no-danger -- needed for SSR and hydration so react keeps the HTML untouched
 						dangerouslySetInnerHTML={
 							expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
@@ -934,7 +965,7 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 				</>
 			);
 		},
-		[handleEditorViewRef, props.intl],
+		[handleEditorViewRef, isPageAppearance, props.intl],
 	);
 
 	const previousPreset = usePreviousState(preset);
@@ -1048,7 +1079,12 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 				className={`ProseMirror ${getUAPrefix()}`}
 				key="ProseMirror"
-				aria-label={assistiveLabel || props.intl.formatMessage(editorMessages.editorAssistiveLabel)}
+				aria-label={
+					assistiveLabel ||
+					(isPageAppearance && fg('platform_editor_a11y_9262')
+						? props.intl.formatMessage(editorMessages.fullPageEditorAssistiveLabel)
+						: props.intl.formatMessage(editorMessages.editorAssistiveLabel))
+				}
 				id={EDIT_AREA_ID}
 				aria-describedby={assistiveDescribedBy}
 				data-editor-id={editorId.current}
@@ -1062,7 +1098,14 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 				}}
 			/>
 		);
-	}, [ssrDeps, props.intl, props.portalProviderAPI, assistiveLabel, assistiveDescribedBy]);
+	}, [
+		ssrDeps,
+		props.intl,
+		props.portalProviderAPI,
+		assistiveLabel,
+		assistiveDescribedBy,
+		isPageAppearance,
+	]);
 
 	const editor = useMemo(
 		() => {
@@ -1104,7 +1147,7 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 			)}
 
 			{props.render
-				? (props.render?.({
+				? props.render?.({
 						editor,
 						view: viewRef.current,
 						config: config.current,
@@ -1115,7 +1158,7 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 						editorAPI: expVal('platform_editor_no_state_plugin_injection_api', 'isEnabled', false)
 							? pluginInjectionAPI.current.api()
 							: editorAPI,
-					}) ?? editor)
+				  }) ?? editor
 				: editor}
 		</ReactEditorViewContext.Provider>
 	);

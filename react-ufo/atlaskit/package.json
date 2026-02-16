@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/react-ufo",
-	"version": "4.17.0",
+	"version": "5.2.3",
 	"description": "Parts of React UFO that are publicly available",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -61,6 +61,7 @@
 		"./route-name-context": "./src/route-name-context/index.ts",
 		"./segment": "./src/segment/index.ts",
 		"./set-interaction-error": "./src/set-interaction-error/index.ts",
+		"./set-terminal-error": "./src/set-terminal-error/index.ts",
 		"./short-id": "./src/short-id/index.ts",
 		"./ssr": "./src/ssr/index.ts",
 		"./ssr-scripts": "./src/vc/vc-observer/observers/ssr-placeholders/ssr-scripts/index.ts",
@@ -83,6 +84,7 @@
 		"@atlaskit/interaction-context": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@babel/runtime": "root:*",
+		"@opentelemetry/api": "root:*",
 		"bind-event-listener": "root:*",
 		"bowser-ultralight": "root:*",
 		"scheduler": "root:*",
@@ -93,8 +95,9 @@
 	},
 	"devDependencies": {
 		"@af/integration-testing": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
-		"@testing-library/react": "^16.3.0",
+		"@testing-library/react": "root:*",
 		"@types/is-ci": "root:*",
 		"@types/scheduler": "root:*",
 		"is-ci": "root:*"
@@ -138,9 +141,6 @@
 		"platform_ufo_canvas_heatmap_full_precision": {
 			"type": "boolean"
 		},
-		"platform_ufo_enable_media_for_ttvc_v3": {
-			"type": "boolean"
-		},
 		"platform_ufo_remove_deprecated_config_fields": {
 			"type": "boolean"
 		},
@@ -153,10 +153,10 @@
 		"ufo_payload_use_idle_callback": {
 			"type": "boolean"
 		},
-		"platform_ufo_assets_check_for_nan": {
+		"platform_ufo_is_tab_throttled": {
 			"type": "boolean"
 		},
-		"platform_ufo_fix_post_interaction_check_vc_debug": {
+		"platform_ufo_assets_check_for_nan": {
 			"type": "boolean"
 		},
 		"platform_ufo_data-is-hovered-v4-exclusion": {
@@ -165,10 +165,10 @@
 		"platform_ufo_critical_metrics_payload": {
 			"type": "boolean"
 		},
-		"platform_ufo_disable_vcnext_observations": {
+		"ufo_detect_aborting_interaction_during_ssr": {
 			"type": "boolean"
 		},
-		"platform_ufo_remove_ssr_placeholder_in_ttvc_v4": {
+		"ufo_fix_aborting_interaction_detection_during_ssr": {
 			"type": "boolean"
 		},
 		"platform_ufo_exclude_3p_elements_from_ttai": {
@@ -180,19 +180,16 @@
 		"platform_ufo_segment_critical_metrics": {
 			"type": "boolean"
 		},
-		"platform_ufo_vcnext_to_fy26_04_revision_update": {
-			"type": "boolean"
-		},
 		"platform_ufo_v4_fix_nested_ssr_placeholder": {
 			"type": "boolean"
 		},
 		"platform_ufo_add_segments_count_threshold": {
 			"type": "boolean"
 		},
-		"platform_ufo_segment_unmount_count": {
+		"platform_ufo_browser_backgrounded_abort_timestamp": {
 			"type": "boolean"
 		},
-		"platform_ufo_fix_ttvc_v4_attribute_exclusions": {
+		"platform_ufo_segment_unmount_count": {
 			"type": "boolean"
 		},
 		"platform_ufo_enable_ttai_with_3p": {
@@ -202,9 +199,6 @@
 			"type": "boolean"
 		},
 		"platform_ufo_enable_late_holds_post_interaction": {
-			"type": "boolean"
-		},
-		"platform_ufo_add_segment_names_to_dom_offenders": {
 			"type": "boolean"
 		},
 		"platform_ufo_filter_cls_logs_same_rects_positions": {
@@ -234,22 +228,19 @@
 		"platform_ufo_exclude_3p_attribute_changes": {
 			"type": "boolean"
 		},
-		"platform_ufo_auto_add_ssr_entry_in_ttvc_v4": {
-			"type": "boolean"
-		},
 		"platform_ufo_use_native_page_visibility_api": {
 			"type": "boolean"
 		},
 		"platform_ufo_enable_vc_raw_data": {
 			"type": "boolean"
 		},
-		"platform_ufo_enable_trimmed_payload": {
-			"type": "boolean"
-		},
 		"platform_mark_ufo_segment_first_load": {
 			"type": "boolean"
 		},
 		"platform_ufo_keypress_interaction_abort": {
+			"type": "boolean"
+		},
+		"platform_ufo_enable_otel_context_manager": {
 			"type": "boolean"
 		},
 		"platform_ufo_raw_data_thirdparty": {
@@ -262,6 +253,15 @@
 			"type": "boolean"
 		},
 		"rovo_search_page_ttvc_ignoring_smart_answers_fix": {
+			"type": "boolean"
+		},
+		"ufo_remove_featureflags_from_trimmed_fields": {
+			"type": "boolean"
+		},
+		"platform_ufo_enable_terminal_errors": {
+			"type": "boolean"
+		},
+		"platform_ufo_ttvc_v4_speed_index": {
 			"type": "boolean"
 		}
 	}

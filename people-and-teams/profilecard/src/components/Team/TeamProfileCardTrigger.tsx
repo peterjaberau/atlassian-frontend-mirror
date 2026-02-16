@@ -2,7 +2,6 @@ import React, { Suspense } from 'react';
 
 import { FormattedMessage, injectIntl, type WrappedComponentProps } from 'react-intl-next';
 
-import { type AnalyticsEventPayload } from '@atlaskit/analytics-next';
 import { GiveKudosLauncherLazy, KudosType } from '@atlaskit/give-kudos';
 import { fg } from '@atlaskit/platform-feature-flags';
 import Popup from '@atlaskit/popup';
@@ -18,7 +17,6 @@ import { layers } from '@atlaskit/theme/constants';
 import filterActions from '../../internal/filterActions';
 import messages from '../../messages';
 import type {
-	AnalyticsFromDuration,
 	AnalyticsProps,
 	ProfileCardAction,
 	Team,
@@ -26,7 +24,7 @@ import type {
 	TeamProfileCardTriggerProps,
 	TeamProfileCardTriggerState,
 } from '../../types';
-import { fireEvent, PACKAGE_META_DATA } from '../../util/analytics';
+import { PACKAGE_META_DATA } from '../../util/analytics';
 import { isBasicClick } from '../../util/click';
 import { DELAY_MS_HIDE, DELAY_MS_SHOW } from '../../util/config';
 import { getPageTime } from '../../util/performance';
@@ -55,17 +53,7 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 
 	openTime = 0;
 
-	fireAnalytics = (payload: AnalyticsEventPayload) => {
-		// Don't fire any analytics if the component is unmounted
-		if (!this._isMounted) {
-			return;
-		}
-		if (this.props.createAnalyticsEvent) {
-			fireEvent(this.props.createAnalyticsEvent, payload);
-		}
-	};
-
-	fireAnalyticsNext: FireEventType = (eventKey, ...attributes) => {
+	fireAnalytics: FireEventType = (eventKey, ...attributes) => {
 		// Don't fire any analytics if the component is unmounted
 		if (!this._isMounted) {
 			return;
@@ -75,21 +63,16 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		}
 	};
 
-	fireAnalyticsWithDuration = (generator: AnalyticsFromDuration) => {
-		const event = generator(getPageTime() - this.openTime);
-		this.fireAnalytics(event);
-	};
-
-	fireAnalyticsWithDurationNext = <K extends keyof AnalyticsEventAttributes>(
+	fireAnalyticsWithDuration = <K extends keyof AnalyticsEventAttributes>(
 		eventKey: K,
 		generator: (duration: number) => AnalyticsEventAttributes[K],
-	) => {
+	): void => {
 		const duration = getPageTime() - this.openTime;
 		const attributes = generator(duration);
-		this.fireAnalyticsNext(eventKey, attributes);
+		this.fireAnalytics(eventKey, attributes);
 	};
 
-	hideProfilecard = (delay = 0) => {
+	hideProfilecard = (delay = 0): void => {
 		clearTimeout(this.showTimer);
 		clearTimeout(this.hideTimer);
 
@@ -98,7 +81,7 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		}, delay);
 	};
 
-	showProfilecard = (delay = 0) => {
+	showProfilecard = (delay = 0): void => {
 		clearTimeout(this.hideTimer);
 		clearTimeout(this.showTimer);
 
@@ -111,7 +94,7 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		}, delay);
 	};
 
-	onClick = (event: React.MouseEvent<HTMLElement>) => {
+	onClick = (event: React.MouseEvent<HTMLElement>): void => {
 		if (this.props.triggerLinkType === 'link') {
 			// We want to prevent navigation occurring on basic click, but it's important that
 			// cmd+click, ctrl+click, etc. still work as expected.
@@ -131,7 +114,7 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 			this.showProfilecard(0);
 
 			if (!this.state.visible) {
-				this.fireAnalyticsNext('ui.teamProfileCard.triggered', {
+				this.fireAnalytics('ui.teamProfileCard.triggered', {
 					method: 'click',
 					...PACKAGE_META_DATA,
 					firedAt: Math.round(getPageTime()),
@@ -141,7 +124,7 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		}
 	};
 
-	onMouseEnter = () => {
+	onMouseEnter = (): void => {
 		if (this.props.trigger === 'click') {
 			return;
 		}
@@ -149,7 +132,7 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		if (!this.state.visible) {
 			this.openedByHover = true;
 
-			this.fireAnalyticsNext('ui.teamProfileCard.triggered', {
+			this.fireAnalytics('ui.teamProfileCard.triggered', {
 				method: 'hover',
 				...PACKAGE_META_DATA,
 				firedAt: Math.round(getPageTime()),
@@ -160,7 +143,7 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		this.showProfilecard(DELAY_MS_SHOW);
 	};
 
-	onMouseLeave = () => {
+	onMouseLeave = (): void => {
 		if (this.props.trigger === 'click') {
 			return;
 		}
@@ -170,13 +153,13 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		}
 	};
 
-	onKeyPress = (event: React.KeyboardEvent) => {
+	onKeyPress = (event: React.KeyboardEvent): void => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
 			this.setState({ isTriggeredByKeyboard: true });
 			this.showProfilecard(0);
 			if (!this.state.visible) {
-				this.fireAnalyticsNext('ui.teamProfileCard.triggered', {
+				this.fireAnalytics('ui.teamProfileCard.triggered', {
 					method: 'click',
 					firedAt: Math.round(getPageTime()),
 					teamId: this.props.teamId,
@@ -186,17 +169,17 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		}
 	};
 
-	onClose = () => {
+	onClose = (): void => {
 		this.hideProfilecard();
 		this.setState({ isTriggeredByKeyboard: false });
 	};
 
-	openKudosDrawer = () => {
+	openKudosDrawer = (): void => {
 		this.hideProfilecard(DELAY_MS_HIDE);
 		this.setState({ kudosDrawerOpen: true });
 	};
 
-	closeKudosDrawer = () => {
+	closeKudosDrawer = (): void => {
 		this.setState({ kudosDrawerOpen: false });
 	};
 
@@ -207,7 +190,7 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		return `${this.state.teamCentralBaseUrl}/kudos/give?type=team${recipientId}${cloudId}`;
 	};
 
-	stopPropagation = (event: React.MouseEvent<HTMLElement>) => {
+	stopPropagation = (event: React.MouseEvent<HTMLElement>): void => {
 		// We need to stop propagation when users click on the card, so that it
 		// doesn't trigger any special effects that occur when clicking the trigger.
 		event.stopPropagation();
@@ -237,11 +220,11 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		isTriggeredByKeyboard: false,
 	};
 
-	componentDidMount() {
+	componentDidMount(): void {
 		this._isMounted = true;
 	}
 
-	componentDidUpdate(prevProps: TeamProfileCardTriggerProps) {
+	componentDidUpdate(prevProps: TeamProfileCardTriggerProps): void {
 		const { orgId, teamId, resourceClient } = this.props;
 		const { visible } = this.state;
 
@@ -261,13 +244,13 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		}
 	}
 
-	componentWillUnmount() {
+	componentWillUnmount(): void {
 		this._isMounted = false;
 		clearTimeout(this.showTimer);
 		clearTimeout(this.hideTimer);
 	}
 
-	clientFetchProfile = () => {
+	clientFetchProfile = (): void => {
 		const { orgId, teamId } = this.props;
 		const { isLoading } = this.state;
 
@@ -282,15 +265,8 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 				data: null,
 			},
 			() => {
-				const fireEvent = (event: AnalyticsEventPayload) => {
-					this.fireAnalytics(event);
-				};
-				const fireAnalyticsNext: FireEventType = (eventKey, ...attributes) => {
-					this.fireAnalyticsNext(eventKey, ...attributes);
-				};
-
 				const requests = Promise.all([
-					this.props.resourceClient.getTeamProfile(teamId, orgId, fireEvent, fireAnalyticsNext),
+					this.props.resourceClient.getTeamProfile(teamId, orgId, this.fireAnalytics),
 					this.props.resourceClient.shouldShowGiveKudos(),
 					this.props.resourceClient.getTeamCentralBaseUrl({
 						withOrgContext: true,
@@ -309,7 +285,7 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 	};
 
 	onErrorBoundary = () => {
-		this.fireAnalyticsNext('ui.teamProfileCard.rendered.errorBoundary', {
+		this.fireAnalytics('ui.teamProfileCard.rendered.errorBoundary', {
 			...PACKAGE_META_DATA,
 			firedAt: Math.round(getPageTime()),
 			duration: 0,
@@ -324,7 +300,7 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		team: Team,
 		shouldShowGiveKudos: boolean,
 		teamCentralBaseUrl: string | undefined,
-	) {
+	): void {
 		if (!this._isMounted) {
 			return;
 		}
@@ -338,7 +314,7 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		});
 	}
 
-	handleClientError(err: any) {
+	handleClientError(err: any): void {
 		if (!this._isMounted) {
 			return;
 		}
@@ -374,8 +350,8 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 		const newProps: TeamProfilecardProps = {
 			clientFetchProfile: this.clientFetchProfile,
 			actions: this.filterActions(),
-			analytics: this.fireAnalyticsWithDuration,
-			analyticsNext: this.fireAnalyticsWithDurationNext,
+			analytics: () => {},
+			analyticsNext: this.fireAnalyticsWithDuration,
 			team: data || undefined,
 			generateUserLink,
 			onUserClick,
@@ -390,8 +366,8 @@ export class TeamProfileCardTriggerInternal extends React.PureComponent<
 					<Suspense
 						fallback={
 							<TeamLoadingState
-								analytics={this.fireAnalyticsWithDuration}
-								analyticsNext={this.fireAnalyticsWithDurationNext}
+								analytics={() => {}}
+								analyticsNext={this.fireAnalyticsWithDuration}
 							/>
 						}
 					>

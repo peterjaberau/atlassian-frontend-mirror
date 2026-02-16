@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../tsconfig.entry-points.jira.json",
+	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
 		"target": "es5",
 		"outDir": "../../../../../jira/tsDist/@atlaskit__media-svg/app",
@@ -31,9 +31,6 @@
 		},
 		{
 			"path": "../../media-client-react/afm-jira/tsconfig.json"
-		},
-		{
-			"path": "../../../platform/feature-flags/afm-jira/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/spinner/afm-jira/tsconfig.json"

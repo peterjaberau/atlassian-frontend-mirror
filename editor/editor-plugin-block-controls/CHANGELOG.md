@@ -1,5 +1,170 @@
 # @atlaskit/editor-plugin-block-controls
 
+## 8.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.1
+
+### Patch Changes
+
+- [`9d67968b1ac03`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9d67968b1ac03) -
+  [ux] Fixed issue with browser selection sync logic for preserved selection plugin
+- Updated dependencies
+
+## 8.3.0
+
+### Minor Changes
+
+- [`617747c789f4e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/617747c789f4e) -
+  Use correct editorExperiment instead of expVal for evaluating platform_synced_block
+
+## 8.2.1
+
+### Patch Changes
+
+- [`280d14e2d5518`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/280d14e2d5518) -
+  Clean up platform_editor_drag_handle_aria_label
+- Updated dependencies
+
+## 8.2.0
+
+### Minor Changes
+
+- [`1be0f3cb5f1fe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1be0f3cb5f1fe) -
+  EDITOR-5008 fix end pos drop target and styles for synced block
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.6
+
+### Patch Changes
+
+- [`31dd2018db24b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/31dd2018db24b) -
+  [ux] Ultra minor update to nested drag handle dots
+- Updated dependencies
+
+## 8.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- [`5acb6a79c09f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5acb6a79c09f2) -
+  Pause the EOU active session counter when block menu is opened
+
+## 8.1.0
+
+### Minor Changes
+
+- [`1d31a4729ab09`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1d31a4729ab09) -
+  [ux] Implement nested block menu icon (flagged)
+
+### Patch Changes
+
+- [`e00b363b9fa30`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e00b363b9fa30) -
+  [ux] EDITOR-4481 Clean up platform_editor_toolbar_aifc_user_intent_fix
+- Updated dependencies
+
+## 8.0.15
+
+### Patch Changes
+
+- [`131735fb6ad06`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/131735fb6ad06) -
+  [ux] EDITOR-4281 Expand preserved selection edge case
+- Updated dependencies
+
+## 8.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.13
+
+### Patch Changes
+
+- [`7080196995b11`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7080196995b11) -
+  Cleaning up FG platform_editor_ai_generic_prep_for_aifc
+- Updated dependencies
+
+## 8.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.11
+
+### Patch Changes
+
+- [`de045021d126d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/de045021d126d) -
+  EDITOR-4435 fix code block selection focus
+- [`76afb688dff6a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76afb688dff6a) -
+  [ux] Update move function to leverage preserveSelection logic for different types of selection
+- Updated dependencies
+
+## 8.0.10
+
+### Patch Changes
+
+- [`df9b89b4945d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/df9b89b4945d1) -
+  Editor-4255: "Fix heading with alignment nested inside layout not showing block menu"
+- Updated dependencies
+
+## 8.0.9
+
+### Patch Changes
+
+- [`2a1bf10d70beb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a1bf10d70beb) -
+  EDITOR-4293 Fix block menu selection highlight issues
+
+## 8.0.8
+
+### Patch Changes
+
+- [`eb7609ee331ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb7609ee331ab) -
+  [ux] EDITOR-4264 Fix preserved selection mapping
+- Updated dependencies
+
 ## 8.0.7
 
 ### Patch Changes

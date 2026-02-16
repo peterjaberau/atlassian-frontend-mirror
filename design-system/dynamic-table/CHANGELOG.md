@@ -1,5 +1,31 @@
 # @atlaskit/dynamic-table
 
+## 18.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.14
+
+### Patch Changes
+
+- [`a48fdadce2137`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a48fdadce2137) -
+  Minor internal typography changes.
+- Updated dependencies
+
+## 18.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 18.3.12
 
 ### Patch Changes

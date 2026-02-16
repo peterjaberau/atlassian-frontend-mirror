@@ -1,5 +1,137 @@
 # @atlaskit/profilecard
 
+## 24.35.0
+
+### Minor Changes
+
+- [`d4c0aadb058de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d4c0aadb058de) -
+  Ran auto fix cross package file refs for platform packages. Part of de-barreling effort of TREX-67
+
+## 24.34.6
+
+### Patch Changes
+
+- [`78e5eb6e30716`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/78e5eb6e30716) -
+  Add aria-label to manager section wrapper
+
+## 24.34.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.34.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.34.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.34.2
+
+### Patch Changes
+
+- [`daa158d9edf95`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/daa158d9edf95) -
+  Updated test due to change in team containers text
+- Updated dependencies
+
+## 24.34.1
+
+### Patch Changes
+
+- [`02b328ec2dc7c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02b328ec2dc7c) -
+  [ux] Bug fix for showing creator information on agent profile cards.
+- Updated dependencies
+
+## 24.34.0
+
+### Minor Changes
+
+- [`f10295ea8dbb8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f10295ea8dbb8) -
+  allow option to display work item disclosure for AgentProfileCard
+
+## 24.33.0
+
+### Minor Changes
+
+- [`aa50fab3471f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa50fab3471f9) -
+  Cleaned up profile card internal analytics instrumentation for profile client
+
+## 24.32.3
+
+### Patch Changes
+
+- [`a8c98414d62ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8c98414d62ec) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+- Updated dependencies
+
+## 24.32.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.32.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.32.0
+
+### Minor Changes
+
+- [`94416ff80721d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/94416ff80721d) -
+  Add aria-dialog-name for profile card component
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.31.0
+
+### Minor Changes
+
+- [`04077f2897e0e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/04077f2897e0e) -
+  [ux] Changing the UI for the user identity profile card when the user is the Rovo Dev agent.
+  Change is feature gated.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.30.2
+
+### Patch Changes
+
+- [`db16d1751c5ad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db16d1751c5ad) -
+  Internal changes to typography.
+
+## 24.30.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.30.0
+
+### Minor Changes
+
+- [`f81535aba3a58`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f81535aba3a58) -
+  Update imports of rovo-triggers to use subpaths
+
+## 24.29.1
+
+### Patch Changes
+
+- [`baf9a190910eb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/baf9a190910eb) -
+  [ux] set correct userId and cloudId to getProfile in AgentProfileCard
+
 ## 24.29.0
 
 ### Minor Changes

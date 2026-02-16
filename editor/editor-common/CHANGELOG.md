@@ -1,5 +1,433 @@
 # @atlaskit/editor-common
 
+## 111.12.5
+
+### Patch Changes
+
+- [`febd89b7de294`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/febd89b7de294) -
+  Remove unused 'copy content' feature from block menu project
+- Updated dependencies
+
+## 111.12.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 111.12.3
+
+### Patch Changes
+
+- [`27ceb3789dbe8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/27ceb3789dbe8) -
+  [ux] Fix initial drag handle / create position incorrect bug
+- [`bb6a1522425ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bb6a1522425ff) -
+  [ux] Fix layoutshift in bodiedExtension layout shift
+- Updated dependencies
+
+## 111.12.2
+
+### Patch Changes
+
+- [`017f1e5b9810c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/017f1e5b9810c) -
+  EDITOR-4663 Add experience tracking for primary toolbar button actions
+
+## 111.12.1
+
+### Patch Changes
+
+- [`d1ee0512f85f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d1ee0512f85f4) -
+  [EDITOR-4531] Cleans up FG platform_editor_table_numbered_table_border
+- Updated dependencies
+
+## 111.12.0
+
+### Minor Changes
+
+- [`95a9857d9f007`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/95a9857d9f007) -
+  Changed the keyboard shortcuts for move column/row left/right or up/down to prevent Voice Over
+  clash
+
+### Patch Changes
+
+- Updated dependencies
+
+## 111.11.13
+
+### Patch Changes
+
+- [`d00c391ab0f5a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d00c391ab0f5a) -
+  Cleanup a flag making local ids shorter
+- Updated dependencies
+
+## 111.11.12
+
+### Patch Changes
+
+- [`f24892f905e1a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f24892f905e1a) -
+  [ux] EDITOR-5002 update delete and unsync synced block modal messages
+- Updated dependencies
+
+## 111.11.11
+
+### Patch Changes
+
+- [`ab4e4e442ad49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab4e4e442ad49) -
+  [ux] [EDITOR-3694] Add loading state to bodiedSyncBlock for when saving new block to BE
+
+## 111.11.10
+
+### Patch Changes
+
+- [`7ba3979b92b42`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ba3979b92b42) -
+  Remove platform_synced_block_dogfooding feature gate
+- Updated dependencies
+
+## 111.11.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 111.11.8
+
+### Patch Changes
+
+- [`011b84236ffaa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/011b84236ffaa) -
+  EDITOR-4175 add analytics events for the synced block toolbar buttons
+
+## 111.11.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 111.11.6
+
+### Patch Changes
+
+- [`9d0d19d5018ae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9d0d19d5018ae) -
+  Remove jsx literal strings in block menu fall back components
+- [`9030267782d4c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9030267782d4c) -
+  Re-do fix for table overflow in inline excerpt.
+- Updated dependencies
+
+## 111.11.5
+
+### Patch Changes
+
+- [`7f6ca0d7b6afc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f6ca0d7b6afc) -
+  Updated the table drag menu to fire a track analytic event when the menu is opened
+- [`1ce3b7e203e89`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ce3b7e203e89) -
+  Add traceid attribute to noDocChange event
+- [`3b3aa281c8524`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b3aa281c8524) -
+  Editor 4149 Fix keyboard navigation inside turn into
+- [`49dad8567c387`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/49dad8567c387) -
+  EDITOR-4948 - Change performance mode threshold condition to include doc size, node count, and LCM
+  check.
+- Updated dependencies
+
+## 111.11.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 111.11.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 111.11.2
+
+### Patch Changes
+
+- [`4de30defb09c5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4de30defb09c5) -
+  Fix overflow of table inside multi-column layouts.
+- Updated dependencies
+
+## 111.11.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 111.11.0
+
+### Minor Changes
+
+- [`5dfede89f8ccc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dfede89f8ccc) -
+  [EDITOR-4601](https://hello.jira.atlassian.cloud/browse/EDITOR-4601) - rename table Numbered rows
+  label
+
+### Patch Changes
+
+- [`7b1f3cc37e760`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b1f3cc37e760) -
+  Fire `element undid` event after undo transform
+
+## 111.10.0
+
+### Minor Changes
+
+- [`707c5a42b5358`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/707c5a42b5358) -
+  [ux] Updates LCM for new Read only mode. Also adds a new static property setter to the insm api.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 111.9.7
+
+### Patch Changes
+
+- [`957d9e1880c62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/957d9e1880c62) -
+  EDITOR-3806 Block menu action experience tracking
+- Updated dependencies
+
+## 111.9.6
+
+### Patch Changes
+
+- [`2a8eefb911fb8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a8eefb911fb8) -
+  Update i18n NPM package versions for editor-common
+- Updated dependencies
+
+## 111.9.5
+
+### Patch Changes
+
+- [`85fd7142cb5e7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85fd7142cb5e7) -
+  EDITOR-3806 Block menu open experience tracking
+- [`4cafa94a73e1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4cafa94a73e1e) -
+  Add delete track event for block menu
+- Updated dependencies
+
+## 111.9.4
+
+### Patch Changes
+
+- [`faddbf566c913`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/faddbf566c913) -
+  [ux] Add error message in reference sync block when source is unpublished
+
+## 111.9.3
+
+### Patch Changes
+
+- [`f11ff647ea458`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f11ff647ea458) -
+  [ux] [EDITOR-4521] Implement source deleted reference UI, update block deleted/unsynced reference
+  UI to add delete button, unsynced label and source title/url
+
+## 111.9.2
+
+### Patch Changes
+
+- [`256b4fc86bae0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/256b4fc86bae0) -
+  [ux] EDITOR-4464 Limited Mode: Change threshold to activate limited mode to use the node count
+  rather than the raw document size.
+- [`25c388e0f807a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/25c388e0f807a) -
+  EDITOR-4684 Clean up platform_editor_add_orange_highlight_color experiment - orange highlight
+  color is now permanently enabled
+- Updated dependencies
+
+## 111.9.1
+
+### Patch Changes
+
+- [`81230b670d02c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/81230b670d02c) -
+  ED-29744 camel case experience attributes
+- [`7702ea47c5329`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7702ea47c5329) -
+  Add messages for synced block unpublished flag
+- [`2a9dfb4b326e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a9dfb4b326e6) -
+  EDITOR-4698 add missing analytics for fetch references, graphql subsciption update, reference sync
+  block insert and delete success
+- Updated dependencies
+
+## 111.9.0
+
+### Minor Changes
+
+- [`c082975fb2a0c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c082975fb2a0c) -
+  Added a new watchment plugin to the localId editror plugin for it to keep track of all localIds
+  created/updated since the start of the editor session. This is needed so the orchestrator is able
+  to identify when it cant lookup a localId, what the reason is for the localId being missing.
+
+### Patch Changes
+
+- [`baf7b89a7b895`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/baf7b89a7b895) -
+  Give colour picker menu an accessible label
+- Updated dependencies
+
+## 111.8.14
+
+### Patch Changes
+
+- [`9068b92adf796`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9068b92adf796) -
+  [ux] EDITOR-4439 Implement option to raise warn flag on paste for unsupported content
+
+## 111.8.13
+
+### Patch Changes
+
+- [`41d5a8796f3e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/41d5a8796f3e1) -
+  [EDITOR-4472] Update content copy for sync block
+- [`28434cbe03f1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28434cbe03f1e) -
+  [ux] [EDITOR-2851]
+  - Implement unsync feature for source sync block
+  - Update deletion confirmation modal and reference block UI after source deletion
+
+## 111.8.12
+
+### Patch Changes
+
+- [`87abc5dda86fe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87abc5dda86fe) -
+  [ux] Show last edited time in sync block tooltip
+- [`9041ec452a104`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9041ec452a104) -
+  [EDITOR-4515] clean up fg platform_editor_toolbar_aifc_patch_7
+- Updated dependencies
+
+## 111.8.11
+
+### Patch Changes
+
+- [`5c522f81f181e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c522f81f181e) -
+  [ux] EDITOR-4369 Support synced location for references on Jira in source and reference synced
+  block
+- [`6e8029473620b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e8029473620b) -
+  [EDITOR-4496] clean up experiment platform_editor_toolbar_aifc_patch_3 and remove view-mode plugin
+  dependency from loom plugin
+- [`0a9962a3aa24c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a9962a3aa24c) -
+  tidy up experiment platform_editor_resizer_styles_cleanup
+- [`0d8216e610e34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0d8216e610e34) -
+  [ux] Add cmd-option-a shortcut for copylink to block from block menu
+- [`7080196995b11`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7080196995b11) -
+  Cleaning up FG platform_editor_ai_generic_prep_for_aifc
+- [`058065aadf69f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/058065aadf69f) -
+  [ux] [EDITOR-2851] Support reference sync block unsyc
+- Updated dependencies
+
+## 111.8.10
+
+### Patch Changes
+
+- [`2c3c92548bb9c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c3c92548bb9c) -
+  EDITOR-4639 cleanup cc_editor_limited_mode, cc_editor_limited_mode_include_lcm and unshipped code.
+- Updated dependencies
+
+## 111.8.9
+
+### Patch Changes
+
+- [`33f11753a7104`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/33f11753a7104) -
+  [ux] Added i18n for sections' titles in the Turn into menu.
+- Updated dependencies
+
+## 111.8.8
+
+### Patch Changes
+
+- [`7f41011a1b0ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f41011a1b0ff) -
+  EDITOR-1665 update sync block experience events to use general experience ids, keep existing error
+  events and add success events
+- Updated dependencies
+
+## 111.8.7
+
+### Patch Changes
+
+- [`d34e6bd1197a5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d34e6bd1197a5) -
+  EDITOR-4178 update document inserted event to have is inside synced block attribute
+- [`e04e057af7743`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e04e057af7743) -
+  Adds scrubbed localId and commands to analytics to help narrow root cause issues.
+- Updated dependencies
+
+## 111.8.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 111.8.5
+
+### Patch Changes
+
+- [`498fc3298e069`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/498fc3298e069) -
+  [ux] EDITOR-3463: Keep extension breakout aligned with page width in full-width and max modes. The
+  rollout is guarded by `confluence_max_width_content_appearance` and the new
+  `confluence_max_width_breakout_extension_fix` experiment so the bugfix can be toggled
+  independently.
+- [`b34b724d67362`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b34b724d67362) -
+  Improve AI analytics by ensuring attributes are set and firing additional free gen events
+- Updated dependencies
+
+## 111.8.4
+
+### Patch Changes
+
+- [`7b1f7ff1a2235`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b1f7ff1a2235) -
+  [ux] [EDITOR-4536] Update synced location dropdown UI
+- Updated dependencies
+
+## 111.8.3
+
+### Patch Changes
+
+- [`ef0c088fb17f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef0c088fb17f6) -
+  [ux] Fix the flickering extensions icon issue in the table's floating toolbar `View more` dropdown
+  options.
+- Updated dependencies
+
+## 111.8.2
+
+### Patch Changes
+
+- [`f0124a523d8f1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f0124a523d8f1) -
+  [ux] [EDITOR-2845] Implement synced location for source and reference sync block
+
+## 111.8.1
+
+### Patch Changes
+
+- [`1f4c761b661e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f4c761b661e1) -
+  [ux] EDITOR-4174 wrap synced block and bodied sync block with sentry error boundaries
+- Updated dependencies
+
+## 111.8.0
+
+### Minor Changes
+
+- [`1993b8227cbf3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1993b8227cbf3) -
+  [ux] Update selection extension APIs to allow Snippets to register at parent level
+
+### Patch Changes
+
+- [`c975226c67ed8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c975226c67ed8) -
+  [ux] [EDITOR-4472] Update tooltip copy for copy sync block button
+- [`fff45a651440a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fff45a651440a) -
+  EDITOR-1665 add experience tracking analytics for sync block save, fetch and delete
+- Updated dependencies
+
+## 111.7.4
+
+### Patch Changes
+
+- [`db121516e200b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db121516e200b) -
+  [ux] Update hub extention titles and radius slider style
+- [`ba05557f777bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ba05557f777bf) -
+  Add support to render selection toolbar in editors which have an ancestor elemenent which has
+  position fixed, most common use case is for the chromeless appearance when rendered inside modals,
+  popups etc.
+- Updated dependencies
+
+## 111.7.3
+
+### Patch Changes
+
+- [`38c83ce57623b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38c83ce57623b) -
+  [ux] [EDITOR-3853] Update copy for sync block placeholder and copy flag
+- [`11bd6ea9cb0ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/11bd6ea9cb0ba) -
+  [ux] Clean up platform_editor_refactor_view_more
+- Updated dependencies
+
 ## 111.7.2
 
 ### Patch Changes

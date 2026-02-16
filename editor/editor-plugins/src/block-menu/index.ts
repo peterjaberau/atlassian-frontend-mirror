@@ -9,4 +9,5 @@ export type {
 	BlockMenuPluginOptions,
 	BlockMenuSharedState,
 	TransformNodeMetadata,
+	TransfromNodeTargetType,
 } from '@atlaskit/editor-plugin-block-menu';

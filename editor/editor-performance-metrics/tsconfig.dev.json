@@ -14,6 +14,7 @@
 		"**/examples/*.tsx",
 		"**/examples/**/*.ts",
 		"**/examples/**/*.tsx",
+		"**/examples/**/*.json",
 		"**/storybook/**/*",
 		"**/constellation/**/*",
 		".storybook/*",
@@ -34,7 +35,12 @@
 	"exclude": ["./dist/**/*", "./build/**/*", "./node_modules/**/*"],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__editor-performance-metrics/dev"
+		"outDir": "../../../tsDist/@atlaskit__editor-performance-metrics/dev",
+		"paths": {
+			"@atlaskit/editor-performance-metrics/src/*": [
+				"packages/editor/editor-performance-metrics/src/*"
+			]
+		}
 	},
 	"references": [
 		{

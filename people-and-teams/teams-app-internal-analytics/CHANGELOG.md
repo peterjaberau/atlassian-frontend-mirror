@@ -1,5 +1,27 @@
 # @atlaskit/teams-app-internal-analytics
 
+## 1.24.1
+
+### Patch Changes
+
+- [`618326bff43d8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/618326bff43d8) -
+  PTC-15081: Add analytics for user profile tabs - hierarchy/goals/projects/kudos
+
+## 1.24.0
+
+### Minor Changes
+
+- [`2f0921abc9f22`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f0921abc9f22) -
+  Added requestedContainers analytics events from teams-public
+
+## 1.23.2
+
+### Patch Changes
+
+- [`32b4ac3b686c8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/32b4ac3b686c8) -
+  PTC-14729: Add analytics for user profile overview tab + add onclick support for team card + add
+  new attribute isNewUserProfile to team-app-intenral-analytics
+
 ## 1.23.1
 
 ### Patch Changes

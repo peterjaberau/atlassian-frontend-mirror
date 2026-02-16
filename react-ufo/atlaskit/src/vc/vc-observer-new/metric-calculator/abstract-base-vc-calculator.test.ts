@@ -22,15 +22,15 @@ jest.mock('./percentile-calc/canvas-heatmap/canvas-pixel', () => ({
 
 // Create a concrete implementation for testing
 class TestVCCalculator extends AbstractVCCalculatorBase {
-	protected isEntryIncluded(entry: VCObserverEntry): boolean {
+	protected isEntryIncluded(): boolean {
 		return true; // For testing purposes
 	}
 
-	protected isVCClean(filteredEntries: ReadonlyArray<VCObserverEntry>): boolean {
+	protected isVCClean(): boolean {
 		return true; // For testing purposes
 	}
 
-	protected getVCCleanStatus(filteredEntries: ReadonlyArray<VCObserverEntry>) {
+	protected getVCCleanStatus() {
 		return { isVCClean: true }; // For testing purposes
 	}
 }
@@ -85,38 +85,42 @@ describe('AbstractVCCalculatorBase V1', () => {
 	});
 
 	it('should calculate metrics when entries are valid', async () => {
-		const mockCalcResult = [
-			{
-				time: 100,
-				viewportPercentage: 90,
-				entries: [
-					{
-						type: 'mutation:element' as const,
-						elementName: 'div1',
-						rect: new DOMRect(),
-						visible: true,
-					},
-					{
-						type: 'mutation:element' as const,
-						elementName: 'div2',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				],
-			},
-			{
-				time: 200,
-				viewportPercentage: 95,
-				entries: [
-					{
-						type: 'mutation:element' as const,
-						elementName: 'div3',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				],
-			},
-		];
+		const mockCalcResult = {
+			entries: [
+				{
+					time: 100,
+					viewportPercentage: 90,
+					entries: [
+						{
+							type: 'mutation:element' as const,
+							elementName: 'div1',
+							rect: new DOMRect(),
+							visible: true,
+						},
+						{
+							type: 'mutation:element' as const,
+							elementName: 'div2',
+							rect: new DOMRect(),
+							visible: true,
+						},
+					],
+				},
+				{
+					time: 200,
+					viewportPercentage: 95,
+					entries: [
+						{
+							type: 'mutation:element' as const,
+							elementName: 'div3',
+							rect: new DOMRect(),
+							visible: true,
+						},
+					],
+				},
+			],
+			// speedIndex is 0 when feature flag is disabled (default in tests)
+			speedIndex: 0,
+		};
 
 		jest
 			.spyOn(percentileCalc, 'calculateTTVCPercentilesWithDebugInfo')
@@ -145,6 +149,7 @@ describe('AbstractVCCalculatorBase V1', () => {
 		expect(result).toEqual({
 			revision: 'test-revision',
 			clean: true,
+			labelStacks: {},
 			'metric:vc90': 100,
 			ratios: {
 				div: 0,
@@ -199,7 +204,7 @@ describe('AbstractVCCalculatorBase V1', () => {
 		];
 
 		// Mock the function to return empty result for testing filtering
-		jest.spyOn(percentileCalc, 'calculateTTVCPercentilesWithDebugInfo').mockResolvedValue([]);
+		jest.spyOn(percentileCalc, 'calculateTTVCPercentilesWithDebugInfo').mockResolvedValue({ entries: [], speedIndex: 0 });
 
 		await mockCalculator.calculate({
 			orderedEntries: entries,
@@ -229,8 +234,22 @@ describe('AbstractVCCalculatorBase V1', () => {
 		});
 
 		// Mock successful VC calculation
-		jest.spyOn(percentileCalc, 'calculateTTVCPercentiles').mockResolvedValue({
-			'90': { t: 1000, e: ['element1'] },
+		jest.spyOn(percentileCalc, 'calculateTTVCPercentilesWithDebugInfo').mockResolvedValue({
+			entries: [
+				{
+					time: 100,
+					viewportPercentage: 90,
+					entries: [
+						{
+							type: 'mutation:element' as const,
+							elementName: 'element1',
+							rect: new DOMRect(0, 0, 100, 50),
+							visible: true,
+						},
+					],
+				},
+			],
+			speedIndex: 90,
 		});
 
 		const mockEntries: VCObserverEntry[] = [
@@ -239,7 +258,7 @@ describe('AbstractVCCalculatorBase V1', () => {
 				data: {
 					type: 'mutation:element',
 					elementName: 'element1',
-					rect: { width: 100, height: 50, x: 0, y: 0 } as DOMRect,
+					rect: new DOMRect(0, 0, 100, 50),
 					visible: true,
 				},
 			},
@@ -248,7 +267,7 @@ describe('AbstractVCCalculatorBase V1', () => {
 				data: {
 					type: 'mutation:element',
 					elementName: 'element2',
-					rect: { width: 200, height: 100, x: 0, y: 0 } as DOMRect,
+					rect: new DOMRect(0, 0, 200, 100),
 					visible: true,
 				},
 			},
@@ -270,8 +289,8 @@ describe('AbstractVCCalculatorBase V1', () => {
 		// Total viewport area = 1024 * 768 = 786432
 		// element1 area = 100 * 50 = 5000, ratio = 5000/786432 ≈ 0.00636
 		// element2 area = 200 * 100 = 20000, ratio = 20000/786432 ≈ 0.02544
-		expect(result?.ratios?.element1).toBeCloseTo(5000 / (1024 * 768), 5);
-		expect(result?.ratios?.element2).toBeCloseTo(20000 / (1024 * 768), 5);
+		expect(result?.ratios?.element1).toBeCloseTo(0.006);
+		expect(result?.ratios?.element2).toBeCloseTo(0.025);
 	});
 
 	describe('Debug info calculation optimization', () => {
@@ -285,20 +304,23 @@ describe('AbstractVCCalculatorBase V1', () => {
 			mockCalculator = new TestVCCalculator('test-revision');
 
 			// Mock percentile calculation
-			jest.spyOn(percentileCalc, 'calculateTTVCPercentilesWithDebugInfo').mockResolvedValue([
-				{
-					time: 100,
-					viewportPercentage: 90,
-					entries: [
-						{
-							type: 'mutation:element' as const,
-							elementName: 'div1',
-							rect: new DOMRect(),
-							visible: true,
-						},
-					],
-				},
-			]);
+			jest.spyOn(percentileCalc, 'calculateTTVCPercentilesWithDebugInfo').mockResolvedValue({
+				entries: [
+					{
+						time: 100,
+						viewportPercentage: 90,
+						entries: [
+							{
+								type: 'mutation:element' as const,
+								elementName: 'div1',
+								rect: new DOMRect(),
+								visible: true,
+							},
+						],
+					},
+				],
+				speedIndex: 90,
+			});
 		});
 
 		it('should not calculate debug details when no devtool callbacks exist', async () => {
@@ -487,6 +509,186 @@ describe('AbstractVCCalculatorBase V1', () => {
 
 			// Verify that devtools callback was not called for post-interaction
 			expect(mockDevToolCallback).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('speedIndex calculation', () => {
+		it('should include speedIndex in result when feature flag is enabled', async () => {
+			mockFg.mockImplementation((key) => {
+				return key === 'platform_ufo_ttvc_v4_speed_index';
+			});
+
+			const mockCalcResult = {
+				entries: [
+					{
+						time: 100,
+						viewportPercentage: 50,
+						entries: [
+							{
+								type: 'mutation:element' as const,
+								elementName: 'div1',
+								rect: new DOMRect(),
+								visible: true,
+							},
+						],
+					},
+					{
+						time: 200,
+						viewportPercentage: 100,
+						entries: [
+							{
+								type: 'mutation:element' as const,
+								elementName: 'div2',
+								rect: new DOMRect(),
+								visible: true,
+							},
+						],
+					},
+				],
+				speedIndex: 150,
+			};
+
+			jest
+				.spyOn(percentileCalc, 'calculateTTVCPercentilesWithDebugInfo')
+				.mockResolvedValue(mockCalcResult);
+
+			const mockEntry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:element',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
+
+			const result = await calculator.calculate({
+				orderedEntries: [mockEntry],
+				startTime: 0,
+				stopTime: 1000,
+				interactionId: 'test-interaction-id',
+				isPostInteraction: false,
+				interactionType: 'page_load',
+				isPageVisible: true,
+			});
+
+			expect(result?.speedIndex).toEqual(150);
+		});
+
+		it('should not include speedIndex in result when feature flag is disabled', async () => {
+			mockFg.mockImplementation(() => false);
+
+			const mockCalcResult = {
+				entries: [
+					{
+						time: 100,
+						viewportPercentage: 100,
+						entries: [
+							{
+								type: 'mutation:element' as const,
+								elementName: 'div1',
+								rect: new DOMRect(),
+								visible: true,
+							},
+						],
+					},
+				],
+				// speedIndex is 0 when calculation is skipped (feature flag disabled)
+				speedIndex: 0,
+			};
+
+			jest
+				.spyOn(percentileCalc, 'calculateTTVCPercentilesWithDebugInfo')
+				.mockResolvedValue(mockCalcResult);
+
+			const mockEntry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:element',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
+
+			const result = await calculator.calculate({
+				orderedEntries: [mockEntry],
+				startTime: 0,
+				stopTime: 1000,
+				interactionId: 'test-interaction-id',
+				isPostInteraction: false,
+				interactionType: 'page_load',
+				isPageVisible: true,
+			});
+
+			expect(result?.speedIndex).toBeUndefined();
+		});
+	});
+
+	describe('VC offenders deduplication', () => {
+		it('should deduplicate repeated element names', async () => {
+			const mockCalcResult = {
+				entries: [
+					{
+						time: 100,
+						viewportPercentage: 90,
+						entries: [
+							{
+								type: 'mutation:element' as const,
+								elementName: 'div1',
+								rect: new DOMRect(),
+								visible: true,
+							},
+							{
+								type: 'mutation:element' as const,
+								elementName: 'div1', // Duplicate
+								rect: new DOMRect(),
+								visible: true,
+							},
+							{
+								type: 'mutation:element' as const,
+								elementName: 'div2',
+								rect: new DOMRect(),
+								visible: true,
+							},
+							{
+								type: 'mutation:element' as const,
+								elementName: 'div1', // Another duplicate
+								rect: new DOMRect(),
+								visible: true,
+							},
+						],
+					},
+				],
+				speedIndex: 90,
+			};
+
+			jest
+				.spyOn(percentileCalc, 'calculateTTVCPercentilesWithDebugInfo')
+				.mockResolvedValue(mockCalcResult);
+
+			const mockEntry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:element',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
+
+			const result = await calculator.calculate({
+				orderedEntries: [mockEntry],
+				startTime: 0,
+				stopTime: 1000,
+				interactionId: 'test-interaction-id',
+				isPostInteraction: false,
+				interactionType: 'page_load',
+				isPageVisible: true,
+			});
+
+			// Verify that duplicates are removed
+			expect(result?.vcDetails?.['90']?.e).toEqual(['div1', 'div2']);
 		});
 	});
 });

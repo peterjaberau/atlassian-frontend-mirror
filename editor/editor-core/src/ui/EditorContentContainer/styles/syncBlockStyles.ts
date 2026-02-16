@@ -1,5 +1,5 @@
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, type SerializedStyles } from '@emotion/react';
+import { css, type SerializedStyles, keyframes } from '@emotion/react';
 
 import {
 	BodiedSyncBlockSharedCssClassName,
@@ -11,6 +11,7 @@ import { token } from '@atlaskit/tokens';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
 export const syncBlockStyles: SerializedStyles = css({
+	'@property --angle': { syntax: '"<angle>"', initialValue: '0deg', inherits: 'false' },
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
@@ -21,6 +22,7 @@ export const syncBlockStyles: SerializedStyles = css({
 			marginRight: `-18px`,
 			marginLeft: `-18px`,
 			marginBottom: 0,
+			marginTop: token('space.075', '6px'),
 			paddingBlock: token('space.150', '12px'),
 			color: 'inherit',
 
@@ -113,23 +115,31 @@ export const syncBlockStyles: SerializedStyles = css({
 				},
 			},
 
+			/* Creation loading state */
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
+			[`&.${SyncBlockStateCssClassName.creationLoadingClassName}`]: {
+				animation: `${keyframes({
+					from: { '--angle': '0deg' },
+					to: { '--angle': '360deg' },
+				})} 2s linear infinite`,
+				border: '1px solid transparent',
+				background: `linear-gradient(${token('elevation.surface')}, ${token('elevation.surface')}) padding-box, conic-gradient(from var(--angle), #1868DB, ${token('color.background.accent.purple.subtlest.pressed')}, #3279E0, #1868DB) border-box`,
+				backgroundClip: 'padding-box, border-box',
+
+				boxShadow: 'none',
+				transition: 'boxShadow 200ms ease-in',
+
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values,  @atlaskit/ui-styling-standard/no-imported-style-values
+				[`.${SyncBlockLabelSharedCssClassName.labelClassName}`]: {
+					display: 'none',
+				},
+			},
+
 			/* Error state */
-			/* In error state sync block should not have hover styles or show the label */
+			/* In error state sync block should have disabled background colour */
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 			[`:has(.${SyncBlockSharedCssClassName.error})`]: {
 				backgroundColor: token('color.background.disabled'),
-				boxShadow: `0 0 0 1px ${token('color.border')}`,
-
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
-				[`.${SyncBlockLabelSharedCssClassName.labelClassName}`]: {
-					opacity: 1,
-					visibility: 'visible',
-					backgroundColor: token('elevation.surface'),
-
-					'&::before': {
-						border: 'none',
-					},
-				},
 			},
 
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
@@ -183,7 +193,7 @@ export const syncBlockStyles: SerializedStyles = css({
 			'.ak-renderer-document > :first-child': {
 				marginTop: 0,
 			},
-		}
+		},
 	},
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
@@ -206,5 +216,22 @@ export const syncBlockStyles: SerializedStyles = css({
 		right: token('space.150', '12px'),
 		backgroundColor: token('elevation.surface'),
 		maxWidth: '140px',
+	},
+});
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+export const syncBlockOverflowStyles: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
+		[`.${BodiedSyncBlockSharedCssClassName.content}`]: {
+			// Contain floated elements (wrap-left/wrap-right) within synced block borders
+			overflow: 'hidden',
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
+		[`.${SyncBlockSharedCssClassName.renderer}`]: {
+			// Contain floated elements (wrap-left/wrap-right) within synced block borders
+			overflow: 'hidden',
+		},
 	},
 });

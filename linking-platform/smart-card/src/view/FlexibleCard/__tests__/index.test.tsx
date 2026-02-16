@@ -10,6 +10,11 @@ import { SmartLinkStatus } from '../../../constants';
 import { TitleBlock } from '../components/blocks';
 import FlexibleCard from '../index';
 
+jest.mock('@atlaskit/react-ufo/load-hold', () => ({
+	__esModule: true,
+	default: ({ name }: { name: string }) => <div data-testid="ufo-hold-load" data-name={name} />,
+}));
+
 describe('FlexibleCard', () => {
 	const title = 'some-name';
 	const url = 'http://some-url.com';
@@ -432,6 +437,127 @@ describe('FlexibleCard', () => {
 
 			expect(onError).toHaveBeenCalledTimes(1);
 			expect(onError).toHaveBeenCalledWith({ status: 'errored', url });
+		});
+	});
+
+	describe('UFOHoldLoad', () => {
+		const baseState: CardState = {
+			status: 'pending',
+			details: {
+				meta: {
+					access: 'granted',
+					visibility: 'public',
+				},
+				data: {
+					'@type': 'Object',
+					'@context': {
+						'@vocab': 'https://www.w3.org/ns/activitystreams#',
+						atlassian: 'https://schema.atlassian.com/ns/vocabulary#',
+						schema: 'http://schema.org/',
+					},
+					url,
+					name: title,
+				},
+			},
+		};
+
+		const pendingCardState: CardState = { ...baseState };
+		const resolvingCardState: CardState = { ...baseState, status: 'resolving' };
+		const resolvedCardState: CardState = { ...baseState, status: 'resolved' };
+		const erroredCardState: CardState = {
+			...baseState,
+			status: 'errored',
+			details: {
+				...baseState.details,
+				meta: {
+					access: 'forbidden',
+					visibility: 'restricted',
+				},
+				data: {
+					'@type': 'Object',
+					'@context': {
+						'@vocab': 'https://www.w3.org/ns/activitystreams#',
+						atlassian: 'https://schema.atlassian.com/ns/vocabulary#',
+						schema: 'http://schema.org/',
+					},
+				},
+			},
+		};
+
+		it('should render UFOHoldLoad when status is pending and no placeholder', () => {
+			render(
+				<FlexibleCard cardState={pendingCardState} url={url}>
+					<TitleBlock />
+				</FlexibleCard>,
+				{ wrapper: getCardTestWrapper() },
+			);
+
+			const ufoHoldLoad = screen.getByTestId('ufo-hold-load');
+			expect(ufoHoldLoad).toBeInTheDocument();
+			expect(ufoHoldLoad).toHaveAttribute('data-name', 'smart-card-flexible-card');
+		});
+
+		it('should render UFOHoldLoad when status is resolving and no placeholder', () => {
+			render(
+				<FlexibleCard cardState={resolvingCardState} url={url}>
+					<TitleBlock />
+				</FlexibleCard>,
+				{ wrapper: getCardTestWrapper() },
+			);
+
+			const ufoHoldLoad = screen.getByTestId('ufo-hold-load');
+			expect(ufoHoldLoad).toBeInTheDocument();
+			expect(ufoHoldLoad).toHaveAttribute('data-name', 'smart-card-flexible-card');
+		});
+
+		it('should not render UFOHoldLoad when placeholder data is provided', () => {
+			const placeholderData: CardState['details'] = {
+				meta: {
+					access: 'granted',
+					visibility: 'public',
+				},
+				data: {
+					'@type': 'Object',
+					'@context': {
+						'@vocab': 'https://www.w3.org/ns/activitystreams#',
+						atlassian: 'https://schema.atlassian.com/ns/vocabulary#',
+						schema: 'http://schema.org/',
+					},
+					url: 'http://placeholder-url.com',
+					name: 'placeholder-title',
+				},
+			};
+
+			render(
+				<FlexibleCard cardState={pendingCardState} url={url} placeholderData={placeholderData}>
+					<TitleBlock />
+				</FlexibleCard>,
+				{ wrapper: getCardTestWrapper() },
+			);
+
+			expect(screen.queryByTestId('ufo-hold-load')).not.toBeInTheDocument();
+		});
+
+		it('should not render UFOHoldLoad when status is resolved', () => {
+			render(
+				<FlexibleCard cardState={resolvedCardState} url={url}>
+					<TitleBlock />
+				</FlexibleCard>,
+				{ wrapper: getCardTestWrapper() },
+			);
+
+			expect(screen.queryByTestId('ufo-hold-load')).not.toBeInTheDocument();
+		});
+
+		it('should not render UFOHoldLoad when status is errored', () => {
+			render(
+				<FlexibleCard cardState={erroredCardState} url={url}>
+					<TitleBlock />
+				</FlexibleCard>,
+				{ wrapper: getCardTestWrapper() },
+			);
+
+			expect(screen.queryByTestId('ufo-hold-load')).not.toBeInTheDocument();
 		});
 	});
 });

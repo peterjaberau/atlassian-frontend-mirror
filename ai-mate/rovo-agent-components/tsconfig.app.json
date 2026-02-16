@@ -47,6 +47,9 @@
 			"path": "../../design-system/dropdown-menu/tsconfig.app.json"
 		},
 		{
+			"path": "../../design-system/flag/tsconfig.app.json"
+		},
+		{
 			"path": "../../design-system/heading/tsconfig.app.json"
 		},
 		{
@@ -65,6 +68,9 @@
 			"path": "../../design-system/primitives/tsconfig.app.json"
 		},
 		{
+			"path": "../rovo-agent-analytics/tsconfig.app.json"
+		},
+		{
 			"path": "../../design-system/skeleton/tsconfig.app.json"
 		},
 		{
@@ -72,6 +78,9 @@
 		},
 		{
 			"path": "../../design-system/tooltip/tsconfig.app.json"
+		},
+		{
+			"path": "../../atlassian-studio/agent-studio-test-utils/tsconfig.app.json"
 		}
 	],
 	"files": []

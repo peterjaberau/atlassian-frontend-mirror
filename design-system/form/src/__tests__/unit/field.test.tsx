@@ -1,5 +1,6 @@
 import React, { type ReactNode } from 'react';
 
+import { skipA11yAudit } from '@af/accessibility-testing';
 import Button from '@atlaskit/button/new';
 import __noop from '@atlaskit/ds-lib/noop';
 import Select, { type ValueType } from '@atlaskit/select';
@@ -16,7 +17,7 @@ type FieldStateProps<T> = {
 	children: (value: T, setValue: (value: T) => void) => ReactNode;
 };
 
-export function WithState<T>({ defaultState, children }: FieldStateProps<T>) {
+export function WithState<T>({ defaultState, children }: FieldStateProps<T>): React.ReactNode {
 	const [currentState, setCurrentState] = React.useState<T>(defaultState);
 
 	return children(currentState, setCurrentState);
@@ -25,6 +26,9 @@ export function WithState<T>({ defaultState, children }: FieldStateProps<T>) {
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Field', () => {
 	const user = userEvent.setup();
+	beforeEach(() => {
+		skipA11yAudit();
+	});
 
 	describe('Explicit', () => {
 		it('should not be dirty after mount', () => {

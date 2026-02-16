@@ -9,6 +9,7 @@ import {
 } from '@atlaskit/editor-common/analytics';
 import { ToolbarDropdownItem } from '@atlaskit/editor-toolbar';
 import Lozenge from '@atlaskit/lozenge';
+import { fg } from '@atlaskit/platform-feature-flags';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -60,6 +61,14 @@ export const SelectionExtensionDropdownItem = ({
 				nodePos,
 			});
 
+			if (fg('platform_editor_block_menu_v2_patch_1')) {
+				if (extensionLocation === 'block-menu') {
+					api?.blockControls?.commands.toggleBlockMenu({ closeMenu: true })({ tr });
+				}
+			} else {
+				api?.blockControls?.commands.toggleBlockMenu({ closeMenu: true })({ tr });
+			}
+
 			return tr;
 		});
 
@@ -82,7 +91,18 @@ export const SelectionExtensionDropdownItem = ({
 
 	return (
 		<ToolbarDropdownItem
-			elemBefore={IconComponent ? <IconComponent label="" /> : undefined}
+			elemBefore={
+				IconComponent ? (
+					<IconComponent
+						size={
+							extensionLocation === 'inline-toolbar' && fg('platform_editor_block_menu_v2_patch_1')
+								? 'small'
+								: undefined
+						}
+						label=""
+					/>
+				) : undefined
+			}
 			onClick={handleClick}
 			isDisabled={dropdownItem.isDisabled}
 		>

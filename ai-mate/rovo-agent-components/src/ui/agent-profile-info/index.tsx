@@ -49,15 +49,12 @@ const styles = cssMap({
 		marginBottom: token('space.100'),
 	},
 
-	tooltipWrapper: {
-		display: 'inline-flex',
-		marginInline: token('space.100'),
-		position: 'relative',
-		bottom: token('space.025'),
-	},
-
 	headingWrapper: {
 		position: 'relative',
+	},
+
+	hiddenIconWrapper: {
+		marginTop: token('space.025'),
 	},
 });
 
@@ -213,35 +210,40 @@ export const AgentProfileInfo = ({
 	agentDescription,
 	creatorRender,
 	starCountRender,
+	headingRender,
 	isStarred,
 	isHidden,
 	onStarToggle,
+	showStarButton = true,
 }: {
 	agentName: string;
 	agentDescription?: string | null;
 	creatorRender: React.ReactNode;
 	starCountRender: React.ReactNode;
+	headingRender?: React.ReactNode;
 	isStarred: boolean;
 	isHidden: boolean;
 	onStarToggle: () => void;
+	showStarButton?: boolean;
 }) => {
 	const { formatMessage } = useIntl();
 	return (
 		<Stack space="space.100" xcss={fg('rovo_agent_empty_state_refresh') ? null : styles.wrapper}>
 			<Inline xcss={styles.name} space="space.100" alignBlock="center">
-				<Inline xcss={styles.headingWrapper} alignBlock="end">
+				<Inline space="space.075" xcss={styles.headingWrapper}>
 					<Heading as="h2" size={fg('rovo_agent_empty_state_refresh') ? 'medium' : 'xlarge'}>
 						{agentName}
 					</Heading>
+					{headingRender}
 					{isHidden && (
-						<Box xcss={styles.tooltipWrapper}>
+						<Box xcss={styles.hiddenIconWrapper}>
 							<Tooltip content={formatMessage(messages.hiddenTooltip)} position="top">
 								<HiddenIcon label={formatMessage(messages.hiddenIcon)} />
 							</Tooltip>
 						</Box>
 					)}
 				</Inline>
-				<StarIconButton isStarred={isStarred} handleToggle={onStarToggle} />
+				{showStarButton && <StarIconButton isStarred={isStarred} handleToggle={onStarToggle} />}
 			</Inline>
 			{creatorRender}
 			{!!agentDescription && (

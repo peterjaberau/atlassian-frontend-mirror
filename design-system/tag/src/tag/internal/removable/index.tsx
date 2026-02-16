@@ -9,6 +9,7 @@ import { css, jsx } from '@compiled/react';
 import { useCallbackWithAnalytics, type WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
 import noop from '@atlaskit/ds-lib/noop';
+import Lozenge from '@atlaskit/lozenge';
 import { ExitingPersistence, ShrinkOut } from '@atlaskit/motion';
 import { fg } from '@atlaskit/platform-feature-flags';
 import { token } from '@atlaskit/tokens';
@@ -16,6 +17,7 @@ import { token } from '@atlaskit/tokens';
 import TagNew, { colorMapping } from '../../../tag-new';
 import BaseTag from '../shared/base';
 import Before from '../shared/before';
+import { getLozengeAppearance } from '../shared/color-to-lozenge-appearance';
 import Content from '../shared/content';
 import { type SimpleTagProps } from '../shared/types';
 
@@ -89,6 +91,9 @@ const RemovableTagComponent: React.ForwardRefExoticComponent<
 			onBeforeRemoveAction = defaultBeforeRemoveAction,
 			onAfterRemoveAction = noop,
 			linkComponent,
+			migration_fallback,
+			maxWidth,
+			...rest
 		},
 		ref,
 	) => {
@@ -151,6 +156,16 @@ const RemovableTagComponent: React.ForwardRefExoticComponent<
 			/>
 		) : undefined;
 
+		// Handle migration_fallback: render Lozenge when flag is off and migration_fallback is 'lozenge'
+		if (migration_fallback === 'lozenge' && !fg('platform-dst-lozenge-tag-badge-visual-uplifts')) {
+			const lozengeAppearance = getLozengeAppearance(color);
+			return (
+				<Lozenge appearance={lozengeAppearance} isBold={false} testId={testId} {...rest}>
+					{text}
+				</Lozenge>
+			);
+		}
+
 		// Use new TagNew component behind feature flag
 		if (fg('platform-dst-lozenge-tag-badge-visual-uplifts')) {
 			const newColor = colorMapping[color || 'standard'];
@@ -167,6 +182,7 @@ const RemovableTagComponent: React.ForwardRefExoticComponent<
 					removeButtonLabel={removeButtonLabel}
 					onBeforeRemoveAction={onBeforeRemoveAction}
 					onAfterRemoveAction={onAfterRemoveAction}
+					maxWidth={maxWidth}
 				/>
 			);
 		}
@@ -236,6 +252,6 @@ const RemovableTagComponent: React.ForwardRefExoticComponent<
  * Once a tag has been removed, it cannot be re-rendered. Removable tags are visible in "edit" mode or in multi-select controls.
  *
  */
-const RemovableTag = memo(RemovableTagComponent);
+const RemovableTag: import("react").MemoExoticComponent<import("react").ForwardRefExoticComponent<Omit<RemovableTagProps, "ref"> & import("react").RefAttributes<any>>> = memo(RemovableTagComponent);
 
 export default RemovableTag;

@@ -11,10 +11,15 @@ import Button, { type ButtonProps, IconButton } from '@atlaskit/button/new';
 import { cssMap, jsx } from '@atlaskit/css';
 import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
 import MoreIcon from '@atlaskit/icon/core/show-more-horizontal';
+import { fg } from '@atlaskit/platform-feature-flags';
 import { Box, Inline } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { ChatPillIcon } from '../../common/ui/chat-icon';
+import {
+	AgentVerificationDropdownItem,
+	type AgentVerificationDropdownItemProps,
+} from '../agent-verification-dropdown-item';
 
 import messages from './messages';
 
@@ -111,7 +116,8 @@ type AgentDropdownMenuProps = {
 		isDeleteEnabled: boolean;
 	}>;
 } & ViewAgentOptionProps &
-	ViewAgentFullProfileProps;
+	ViewAgentFullProfileProps &
+	Partial<Pick<AgentVerificationDropdownItemProps, 'agentRef' | 'userPermissionsRef' | 'onVerificationSuccess'>>;
 
 export const AgentDropdownMenu = ({
 	isAutodevTemplateAgent,
@@ -133,6 +139,9 @@ export const AgentDropdownMenu = ({
 	loadPermissionsOnMount,
 	shouldTriggerStopPropagation,
 	agentName,
+	agentRef,
+	userPermissionsRef,
+	onVerificationSuccess,
 }: AgentDropdownMenuProps) => {
 	const [isLoading, setIsLoading] = useState(false);
 	const { formatMessage } = useIntl();
@@ -252,6 +261,14 @@ export const AgentDropdownMenu = ({
 						hasBeenCopied ? messages.linkedCopiedToProfile : messages.copyLinkToProfile,
 					)}
 				</DropdownItem>
+				{agentRef && userPermissionsRef && fg('rovo_agents_agent_verification') && (
+					<AgentVerificationDropdownItem
+						agentRef={agentRef ?? null}
+						userPermissionsRef={userPermissionsRef ?? null}
+						onVerificationSuccess={onVerificationSuccess}
+						testId="agent-actions-menu-verification"
+					/>
+				)}
 			</DropdownItemGroup>
 			{renderEditDelete()}
 		</DropdownMenu>

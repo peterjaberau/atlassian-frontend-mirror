@@ -13,6 +13,8 @@ import {
 	type NonErrorFileState,
 	isErrorFileState,
 	toCommonMediaClientError,
+	type AuthProviderSucceededEventPayload,
+	type AuthProviderFailedEventPayload,
 } from '@atlaskit/media-client';
 import { useFileState, useMediaClient } from '@atlaskit/media-client-react';
 import {
@@ -56,6 +58,11 @@ import {
 	fireDownloadSucceededEvent,
 	fireDownloadFailedEvent,
 } from './cardAnalytics';
+import {
+	fireMediaCardEvent,
+	getAuthProviderSucceededPayload,
+	getAuthProviderFailedPayload,
+} from '../utils/analytics';
 import { CardView } from './cardView';
 import { InlinePlayerLazy } from './inlinePlayerLazy';
 import {
@@ -72,6 +79,7 @@ import { AbuseModal } from '@atlaskit/media-ui/abuseModal';
 import { fg } from '@atlaskit/platform-feature-flags';
 import { getActiveTrace } from '@atlaskit/react-ufo/experience-trace-id-context';
 import usePressTracing from '@atlaskit/react-ufo/use-press-tracing';
+import type { SsrItemDetails } from './types';
 
 export interface FileCardProps extends CardEventProps {
 	/** Overlay the media file. */
@@ -122,6 +130,8 @@ export interface FileCardProps extends CardEventProps {
 	readonly viewerOptions?: ViewerOptionsProps;
 	/** Sets options for viewer **/
 	readonly includeHashForDuplicateFiles?: boolean;
+	/** Optional file details to render straight away **/
+	readonly ssrItemDetails?: SsrItemDetails;
 	/** General Error handling include status errors and display errors*/
 	readonly onError?: (
 		reason: MediaFilePreviewErrorPrimaryReason | MediaCardErrorPrimaryReason,
@@ -169,6 +179,7 @@ export const FileCard = ({
 	videoControlsWrapperRef,
 	viewerOptions,
 	includeHashForDuplicateFiles,
+	ssrItemDetails,
 	onError,
 }: FileCardProps): React.JSX.Element => {
 	const { formatMessage } = useIntl();
@@ -317,6 +328,13 @@ export const FileCard = ({
 
 	const uploadProgressRef = useRef<number>();
 
+	// Store latest auth provider event (emit with fireOperationalEventRef)
+	const pendingAuthProviderEventRef = useRef<
+		| { type: 'succeeded'; payload: AuthProviderSucceededEventPayload }
+		| { type: 'failed'; payload: AuthProviderFailedEventPayload }
+		| null
+	>(null);
+
 	const metadata = useMemo<FileDetails>(() => {
 		const getProcessingStatusFromFileState = (status: FileState['status']) => {
 			switch (status) {
@@ -329,20 +347,43 @@ export const FileCard = ({
 			}
 		};
 
-		if (fileStateValue) {
-			return {
-				id: fileStateValue.id,
-				name: fileStateValue.name,
-				size: fileStateValue.size,
-				mimeType: fileStateValue.mimeType,
-				createdAt: fileStateValue.createdAt,
-				mediaType: fileStateValue.mediaType,
-				processingStatus: getProcessingStatusFromFileState(fileStateValue.status),
-			};
+		if (fg('dfo_attachments_late_render_fix')) {
+			if (fileStateValue) {
+				return {
+					id: fileStateValue.id,
+					name: fileStateValue.name || (ssrItemDetails && ssrItemDetails.filename),
+					size: fileStateValue.size,
+					mimeType: fileStateValue.mimeType || (ssrItemDetails && ssrItemDetails.mimetype),
+					createdAt: fileStateValue.createdAt || (ssrItemDetails && ssrItemDetails.createdDate),
+					mediaType: fileStateValue.mediaType,
+					processingStatus: getProcessingStatusFromFileState(fileStateValue.status),
+				};
+			} else {
+				return {
+					id: identifier.id,
+					name: ssrItemDetails && ssrItemDetails.filename,
+					mimeType: ssrItemDetails && ssrItemDetails.mimetype,
+					createdAt: ssrItemDetails && ssrItemDetails.createdDate,
+				};
+			}
 		} else {
-			return { id: identifier.id };
+			if (fileStateValue) {
+				return {
+					id: fileStateValue.id,
+					name: fileStateValue.name,
+					size: fileStateValue.size,
+					mimeType: fileStateValue.mimeType,
+					createdAt: fileStateValue.createdAt,
+					mediaType: fileStateValue.mediaType,
+					processingStatus: getProcessingStatusFromFileState(fileStateValue.status),
+				};
+			} else {
+				return {
+					id: identifier.id,
+				};
+			}
 		}
-	}, [fileStateValue, identifier.id]);
+	}, [fileStateValue, identifier.id, ssrItemDetails]);
 
 	const fileAttributes = useMemo(() => {
 		return {
@@ -443,12 +484,53 @@ export const FileCard = ({
 				finalError,
 				traceContext,
 				fileStateValue?.metadataTraceContext,
+				metadata.failReason,
 			);
 
+		// Emit stored auth provider events when card reaches final state
+		if (
+			createAnalyticsEvent &&
+			pendingAuthProviderEventRef.current &&
+			['complete', 'error', 'failed-processing'].includes(finalStatus) &&
+			fg('platform_media_auth_provider_analytics')
+		) {
+			const authEvent = pendingAuthProviderEventRef.current;
+			// Sample auth-provider-succeeded events at 10%
+			const shouldSampleAuthProviderSucceeded = () => Math.random() < 0.1;
+
+			if (authEvent.type === 'succeeded') {
+				// Emit success events when card completes (or errors - auth can succeed even if card fails)
+				if (shouldSampleAuthProviderSucceeded()) {
+					fireMediaCardEvent(
+						getAuthProviderSucceededPayload(
+							authEvent.payload.durationMs,
+							authEvent.payload.timeoutMs,
+							authEvent.payload.authContext,
+						),
+						createAnalyticsEvent,
+					);
+				}
+			} else if (authEvent.type === 'failed') {
+				// Always emit failed events (no sampling)
+				fireMediaCardEvent(
+					getAuthProviderFailedPayload(
+						authEvent.payload.durationMs,
+						authEvent.payload.timeoutMs,
+						authEvent.payload.error,
+						authEvent.payload.authContext,
+					),
+					createAnalyticsEvent,
+				);
+			}
+			pendingAuthProviderEventRef.current = null;
+		}
 		// Determine SSR preview info for UFO timing strategy
-		// wasSSRAttempted is only true when SSR was used AND preview is non-lazy
+		// wasSSRAttempted is only true when SSR was used AND preview exists AND preview is non-lazy
 		// because lazy SSR defers loading, so it behaves like CSR for timing purposes
-		const isSSRNonLazy = !!ssr && preview?.lazy !== true;
+		// We also require preview to exist to avoid false positives when:
+		// 1. ssr='client' but no SSR data exists (client-side navigation)
+		// 2. Non-previewable files (e.g., zip files) where no preview is generated
+		const isSSRNonLazy = !!ssr && !!preview && preview.lazy !== true;
 		const wasSSRSuccessful =
 			isSSRNonLazy &&
 			(ssrReliability.server?.status === 'success' || ssrReliability.client?.status === 'success');
@@ -504,6 +586,31 @@ export const FileCard = ({
 			ssrReliability: ssrReliability,
 		});
 	});
+
+	// Listen to auth provider events and store them (don't emit yet)
+	useEffect(() => {
+		if (!fg('platform_media_auth_provider_analytics')) {
+			return;
+		}
+
+		const onAuthSuccess = (payload: AuthProviderSucceededEventPayload) => {
+			// Store latest auth provider event for later emission when card status changes
+			pendingAuthProviderEventRef.current = { type: 'succeeded', payload };
+		};
+
+		const onAuthFailed = (payload: AuthProviderFailedEventPayload) => {
+			// Store latest auth provider event for later emission when card status changes
+			pendingAuthProviderEventRef.current = { type: 'failed', payload };
+		};
+
+		globalMediaEventEmitter.on('auth-provider-succeeded', onAuthSuccess);
+		globalMediaEventEmitter.on('auth-provider-failed', onAuthFailed);
+
+		return () => {
+			globalMediaEventEmitter.off('auth-provider-succeeded', onAuthSuccess);
+			globalMediaEventEmitter.off('auth-provider-failed', onAuthFailed);
+		};
+	}, []);
 
 	//----------------------------------------------------------------//
 	//--------------------- Handling Errors---------------------------//

@@ -1,5 +1,76 @@
 # @atlaskit/media-card
 
+## 79.15.2
+
+### Patch Changes
+
+- [`596f3124f234d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/596f3124f234d) -
+  [ux] Border radius changes -> small to large
+
+## 79.15.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.15.0
+
+### Minor Changes
+
+- [`4b1149e96b0e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b1149e96b0e1) -
+  Add five new entry points (/command, /command-creator, /singleton, /client-types, /bridge-api) to
+  enable granular imports for better tree-shaking and performance. Existing barrel imports continue
+  to work; this is a foundational change that enables future debarreling work.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.14.2
+
+### Patch Changes
+
+- [`e4b717d8304e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e4b717d8304e8) -
+  Add @atlassian/a11y-jest-testing to devDependencies.
+- Updated dependencies
+
+## 79.14.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.14.0
+
+### Minor Changes
+
+- [`c5bc52b0eb431`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c5bc52b0eb431) -
+  Add improved error messaging UI for MediaCard when encountering network errors. Users will now see
+  a "Failed to load. Please check your internet connection" message when network errors occur,
+  providing clearer guidance about what went wrong. This feature is gated behind the
+  `media_card_failed_messaging_ui_revamp` feature flag for gradual rollout.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.13.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.13.2
+
+### Patch Changes
+
+- [`b611e9165d122`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b611e9165d122) -
+  Correlate auth provider analytics events with MediaCardRender events by emitting them when card
+  reaches final state, ensuring accurate correlation after HTTP retries.
+- [`c09b399aeb198`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c09b399aeb198) -
+  Fix edge cases of ssrReliability remaining unknown
+- Updated dependencies
+
 ## 79.13.1
 
 ### Patch Changes

@@ -1,14 +1,23 @@
-export const isUndefined = (value: any) => value === undefined;
+export const isUndefined = (value: any): boolean => value === undefined;
 
-export const pick = (obj?: Object, keys: Array<string> = []) => {
+export const pick = (
+	obj?: Object,
+	keys: Array<string> = [],
+): {
+	[k: string]: any;
+} => {
 	if (obj === undefined) {
 		return {};
 	}
 	return Object.fromEntries(Object.entries(obj).filter(([k]) => keys.includes(k)));
 };
 
-export const omitBy = (obj: Object, predicate: Function) =>
-	Object.fromEntries(Object.entries(obj).filter(([, v]) => !predicate(v)));
+export const omitBy = (
+	obj: Object,
+	predicate: Function,
+): {
+	[k: string]: any;
+} => Object.fromEntries(Object.entries(obj).filter(([, v]) => !predicate(v)));
 
 export const debounce = (func: Function, wait: number) => {
 	let timeout: NodeJS.Timeout;
@@ -20,7 +29,7 @@ export const debounce = (func: Function, wait: number) => {
 };
 
 export const matches = (srcObj: Object) => {
-	return (obj: Object) => {
+	return (obj: Object): boolean => {
 		let key: keyof typeof srcObj;
 		for (key in srcObj) {
 			if (obj[key] === undefined || obj[key] !== srcObj[key]) {
@@ -52,6 +61,6 @@ export function getRandomHex(byte: number): string {
 	return randomHex;
 }
 
-export function getRandomTelemetryId() {
+export function getRandomTelemetryId(): string {
 	return getRandomHex(8);
 }

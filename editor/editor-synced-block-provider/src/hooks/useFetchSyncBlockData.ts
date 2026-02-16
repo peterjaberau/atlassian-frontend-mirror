@@ -1,19 +1,22 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { type RendererSyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
+import { isSSR } from '@atlaskit/editor-common/core-utils';
 import { logException } from '@atlaskit/editor-common/monitoring';
-import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
+import type { ProviderFactory, MediaProvider } from '@atlaskit/editor-common/provider-factory';
 
 import { SyncBlockError } from '../common/types';
 import type { SyncBlockInstance } from '../providers/types';
 import type { SyncBlockStoreManager } from '../store-manager/syncBlockStoreManager';
-import { fetchErrorPayload } from '../utils/errorHandling';
 import { createSyncBlockNode } from '../utils/utils';
+
+type SSRProviders = { media?: MediaProvider | null };
 
 export interface UseFetchSyncBlockDataResult {
 	isLoading: boolean;
 	providerFactory: ProviderFactory | undefined;
 	reloadData: () => Promise<void>;
+	ssrProviders?: SSRProviders | null;
 	syncBlockInstance: SyncBlockInstance | null;
 }
 
@@ -21,7 +24,7 @@ export const useFetchSyncBlockData = (
 	manager: SyncBlockStoreManager,
 	resourceId?: string,
 	localId?: string,
-	fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void,
+	_fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void,
 ): UseFetchSyncBlockDataResult => {
 	// Initialize both states from a single cache lookup to avoid race conditions.
 	// When a block is moved/remounted, the old component's cleanup may clear the cache
@@ -57,22 +60,28 @@ export const useFetchSyncBlockData = (
 			logException(error as Error, {
 				location: 'editor-synced-block-provider/useFetchSyncBlockData',
 			});
-			fireAnalyticsEvent?.(fetchErrorPayload((error as Error).message));
+			manager?.referenceManager?.fetchExperience?.failure({ reason: (error as Error).message });
 
 			// Set error state if fetching fails
 			setFetchState({
 				syncBlockInstance: {
 					resourceId: resourceId || '',
-					error: SyncBlockError.Errored,
+					error: { type: SyncBlockError.Errored },
 				},
 				isLoading: false,
 			});
 			return;
 		}
 		setFetchState((prev) => ({ ...prev, isLoading: false }));
-	}, [isLoading, localId, manager.referenceManager, resourceId, fireAnalyticsEvent]);
+	}, [isLoading, localId, manager.referenceManager, resourceId]);
 
 	useEffect(() => {
+		if (isSSR()) {
+			// in SSR, we don't need to subscribe to updates,
+			// instead we rely on pre-fetched data ONLY, see initialization of syncBlockInstance above
+			return;
+		}
+
 		const unsubscribe = manager.referenceManager.subscribeToSyncBlock(
 			resourceId || '',
 			localId || '',
@@ -86,8 +95,13 @@ export const useFetchSyncBlockData = (
 		};
 	}, [localId, manager.referenceManager, resourceId]);
 
+	const ssrProviders = useMemo(() => {
+		return resourceId ? manager.referenceManager.getSSRProviders(resourceId) : null;
+	}, [resourceId, manager.referenceManager]);
+
 	return {
 		isLoading,
+		ssrProviders,
 		providerFactory: manager.referenceManager.getProviderFactory(resourceId || ''),
 		reloadData,
 		syncBlockInstance,
